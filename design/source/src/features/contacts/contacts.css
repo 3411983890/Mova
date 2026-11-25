@@ -1,0 +1,260 @@
+/* 通讯录：沿用无彩色表面 + 蓝色强调；每个 Bot 自己的颜色只作为主页的氛围光与选中标记。 */
+
+.content-frame.contacts-mode > .project-sidebar,
+.content-frame.contacts-mode > .sidebar-divider,
+.content-frame.contacts-mode > .main-panel { display: none !important; }
+.contacts-active #sidebar-toggle { visibility: hidden; }
+
+.contacts-view { flex: 1; min-width: 0; min-height: 0; background: var(--canvas); }
+.contacts { --bot-color: #f3f0ea; display: flex; height: 100%; min-height: 0; color: var(--text); }
+.contacts button { font: inherit; }
+.contacts :focus-visible { outline: 2px solid #5b9bf0; outline-offset: 2px; }
+
+/* ── 左列：Bot 列表 ─────────────────────────────────────────── */
+.contacts-list { display: flex; flex: 0 0 clamp(214px, 27%, 400px); min-width: 0; flex-direction: column; border-right: 1px solid var(--line); background: var(--menu-bg); }
+.contacts-list-header { display: flex; align-items: center; justify-content: space-between; flex: none; min-height: 58px; padding: 8px 12px 4px 17px; }
+.contacts-list-header h1 { margin: 0; color: #eaeaea; font-size: 18px; font-weight: 600; letter-spacing: -.3px; }
+.contacts-list-tools { display: flex; align-items: center; flex: none; gap: 2px; margin-left: auto; }
+.contacts-icon-button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; color: var(--muted); transition: background-color 120ms ease, color 120ms ease, transform 160ms ease; }
+.contacts-icon-button:hover { background: #ffffff12; color: #f0f0f0; }
+.contacts-icon-button:active { transform: scale(.92); }
+.contacts-icon-button[aria-expanded="true"] { background: #ffffff12; color: #f0f0f0; }
+
+.contacts-search { display: flex; align-items: center; flex: none; gap: 7px; height: 32px; margin: 2px 12px 0; padding: 0 9px; border: 1px solid #2a2a2a; border-radius: 9px; background: #1c1c1c; color: #8d8d8d; animation: contacts-search-in 170ms cubic-bezier(.2, .9, .3, 1) both; transition: border-color 120ms ease, background-color 120ms ease; }
+@keyframes contacts-search-in { from { opacity: 0; transform: translateY(-5px); } }
+.contacts-search:focus-within { border-color: #3b6ea8; background: #1f1f1f; }
+.contacts-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #e6e6e6; font: inherit; font-size: 12.5px; }
+.contacts-search input::placeholder { color: #7d7d7d; }
+.contacts-search button { display: grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 6px; color: #9a9a9a; }
+.contacts-search button:hover { background: #ffffff12; color: #fff; }
+
+.contacts-filters { display: flex; flex: none; gap: 6px; padding: 10px 12px 6px; overflow-x: auto; scrollbar-width: none; }
+.contacts-filters::-webkit-scrollbar { display: none; }
+.contacts-filters button { display: inline-flex; align-items: center; flex: none; gap: 4px; height: 24px; padding: 0 10px; border: 1px solid #2c2c2c; border-radius: 999px; color: #a2a2a2; font-size: 11.5px; transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease; }
+.contacts-filters button:hover { background: #ffffff0b; color: #e2e2e2; }
+.contacts-filters button[aria-pressed="true"] { border-color: #e6e6e6; background: #e6e6e6; color: #161616; font-weight: 500; }
+
+.contacts-rows { flex: 1; min-height: 0; padding: 0 8px 14px; overflow-y: auto; scrollbar-width: none; }
+.contacts-rows::-webkit-scrollbar { display: none; }
+.contacts-rows-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 30px; padding: 6px 8px 2px; color: #858585; font-size: 11px; }
+.contacts-rows-title button { padding: 2px 6px; border-radius: 6px; color: #9a9a9a; font-size: 11px; }
+.contacts-rows-title button:hover { background: #ffffff0b; color: #e2e2e2; }
+.contacts-row { position: relative; display: flex; align-items: center; width: 100%; min-width: 0; min-height: 58px; margin-top: 2px; padding: 6px 8px 6px 10px; gap: 10px; border-radius: 9px; text-align: left; transition: background-color 120ms ease; }
+.contacts-row::before { content: ''; position: absolute; left: 2px; top: 50%; width: 3px; height: 0; border-radius: 3px; background: var(--bot-color); opacity: 0; transform: translateY(-50%); transition: height 220ms cubic-bezier(.3, 1.4, .5, 1), opacity 120ms ease; }
+.contacts-row:hover { background: #ffffff08; }
+.contacts-row.is-selected, .contacts-row.is-selected:hover { background: #292929; }
+.contacts-row.is-selected::before { height: 22px; opacity: 1; }
+.contacts-row-avatar { width: 40px; height: 40px; transition: transform 260ms cubic-bezier(.3, 1.5, .5, 1); }
+.contacts-row:hover .contacts-row-avatar { transform: scale(1.08) rotate(-4deg); }
+.contacts-row-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 4px; }
+.contacts-row-name { display: flex; align-items: center; gap: 5px; min-width: 0; color: #ececec; font-size: 13px; font-weight: 500; }
+.contacts-row-name > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contacts-row-name svg { flex: none; color: #8a8a8a; }
+.contacts-row-desc { overflow: hidden; color: #8f8f8f; font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.contacts-row-time { flex: none; align-self: flex-start; padding-top: 4px; color: #7f7f7f; font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.contacts-rows-empty { display: flex; align-items: center; flex-direction: column; gap: 10px; padding: 40px 12px; color: #8d8d8d; font-size: 12px; }
+.contacts-rows-empty p { margin: 0; }
+.contacts-rows-empty button { padding: 5px 12px; border: 1px solid #333; border-radius: 8px; color: #d6d6d6; font-size: 12px; }
+.contacts-rows-empty button:hover { background: #ffffff0b; }
+
+/* ── 右列：个人主页 ─────────────────────────────────────────── */
+.contacts-profile { position: relative; display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; background: var(--canvas); }
+.contacts-profile-empty { align-items: center; justify-content: center; gap: 10px; color: #8d8d8d; font-size: 13px; }
+.contacts-profile-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+.contacts-profile-inner { width: min(760px, 100%); margin: 0 auto; padding: 22px clamp(18px, 4vw, 44px) 48px; }
+.contacts-profile-inner > * { animation: contacts-rise 420ms cubic-bezier(.2, .8, .2, 1) both; }
+.contacts-profile-inner > :nth-child(3) { animation-delay: 50ms; }
+.contacts-profile-inner > :nth-child(4) { animation-delay: 100ms; }
+.contacts-profile-inner > :nth-child(5) { animation-delay: 150ms; }
+.contacts-profile-inner > :nth-child(6) { animation-delay: 200ms; }
+@keyframes contacts-rise { from { opacity: 0; transform: translateY(10px); } }
+
+.contacts-back { display: none; align-items: center; gap: 6px; margin: 0 0 12px -6px; padding: 5px 8px; border-radius: 8px; color: #a8a8a8; font-size: 12.5px; }
+.contacts-back:hover { background: #ffffff0b; color: #f0f0f0; }
+
+.contacts-hero { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 18px; row-gap: 8px; align-items: start; padding: 22px 22px 20px; overflow: hidden; border: 1px solid #2c2c2c; border-radius: 20px; background: #1a1a1a; isolation: isolate; }
+.contacts-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(115% 130% at 2% 0%, color-mix(in srgb, var(--bot-color) 14%, transparent), transparent 62%); pointer-events: none; }
+.contacts-hero-glow { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.contacts-hero-glow span { position: absolute; border-radius: 50%; background: var(--bot-color); filter: blur(60px); opacity: .18; transition: background-color 400ms ease; }
+.contacts-hero-glow span:first-child { left: -60px; top: -90px; width: 260px; height: 220px; animation: contacts-drift-a 16s ease-in-out infinite alternate; }
+.contacts-hero-glow span:last-child { right: -40px; bottom: -120px; width: 240px; height: 200px; opacity: .1; animation: contacts-drift-b 20s ease-in-out infinite alternate; }
+@keyframes contacts-drift-a { to { transform: translate(70px, 30px) scale(1.15); } }
+@keyframes contacts-drift-b { to { transform: translate(-80px, -30px) scale(.9); } }
+
+.contacts-hero-avatar { grid-row: 1 / span 2; display: grid; place-items: center; flex: none; width: 86px; height: 86px; border-radius: 50%; transition: transform 320ms cubic-bezier(.3, 1.5, .5, 1); }
+.contacts-hero-avatar:hover { transform: scale(1.05); }
+.contacts-hero-avatar:active { transform: scale(.95); }
+.contacts-hero-avatar .bot-ball { width: 86px; height: 86px; }
+
+.contacts-hero-title { grid-column: 2; display: flex; align-items: center; min-width: 0; flex-wrap: wrap; gap: 7px; padding-top: 3px; }
+.contacts-hero-title h2 { margin: 0 3px 0 0; color: #f7f7f7; font-size: 20px; font-weight: 600; letter-spacing: -.4px; line-height: 1.25; overflow-wrap: anywhere; }
+.contacts-chip { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border: 1px solid #ffffff14; border-radius: 999px; background: #ffffff0d; color: #c2c2c2; font-size: 10.5px; }
+.contacts-chip-soft { border-color: #ffffff0a; background: #ffffff06; color: #9c9c9c; }
+.contacts-chip-soft svg { opacity: .8; }
+.contacts-hero-body { grid-column: 2 / span 2; display: flex; min-width: 0; flex-direction: column; gap: 7px; }
+.contacts-intro { margin: 0; color: #c6c6c6; font-size: 12.5px; line-height: 1.6; overflow-wrap: anywhere; }
+.contacts-intro-edit { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: 4px; border-radius: 6px; color: #8a8a8a; vertical-align: -5px; opacity: .65; transition: opacity 120ms ease, background-color 120ms ease, color 120ms ease; }
+.contacts-intro-edit:hover, .contacts-intro-edit:focus-visible { background: #ffffff12; color: #f0f0f0; opacity: 1; }
+.contacts-intro-form { margin-top: 0; }
+.contacts-intro-form textarea { display: block; width: 100%; padding: 9px 11px; border: 1px solid #3b6ea8; border-radius: 10px; outline: 0; background: #161616; color: #ececec; font: inherit; font-size: 13px; line-height: 1.6; resize: vertical; }
+.contacts-intro-form > div { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.contacts-intro-form > div > span { margin-right: auto; color: #858585; font-size: 11px; font-variant-numeric: tabular-nums; }
+.contacts-intro-form .settings-button { height: 28px; padding: 0 12px; }
+.contacts-meta { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 0; color: #8a8a8a; font-size: 11px; }
+.contacts-meta span + span::before { content: '·'; margin: 0 7px; color: #5c5c5c; }
+.contacts-hero-actions { grid-row: 1; grid-column: 3; display: flex; align-self: center; justify-self: end; gap: 2px; }
+.contacts-primary, .contacts-danger { display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 26px; padding: 0 10px; border-radius: 7px; font-size: 11px; font-weight: 500; transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 140ms ease; }
+.contacts-primary:active, .contacts-danger:active:not(:disabled) { transform: scale(.97); }
+.contacts-primary { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; background: none; color: #4b8ef2; }
+.contacts-primary:hover { color: #77b0ff; }
+.contacts-star { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border: 0; border-radius: 6px; background: none; color: #a8a8a8; transition: color 120ms ease, transform 140ms ease; }
+.contacts-star:hover { color: #f0f0f0; }
+.contacts-star:active { transform: scale(.92); }
+.contacts-star.is-active { color: #f4d88a; }
+.contacts-star.is-active:hover { color: #ffdf95; }
+
+.contacts-section { margin-top: 28px; }
+.contacts-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
+.contacts-section-head h3 { margin: 0; color: #e8e8e8; font-size: 14px; font-weight: 600; }
+.contacts-section-head span { color: #858585; font-size: 11.5px; }
+.contacts-card { padding: 16px 18px; border: 1px solid #2a2a2a; border-radius: 14px; background: #1b1b1b; }
+.contacts-card-list { padding: 4px; }
+.contacts-empty-note { margin: 0; padding: 12px 14px; color: #8d8d8d; font-size: 12.5px; line-height: 1.6; }
+
+.contacts-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+.contacts-stat { display: flex; min-width: 0; flex-direction: column; gap: 6px; padding: 13px 14px; border: 1px solid #2a2a2a; border-radius: 14px; background: #1b1b1b; transition: border-color 160ms ease, transform 220ms cubic-bezier(.3, 1.4, .5, 1); }
+.contacts-stat:hover { border-color: #3a3a3a; transform: translateY(-2px); }
+.contacts-stat span { overflow: hidden; color: #8f8f8f; font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.contacts-stat strong { color: #f3f3f3; font-size: 22px; font-weight: 600; letter-spacing: -.3px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.contacts-stat small { margin-left: 3px; color: #8f8f8f; font-size: 11.5px; font-weight: 400; letter-spacing: 0; }
+
+.contacts-card-title { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; color: #c4c4c4; font-size: 12.5px; }
+.contacts-card-title span:last-child { color: #858585; font-size: 11.5px; }
+.contacts-usage-card .contacts-empty-note { padding: 6px 0 2px; }
+.contacts-chart-plot { position: relative; display: flex; align-items: stretch; height: 96px; border-bottom: 1px solid #333; }
+.contacts-chart-col { display: flex; align-items: flex-end; justify-content: center; flex: 1; min-width: 0; padding: 0 1px; }
+.contacts-chart-bar { display: block; width: min(100%, 22px); border-radius: 4px 4px 0 0; background: #3795f5; transform-origin: bottom; animation: contacts-grow 520ms cubic-bezier(.2, .8, .2, 1) both; transition: background-color 120ms ease; }
+.contacts-chart-bar.is-zero { height: 2px; border-radius: 1px 1px 0 0; background: #353535; }
+.contacts-chart-col.is-hover { background: #ffffff08; }
+.contacts-chart-col.is-hover .contacts-chart-bar:not(.is-zero) { background: #6bb2fa; }
+@keyframes contacts-grow { from { transform: scaleY(0); } }
+.contacts-chart-tip { position: absolute; bottom: calc(100% + 6px); z-index: 1; display: flex; flex-direction: column; gap: 2px; padding: 6px 9px; border: 1px solid #393939; border-radius: 8px; background: #212121; box-shadow: 0 12px 28px #0005; color: #8f8f8f; font-size: 11px; white-space: nowrap; pointer-events: none; transform: translateX(-50%); }
+.contacts-chart-tip[data-align="start"] { transform: translateX(-18px); }
+.contacts-chart-tip[data-align="end"] { transform: translateX(calc(-100% + 18px)); }
+.contacts-chart-tip strong { color: #f0f0f0; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.contacts-chart-axis { display: flex; justify-content: space-between; margin-top: 7px; color: #7f7f7f; font-size: 10.5px; font-variant-numeric: tabular-nums; }
+
+/* 模型与工具：模型下拉、思考强度分段、工具开关 */
+.contacts-config { padding: 4px 18px 16px; }
+.contacts-config-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; }
+.contacts-config-row + .contacts-config-row { border-top: 1px solid #262626; }
+.contacts-config-icon { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 9px; background: #262626; color: #c9c9c9; }
+.contacts-config-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+.contacts-config-copy strong { color: #ececec; font-size: 13px; font-weight: 500; }
+.contacts-config-copy small { color: #8b8b8b; font-size: 11.5px; line-height: 1.5; }
+
+/* 模型浮层选择器（与输入框里的「选择模型」菜单同款） */
+.contacts-picker { position: relative; flex: none; }
+.contacts-picker-trigger { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 9px; border: 1px solid #343434; border-radius: 8px; background: #232323; color: #e2e2e2; font-size: 12px; transition: border-color 130ms ease, background-color 130ms ease, color 130ms ease; }
+.contacts-picker-trigger:hover { border-color: #464646; background: #2a2a2a; color: #fff; }
+.contacts-picker-trigger svg { flex: none; color: #8d8d8d; }
+.contacts-picker-panel { position: absolute; top: calc(100% + 6px); right: 0; z-index: 6; width: 210px; padding: 5px; border: 1px solid #383838; border-radius: 12px; background: #202020; box-shadow: 0 18px 42px #000a; animation: contacts-pop 150ms cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes contacts-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.contacts-picker-head { display: flex; align-items: center; gap: 4px; width: 100%; padding: 6px 8px 8px; color: #8d8d8d; font-size: 11.5px; text-align: left; }
+.contacts-picker-head:hover { color: #d0d0d0; }
+.contacts-picker-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 8px 10px; border-radius: 8px; color: #a2a2a2; font-size: 12.5px; text-align: left; transition: background-color 120ms ease, color 120ms ease; }
+.contacts-picker-item:hover { background: #ffffff0d; color: #ececec; }
+.contacts-picker-item[aria-checked="true"] { color: #fff; font-weight: 500; }
+.contacts-picker-item svg { flex: none; color: #7fb0f0; }
+
+/* 思考强度：复刻输入框里的 reasoning-effort 滑杆 */
+.contacts-config-row--effort { gap: 10px; }
+.contacts-config-title { flex: none; color: #ececec; font-size: 13px; font-weight: 500; }
+.contacts-effort-value { flex: none; margin-left: 2px; color: #f0f0f0; font-size: 12.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.contacts-effort-slot { flex: 1; min-width: 0; max-width: 220px; margin-left: auto; }
+
+.reasoning-effort { --effort-ratio: 0; min-width: 0; }
+.reasoning-effort-input { position: relative; height: 30px; cursor: grab; }
+.reasoning-effort-track { position: absolute; inset: 0; overflow: hidden; border-radius: 999px; background: #262626; box-shadow: inset 0 0 0 1px #ffffff0a; }
+.reasoning-effort-fill { position: absolute; inset: 0; pointer-events: none; clip-path: inset(0 calc((100% - 32px) * (1 - var(--effort-ratio))) 0 0 round 999px); }
+.reasoning-effort-fill canvas { display: block; width: 100%; height: 100%; }
+.reasoning-effort-dots { position: absolute; inset: 0 16px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; transition: opacity 300ms ease; }
+.reasoning-effort-dots span { width: 4px; height: 4px; border-radius: 50%; background: #ffffff4d; }
+.reasoning-effort[data-maximum] .reasoning-effort-dots { opacity: 0; }
+.reasoning-effort-thumb { position: absolute; left: calc((100% - 32px) * var(--effort-ratio) + 3px); top: 2px; width: 26px; height: 26px; border-radius: var(--effort-jelly-left, 50%) var(--effort-jelly-right, 50%) var(--effort-jelly-right, 50%) var(--effort-jelly-left, 50%) / 50%; border: 1px solid #ffffff1a; background: #fafafa; box-shadow: 0 1px 3px #0004; pointer-events: none; scale: var(--effort-press, 1); transform: translateX(var(--effort-jelly-offset, 0px)) skewX(var(--effort-jelly-skew, 0deg)) scale(var(--effort-jelly-x, 1), var(--effort-jelly-y, 1)); transform-origin: center; transition: border-color 180ms ease, box-shadow 180ms ease; }
+.reasoning-effort-input:hover .reasoning-effort-thumb { border-color: #ffffff33; box-shadow: 0 2px 6px #0005; }
+.reasoning-effort[data-dragging] .reasoning-effort-thumb { transition-duration: 0ms; box-shadow: 0 2px 5px #0003; }
+.reasoning-effort-range { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: grab; }
+.reasoning-effort-range::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 30px; }
+.reasoning-effort-range:disabled { cursor: not-allowed; }
+.reasoning-effort[data-disabled] { opacity: .5; pointer-events: none; }
+
+.contacts-tools-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 13px 0 10px; border-top: 1px solid #262626; color: #d0d0d0; font-size: 12.5px; }
+.contacts-tools-head small { color: #858585; font-size: 11.5px; }
+.contacts-tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.contacts-tool { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 9px 11px; border: 1px solid #282828; border-radius: 11px; background: #1d1d1d; cursor: pointer; transition: border-color 140ms ease, background-color 140ms ease; }
+.contacts-tool:hover { border-color: #3a3a3a; background: #212121; }
+.contacts-tool.is-on { border-color: #2f4a6b; background: #18212c; }
+.contacts-tool.is-on:hover { border-color: #3a5f88; background: #1a2734; }
+.contacts-tool-icon { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 8px; background: #262626; color: #9c9c9c; transition: color 140ms ease, background-color 140ms ease, transform 240ms cubic-bezier(.3, 1.5, .5, 1); }
+.contacts-tool:hover .contacts-tool-icon { transform: rotate(-8deg) scale(1.06); }
+.contacts-tool.is-on .contacts-tool-icon { background: #1f3350; color: #79b0f0; }
+.contacts-tool-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.contacts-tool-copy strong { color: #dcdcdc; font-size: 12.5px; font-weight: 500; }
+.contacts-tool.is-on .contacts-tool-copy strong { color: #f0f0f0; }
+.contacts-tool-copy small { overflow: hidden; color: #858585; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.contacts-tools-note { margin: 10px 0 0; color: #8d8d8d; font-size: 11.5px; }
+
+.contacts-group { display: flex; align-items: center; width: 100%; min-width: 0; gap: 12px; padding: 9px 12px; border-radius: 10px; color: #7f7f7f; text-align: left; transition: background-color 120ms ease; }
+.contacts-group:hover { background: #ffffff08; color: #d6d6d6; }
+.contacts-group > svg { flex: none; transition: transform 160ms ease; }
+.contacts-group:hover > svg { transform: translateX(3px); }
+.contacts-group-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+.contacts-group-copy strong { overflow: hidden; color: #e6e6e6; font-size: 13px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.contacts-group-copy small { overflow: hidden; color: #8a8a8a; font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+
+.contacts-setting { display: flex; align-items: center; gap: 24px; padding: 12px 14px; cursor: pointer; }
+.contacts-setting + .contacts-setting { border-top: 1px solid #272727; }
+.contacts-setting-danger { cursor: default; }
+.contacts-setting-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 4px; }
+.contacts-setting-copy strong { color: #e6e6e6; font-size: 13px; font-weight: 500; }
+.contacts-setting-copy small { color: #949494; font-size: 12px; line-height: 1.6; }
+.contacts-danger { flex: none; height: 28px; padding: 0 12px; border: 1px solid #4a2f2d; color: #e0928c; font-size: 12px; }
+.contacts-danger:hover:not(:disabled) { border-color: #6b3b38; background: #e0928c1a; }
+.contacts-danger:disabled { border-color: #2c2c2c; color: #6f6f6f; cursor: not-allowed; }
+
+/* 删除确认：逐条说明影响 */
+.contacts-delete .settings-dialog-body { padding-bottom: 4px; }
+.contacts-delete .settings-dialog-actions { padding: 12px 20px 16px; border-top: 1px solid #262626; }
+.contacts-delete-lead { display: flex; align-items: center; gap: 12px; }
+.contacts-delete-lead p { margin: 0; color: #c4c4c4; font-size: 12.5px; line-height: 1.7; }
+.contacts-delete-avatar { width: 40px; height: 40px; }
+.contacts-delete-impact { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; border: 1px solid #2c2c2c; border-radius: 10px; background: #161616; list-style: none; }
+.contacts-delete-impact li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; padding: 10px 12px; font-size: 12.5px; line-height: 1.65; }
+.contacts-delete-impact li + li { border-top: 1px solid #262626; }
+.contacts-delete-impact strong { color: #e0928c; font-weight: 500; }
+.contacts-delete-impact span { color: #c4c4c4; overflow-wrap: anywhere; }
+
+/* 消息列表里的静音标记（与通讯录的免打扰联动） */
+.bot-list-name { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.bot-list-name > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bot-list-muted { flex: none; color: #8a8a8a; }
+
+@media (max-width: 760px) {
+  .contacts-hero { column-gap: 12px; padding: 18px; }
+  .contacts-hero-avatar, .contacts-hero-avatar .bot-ball { width: 62px; height: 62px; }
+  .contacts-config-row { flex-wrap: wrap; }
+  .contacts-config-copy { flex-basis: calc(100% - 44px); }
+  .contacts-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .contacts-list { flex: 1; border-right: 0; }
+  .contacts-profile { display: none; }
+  .contacts.is-detail .contacts-list { display: none; }
+  .contacts.is-detail .contacts-profile { display: flex; }
+  .contacts-back { display: inline-flex; }
+  .contacts-setting { gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contacts *, .contacts *::before, .contacts *::after { animation: none !important; transition: none !important; }
+}

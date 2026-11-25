@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>记忆页夹具</title>
+  <!--
+    记忆与存储页的排版夹具：用假桥接喂真实形状的数据，验证列表、工具栏、折叠与保险库布局。
+    生成物（memory-fixture.js/.css）不进仓库，先跑：node qa/build-fixture.mjs
+    然后用静态服务从项目根打开本文件。
+  -->
+  <meta name="color-scheme" content="dark">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="memory-fixture.css">
+  <style>
+    html, body { margin: 0; background: #181818; }
+    /* 复刻真实设置页的 DOM 外壳，让 .settings-page 内容器样式生效 */
+    .fixture-view { position: static; inset: auto; display: flex; min-height: 100vh; border: 0; border-radius: 0; }
+    .fixture-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .fixture-head { padding: 20px 0 0; }
+    #root { width: min(718px, 100% - 48px); margin: 0 auto; padding: 20px 0 48px; }
+  </style>
+</head>
+<body>
+  <section class="settings-view fixture-view">
+    <div class="settings-panel fixture-panel">
+      <header class="settings-panel-head fixture-head"><h2>记忆与存储</h2></header>
+      <div class="settings-page" id="root"></div>
+    </div>
+  </section>
+  <script src="memory-fixture.js"></script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+/*
+ * Mova 桌面操作 · 浮层样式（“AI 正在操作电脑”）
+ *
+ * 视觉原型：design/desktop-overlay.html（定稿）。这里只做两件“拆组件”的事：
+ * 1. 把原型里假桌面 / Excel 窗口的部分删掉，留下呼吸光 + 左下角小球 + 气泡列；
+ * 2. 把圆角、颜色、字号换成 token，行为与原型一致（无阴影、无背板）。
+ *
+ * 依据：
+ * - Mova桌面操作开发方案.md §12.2（四条线性渐变呼吸光）、§12.3（浮层规格）
+ * - Mova设计规范.md §3（颜色 token）/ §6（圆角）/ §9（动效与 prefers-reduced-motion）
+ *
+ * 重要约束：整层 pointer-events:none —— 浮层绝不接收鼠标事件（窗口侧另有
+ * setIgnoreMouseEvents(true, { forward: true }) 兜底）。
+ */
+
+:root {
+  /* Mova设计规范 §3.2 / §3.3 */
+  --color-text: #d5d6d5;
+  --color-text-strong: #f2f4f2;
+  --color-text-muted: #828783;
+  --color-accent-info: #3795f5;
+  /* 气泡色取自 styles.css 的 .bot-bubble-content（一个像素都没改） */
+  --bot-bubble-surface: #282828;
+  --bot-bubble-border: #353535;
+  --bot-bubble-text: #efefef;
+  /* Mova设计规范 §9.2 */
+  --ease-card: cubic-bezier(0.2, 0.85, 0.25, 1);
+  --duration-fade: 240ms;
+  --duration-bubble-in: 260ms;
+  --duration-bubble-move: 300ms;
+  --duration-bubble-out: 500ms;
+  /* §12.3 布局锚点 */
+  --hud-offset-left: 24px;
+  --hud-offset-bottom: 22px;
+  --ball-size: 44px;
+  --bubble-radius: 18px;
+  --bubble-tail-radius: 8px;
+  /* §12.7 目标控件矩形描边：focus 色（Mova设计规范 §3） */
+  --target-color: #8ca6a0;
+  --duration-target-in: 160ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  /* 浮层永远不吃鼠标事件 */
+  pointer-events: none;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── 整块浮层：show()/hide() 只切这一个 class，240ms 淡入淡出 ─────────────── */
+.stage {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fade) ease;
+}
+
+.stage.is-on {
+  opacity: 1;
+}
+
+/* ── 屏幕边缘呼吸光：方形、外浓内淡、四条线性渐变、只动 opacity ──────────────
+   必须是四条线性渐变：inset box-shadow 的角会被模糊成圆弧，圆形渐变在 16:10
+   屏上会拉成椭圆，两者都不“方”。只动 opacity → 零重绘。 */
+.edge {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.edge i {
+  position: absolute;
+  display: block;
+  animation: breathe 5.4s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.edge .t,
+.edge .b {
+  left: 0;
+  right: 0;
+  height: min(9vh, 84px);
+}
+
+.edge .l,
+.edge .r {
+  top: 0;
+  bottom: 0;
+  width: min(7vw, 98px);
+}
+
+.edge .t {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(120, 198, 255, 0.34) 0%,
+    rgba(88, 176, 255, 0.15) 30%,
+    rgba(55, 149, 245, 0) 100%
+  );
+}
+
+.edge .b {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba(120, 198, 255, 0.34) 0%,
+    rgba(88, 176, 255, 0.15) 30%,
+    rgba(55, 149, 245, 0) 100%
+  );
+}
+
+.edge .l {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    rgba(120, 198, 255, 0.3) 0%,
+    rgba(88, 176, 255, 0.13) 32%,
+    rgba(55, 149, 245, 0) 100%
+  );
+}
+
+.edge .r {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    rgba(120, 198, 255, 0.3) 0%,
+    rgba(88, 176, 255, 0.13) 32%,
+    rgba(55, 149, 245, 0) 100%
+  );
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.34;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 暂停样式只有一套：body.paused（见本文件底部：球变红 + 边光转红 + paused-pulse）。
+   旧的 `.stage[data-paused="1"]`（只压暗边光、没有任何 JS 驱动）已删除，别再复活。 */
+
+/* ── 左下角：小球（=聊天头像位）+ 气泡列 ─────────────────────────────── */
+.hud {
+  position: fixed;
+  left: var(--hud-offset-left);
+  bottom: var(--hud-offset-bottom);
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+  animation: enter var(--duration-bubble-in) var(--ease-card) both;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 源：.bot-message-avatar { width:36px; height:36px; margin-top:15px }
+   浮层里 44px（聊天头像 36px 与侧栏 61px 之间），锚底边所以换 margin-bottom。 */
+.bot-message-avatar {
+  width: var(--ball-size);
+  height: var(--ball-size);
+  margin-bottom: 6px;
+  flex: none;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+}
+
+/* 源：.bot-ball { display:block; flex:none; overflow:visible } + .bot-ball > svg */
+.bot-ball {
+  display: block;
+  flex: none;
+  overflow: visible;
+  width: 100%;
+  height: 100%;
+}
+
+.bot-ball > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 气泡列：新气泡追加在底部（贴着小球），旧的被顶上去，最多 3 条。 */
+.feed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: max-content;
+  max-width: min(80vw, 420px);
+  padding-bottom: 2px;
+  transition: opacity var(--duration-fade) ease;
+}
+
+/* 收高：grid-template-rows 1fr → 0fr，附带 6px 上移；不提前降透明度。 */
+.row {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  transition:
+    grid-template-rows 340ms var(--ease-card),
+    opacity var(--duration-bubble-out) ease,
+    transform 340ms var(--ease-card);
+}
+
+.row.gone {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* 源：.bot-bubble { display:flex; flex-direction:column; align-items:flex-start;
+   width:fit-content; max-width:min(80%,570px); min-width:0 }
+   浮层里把 80% 换成 80vw —— 百分比在这里没有参照宽度，会算成 0。 */
+.bot-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  max-width: min(80vw, 570px);
+  min-width: 0;
+}
+
+/* 源：.bot-bubble-content { padding:10px 14px; border:1px solid #353535;
+   border-radius:8px 18px 18px 18px; background:#282828; color:#efefef;
+   font-size:14px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere }
+   唯一改动：小圆角从左上角挪到左下角（小球在气泡左下，尾巴要指着球）。 */
+.bot-bubble-content {
+  max-width: 100%;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--bot-bubble-border);
+  border-radius: var(--bubble-radius) var(--bubble-radius) var(--bubble-radius) var(--bubble-tail-radius);
+  background: var(--bot-bubble-surface);
+  color: var(--bot-bubble-text);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  /* 浮层里最多 2 行，防止长路径把屏幕糊住 */
+  max-height: calc(1.6em * 2 + 20px);
+  overflow: hidden;
+  /* 不加阴影、不加背板：实底 + 1px 边框，与聊天窗一致 */
+  box-shadow: none;
+}
+
+/* ── 无障碍与降级 ───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .edge i {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .stage {
+    transition: none;
+  }
+
+  .hud {
+    animation: none;
+  }
+
+  .row {
+    transition: none;
+  }
+
+  .feed {
+    transition: none;
+  }
+}
+
+/* ── 光标描边：AI 接管鼠标时，给真实光标描一圈蓝边（不是圆环） ─────── */
+.cursor-outline {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 22px;
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0s linear;
+  will-change: transform;
+  pointer-events: none;
+  z-index: 40;
+  /* 箭头尖端对准光标热点（Windows 箭头热点在左上角） */
+  margin: -1px 0 0 -1px;
+}
+
+.cursor-outline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.cursor-outline path {
+  fill: rgba(77, 163, 255, 0.14);
+  stroke: #4da3ff;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(77, 163, 255, 0.95)) drop-shadow(0 0 9px rgba(77, 163, 255, 0.55));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-outline {
+    transition: opacity 0.18s ease;
+  }
+}
+
+/* ── 目标控件矩形描边（§12.7）：方形、贴着控件矩形，只在真实注入时出现 ────
+   和呼吸光/光标描边同属一个浮层窗口。默认 display:none → 没有目标时屏幕上
+   一个像素都不多。出现只播一次 160ms 淡入（呼吸动画只属于小球）。 */
+.target-outline {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  display: none;
+  border: 1.5px solid var(--target-color);
+  border-radius: 10px;
+  /* 很淡的一层光晕：让人看出“它点的是这一块”，但不抢呼吸光的注意力 */
+  box-shadow:
+    0 0 0 1px rgba(140, 166, 160, 0.1),
+    0 0 18px rgba(140, 166, 160, 0.16);
+  pointer-events: none;
+  z-index: 50;
+  will-change: transform;
+}
+
+.target-outline.is-on {
+  display: block;
+  animation: target-in var(--duration-target-in) var(--ease-card) 1 both;
+}
+
+@keyframes target-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 四角 L 形角标：2px、focus 色。只画两条边，所以是 L 而不是带圆角的框。 */
+.target-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 0 solid var(--target-color);
+  pointer-events: none;
+}
+
+.target-corner.tl {
+  top: -1.5px;
+  left: -1.5px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 6px;
+}
+
+.target-corner.tr {
+  top: -1.5px;
+  right: -1.5px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 6px;
+}
+
+.target-corner.bl {
+  bottom: -1.5px;
+  left: -1.5px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 6px;
+}
+
+.target-corner.br {
+  bottom: -1.5px;
+  right: -1.5px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 6px;
+}
+
+/* 标签：贴在描边左上角上方；没有文案时 :empty 直接不占位。 */
+.target-label {
+  position: absolute;
+  left: 8px;
+  top: 0;
+  transform: translateY(calc(-100% - 6px));
+  max-width: min(60vw, 260px);
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(29, 34, 33, 0.82);
+  color: #cfd8d4;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.target-label:empty {
+  display: none;
+}
+
+/* 控件贴着屏幕顶端时，标签翻到矩形内侧（否则被窗口裁掉，等于没标签）。 */
+.target-outline[data-label-side='in'] .target-label {
+  top: 4px;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 降级：不淡入，直接出现（状态本身仍可读） */
+  .target-outline.is-on {
+    animation: none;
+  }
+}
+
+/* ── 暂停态：小球变红 + 红环，提示“点击 Mova 恢复操作” ───────────── */
+/* 红色用“正片叠底”压一层色，比 filter 链可靠（sepia+hue-rotate 会偏黄） */
+.bot-message-avatar {
+  position: relative;
+}
+
+body.paused .bot-ball {
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+}
+
+body.paused .bot-message-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: #e0928c;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+body.paused .bot-message-avatar {
+  box-shadow: 0 0 0 3px rgba(224, 146, 140, 0.35), 0 0 20px rgba(224, 146, 140, 0.5);
+  border-radius: 50%;
+  animation: paused-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes paused-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(224, 146, 140, 0.28), 0 0 16px rgba(224, 146, 140, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(224, 146, 140, 0.16), 0 0 26px rgba(224, 146, 140, 0.6); }
+}
+
+/* 暂停时边缘呼吸光转成红色，一眼看出“它停了”。四边方向必须各自朝外浓、朝内淡 */
+body.paused .edge .t {
+  background: linear-gradient(to bottom, rgba(255, 150, 143, 0.34) 0%, rgba(224, 146, 140, 0.15) 30%, rgba(224, 146, 140, 0) 100%);
+}
+
+body.paused .edge .b {
+  background: linear-gradient(to top, rgba(255, 150, 143, 0.34) 0%, rgba(224, 146, 140, 0.15) 30%, rgba(224, 146, 140, 0) 100%);
+}
+
+body.paused .edge .l {
+  background: linear-gradient(to right, rgba(255, 150, 143, 0.3) 0%, rgba(224, 146, 140, 0.13) 32%, rgba(224, 146, 140, 0) 100%);
+}
+
+body.paused .edge .r {
+  background: linear-gradient(to left, rgba(255, 150, 143, 0.3) 0%, rgba(224, 146, 140, 0.13) 32%, rgba(224, 146, 140, 0) 100%);
+}
+
+/* 暂停时小球是“可点击的恢复按钮”，给它一点可点的暗示 */
+body.paused .bot-message-avatar {
+  cursor: pointer;
+}

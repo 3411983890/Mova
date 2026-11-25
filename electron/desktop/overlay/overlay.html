@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'" />
+<title>Mova · 正在操作</title>
+<!--
+  浮层页面：透明置顶窗口里唯一的内容。
+  - 小球：vendor/emotion-ball（窗口在 electron/desktop/overlay/，所以 vendor 要退三级）
+  - 气泡列：照抄 design/styles.css 的 .bot-bubble / .bot-bubble-content（去掉 .bot-sender）
+  - 呼吸光：四条线性渐变，只动 opacity
+
+  宿主（overlay.cjs）通过 webContents.executeJavaScript 调用 window.__movaOverlay：
+    push(text) / setEmotion(id) / setState(state) / setCursor(x,y,visible) /
+    setTarget(rect|null, {label}) / show() / hide() / snapshot()
+-->
+<link rel="stylesheet" href="./overlay.css" />
+</head>
+<body>
+  <div class="stage" id="stage">
+    <!-- 屏幕边缘呼吸光：方形、外浓内淡、慢慢一闪一闪（5.4s 一个来回） -->
+    <div class="edge" aria-hidden="true">
+      <i class="t"></i>
+      <i class="b"></i>
+      <i class="l"></i>
+      <i class="r"></i>
+    </div>
+
+    <!-- 左下角：小球（聊天头像位）+ 气泡列 -->
+    <div class="hud" role="status" aria-live="polite" aria-label="Mova 正在操作">
+      <span class="bot-message-avatar" aria-hidden="true"><span class="bot-ball" id="ball"></span></span>
+      <div class="feed" id="feed"></div>
+    </div>
+
+    <!-- 目标控件矩形描边（§12.7）：只在真实注入点击/输入时出现，跟着控件矩形走。
+         主进程已经把屏幕坐标换算成本窗口内的本地坐标，这里只负责画。 -->
+    <div class="target-outline" id="target-outline" aria-hidden="true" data-label-side="out">
+      <i class="target-corner tl"></i>
+      <i class="target-corner tr"></i>
+      <i class="target-corner bl"></i>
+      <i class="target-corner br"></i>
+      <span class="target-label" id="target-label"></span>
+    </div>
+
+    <!-- 光标描边：跟着真实光标走的“箭头描边”（不是圆环） -->
+    <div class="cursor-outline" id="cursor-outline" aria-hidden="true">
+      <svg viewBox="0 0 16 22" width="16" height="22">
+        <path d="M1 1 L1 19 L5.6 14.4 L8.4 21 L11 19.9 L8.2 13.4 L14.6 13.4 Z" />
+      </svg>
+    </div>
+  </div>
+
+  <script src="../../../vendor/emotion-ball/js/rings.js"></script>
+  <script src="../../../vendor/emotion-ball/js/emotions.js"></script>
+  <script src="../../../vendor/emotion-ball/js/ball.js"></script>
+  <script src="../../../vendor/emotion-ball/js/engine.js"></script>
+  <script>
+    /* global EmotionBall */
+    (function () {
+      'use strict';
+
+      var stageEl = document.getElementById('stage');
+      var feedEl = document.getElementById('feed');
+      var ballHost = document.getElementById('ball');
+      var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+      /* 真实组件用真实计时（不需要原型里的 ?freeze=） */
+      var HOLD_MS = 2000;        // 旧气泡保持完全不透明的时长
+      var REMOVE_MS = 560;       // 收高（0.5s）后再移除
+      var MAX_BUBBLES = 3;       // 最多同时 3 条
+      var MAX_TEXT = 300;        // 单条文案上限，防止糊屏
+      var EASE = 'cubic-bezier(.2,.85,.25,1)';
+      var DEFAULT_EMOTION = '32'; // 处理中
+
+      var timers = new Set();
+
+      function later(fn, ms) {
+        var id = setTimeout(function () {
+          timers.delete(id);
+          try {
+            fn();
+          } catch (error) {
+            console.error('[overlay]', error);
+          }
+        }, ms);
+        timers.add(id);
+        return id;
+      }
+
+      function clearTimers() {
+        timers.forEach(function (id) { clearTimeout(id); });
+        timers.clear();
+      }
+
+      /* ── 小球：仓库自带引擎，32 = 处理中 ───────────────────────────── */
+      var ball = null;
+      try {
+        if (window.EmotionBall && typeof window.EmotionBall.create === 'function') {
+          ball = window.EmotionBall.create(ballHost, {
+            emotion: DEFAULT_EMOTION,
+            shape: 'blob',
+            eyeScale: 1.65,
+            lite: true,
+            idle: false,
+            autostart: !reduced,
+          });
+        }
+      } catch (error) {
+        console.error('[overlay] 小球初始化失败', error);
+      }
+
+      var state = { on: false, paused: false, emotion: DEFAULT_EMOTION };
+
+      function buildRow(text) {
+        var row = document.createElement('div');
+        row.className = 'row';
+
+        /* 只留气泡本体：.bot-bubble > .bot-bubble-content（照抄聊天窗，不带 .bot-sender） */
+        var bubble = document.createElement('div');
+        bubble.className = 'bot-bubble';
+        bubble.dataset.align = 'start';
+        var content = document.createElement('div');
+        content.className = 'bot-bubble-content';
+        content.textContent = text;
+        bubble.appendChild(content);
+        row.appendChild(bubble);
+        return row;
+      }
+
+      function retire(row) {
+        if (!row || row.dataset.retiring) return;
+        row.dataset.retiring = '1';
+        /* 旧气泡不再被 aria-live 播报 */
+        row.setAttribute('aria-hidden', 'true');
+        later(function () {
+          row.classList.add('gone');
+          later(function () {
+            if (row.parentNode) row.parentNode.removeChild(row);
+          }, REMOVE_MS);
+        }, HOLD_MS);
+      }
+
+      function collapseNow(row) {
+        if (!row) return;
+        row.dataset.retiring = '1';
+        row.setAttribute('aria-hidden', 'true');
+        row.classList.add('gone');
+        later(function () {
+          if (row.parentNode) row.parentNode.removeChild(row);
+        }, REMOVE_MS);
+      }
+
+      /* 超过 3 条：最早的那条立刻收起（正常情况下不会发生，session 有 1.5s 节流） */
+      function trim() {
+        var rows = Array.prototype.slice.call(feedEl.children);
+        if (rows.length <= MAX_BUBBLES) return;
+        rows.slice(0, rows.length - MAX_BUBBLES).forEach(collapseNow);
+      }
+
+      function push(text) {
+        var message = String(text == null ? '' : text).replace(/\s+/g, ' ').trim();
+        if (!message) return false;
+        if (message.length > MAX_TEXT) message = message.slice(0, MAX_TEXT - 1) + '…';
+
+        /* FLIP 的起点：记录旧气泡当前的 top */
+        var before = [];
+        for (var i = 0; i < feedEl.children.length; i += 1) {
+          before.push(feedEl.children[i].getBoundingClientRect().top);
+        }
+
+        var row = buildRow(message);
+        feedEl.appendChild(row);
+
+        if (!reduced) {
+          row.animate(
+            [
+              { opacity: 0, transform: 'translateY(10px) scale(.985)' },
+              { opacity: 1, transform: 'none' },
+            ],
+            { duration: 260, easing: EASE }
+          );
+        }
+
+        /* 旧气泡用 FLIP 补位移后动画到新位置（300ms）——是被“顶上去”，不是瞬移 */
+        var rows = feedEl.children;
+        if (!reduced) {
+          for (var j = 0; j < before.length && j < rows.length - 1; j += 1) {
+            var old = rows[j];
+            var dy = before[j] - old.getBoundingClientRect().top;
+            if (Math.abs(dy) > 0.5) {
+              old.animate(
+                [{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }],
+                { duration: 300, easing: EASE }
+              );
+            }
+          }
+        }
+
+        /* 更早的气泡：2s 后整条淡出并收高 */
+        for (var k = 0; k < before.length && k < rows.length - 1; k += 1) retire(rows[k]);
+
+        trim();
+        return true;
+      }
+
+      function setEmotion(id) {
+        var value = String(id == null ? '' : id).trim();
+        if (!/^[0-9]{2}$/.test(value)) return false;
+        state.emotion = value;
+        if (ball && typeof ball.setEmotion === 'function') {
+          try {
+            ball.setEmotion(value);
+          } catch (error) {
+            console.error('[overlay] 切换表情失败', error);
+          }
+        }
+        return true;
+      }
+
+      function show() {
+        state.on = true;
+        stageEl.classList.add('is-on');
+        return true;
+      }
+
+      function hide() {
+        state.on = false;
+        stageEl.classList.remove('is-on');
+        setTarget(null); // 会话结束：描边不留到下个会话
+        /* 淡出（240ms）后清空气泡，下一次 show() 从干净状态开始 */
+        later(function () {
+          if (!state.on) clear();
+        }, 300);
+        return true;
+      }
+
+      function clear() {
+        clearTimers();
+        while (feedEl.firstChild) feedEl.removeChild(feedEl.firstChild);
+        setTarget(null);
+      }
+
+      /* 给主进程 / 冒烟脚本做断言用（不参与视觉） */
+      function snapshot() {
+        var edgeSample = document.querySelector('.edge i');
+        var texts = [];
+        for (var i = 0; i < feedEl.children.length; i += 1) {
+          var content = feedEl.children[i].querySelector('.bot-bubble-content');
+          texts.push(content ? content.textContent : '');
+        }
+        return {
+          on: state.on,
+          paused: state.paused,
+          emotion: state.emotion,
+          bubbles: feedEl.children.length,
+          texts: texts,
+          ball: !!(ballHost && ballHost.querySelector('svg')),
+          stageOpacity: getComputedStyle(stageEl).opacity,
+          edgeOpacity: edgeSample ? getComputedStyle(edgeSample).opacity : null,
+          feedOpacity: getComputedStyle(feedEl).opacity,
+          target: targetOn
+            ? {
+                x: targetEl.style.transform,
+                width: targetEl.style.width,
+                height: targetEl.style.height,
+                label: targetLabelEl ? targetLabelEl.textContent : '',
+                opacity: getComputedStyle(targetEl).opacity,
+              }
+            : null,
+          reduced: reduced,
+        };
+      }
+
+      // ── 光标描边：给真实光标画一圈箭头描边（参考 Codex 的“接管中”光标）──
+      var outline = document.getElementById('cursor-outline');
+      var outlineVisible = false;
+      function setCursor(x, y, visible) {
+        if (!outline) return;
+        var showIt = visible !== false;
+        if (showIt !== outlineVisible) {
+          outlineVisible = showIt;
+          outline.style.opacity = showIt ? '1' : '0';
+        }
+        if (!showIt) return;
+        var lx = Math.round(x - (window.screenX || 0));
+        var ly = Math.round(y - (window.screenY || 0));
+        outline.style.transform = 'translate3d(' + lx + 'px,' + ly + 'px,0)';
+      }
+
+      // ── 目标控件矩形描边（§12.7）：矩形由主进程换算成本窗口内坐标后传进来 ──
+      var targetEl = document.getElementById('target-outline');
+      var targetLabelEl = document.getElementById('target-label');
+      var targetOn = false;
+
+      function setTarget(rect, options) {
+        if (!targetEl) return false;
+        var w = rect ? Number(rect.w != null ? rect.w : rect.width) : 0;
+        var h = rect ? Number(rect.h != null ? rect.h : rect.height) : 0;
+        // 没有目标 / 宽高为 0：直接收起来（主进程也会再兜一层）
+        if (!(w > 0) || !(h > 0)) {
+          if (targetOn) {
+            targetOn = false;
+            targetEl.classList.remove('is-on');
+          }
+          if (targetLabelEl) targetLabelEl.textContent = '';
+          return false;
+        }
+        var x = Math.round(Number(rect.x) || 0);
+        var y = Math.round(Number(rect.y) || 0);
+        targetEl.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+        targetEl.style.width = Math.round(w) + 'px';
+        targetEl.style.height = Math.round(h) + 'px';
+        // 贴着窗口顶端时标签翻到矩形内侧，否则会被窗口裁掉
+        targetEl.setAttribute('data-label-side', y < 34 ? 'in' : 'out');
+        if (targetLabelEl) targetLabelEl.textContent = options && options.label ? String(options.label) : '';
+        if (!targetOn) {
+          // 只在“从无到有”时加 class：淡入只播一次，移动矩形不会再闪一下
+          targetOn = true;
+          targetEl.classList.add('is-on');
+        }
+        return true;
+      }
+
+      // ── 会话状态：paused 时小球变红 + 提示“点击 Mova 恢复操作” ──
+      function setState(next, options) {
+        var paused = next === 'paused';
+        document.body.classList.toggle('paused', paused);
+        if (options && options.note) push(options.note);
+      }
+
+      window.__movaOverlay = {
+        ready: true,
+        push: push,
+        setEmotion: setEmotion,
+        setState: setState,
+        show: show,
+        hide: hide,
+        setCursor: setCursor,
+        setTarget: setTarget,
+        clear: clear,
+        snapshot: snapshot,
+      };
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const button = [...document.querySelectorAll('.chat-row .chat-title')].find(node => node.textContent.includes('Markdown 与重试体验'))?.closest('.chat-row')?.querySelector('.chat-open');
+if (!button) throw new Error('Seeded conversation missing');
+button.click();
+await sleep(500);
+const copy = document.querySelector('.markdown-code-header button[aria-label="复制代码"]');
+if (!copy) throw new Error('Code copy button missing');
+copy.click();
+await sleep(400);
+return { copyStatus: document.querySelector('.markdown-copy-status')?.textContent || '', codeLanguage: document.querySelector('.markdown-code-language')?.textContent || '', retryWidth: document.querySelector('.assistant-retry')?.getBoundingClientRect().width ?? 0 };

@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Mova",
+  "version": "0.1.0",
+  "description": "在 Edge 侧边栏使用 ChatMova，并操作当前授权的网页。",
+  "permissions": [
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "debugger",
+    "tabGroups",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "action": {
+    "default_title": "打开 Mova",
+    "default_icon": "orb.png"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "icons": {
+    "128": "orb.png"
+  }
+}

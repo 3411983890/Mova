@@ -1,0 +1,21 @@
+{
+  "//": "Loose JS typecheck for the security-critical main-process modules. The rest of electron/ is not annotated yet; this keeps the permission, tool and approval code honest without demanding a full migration.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "types": []
+  },
+  "include": [
+    "electron/permissions.cjs",
+    "electron/agent-tools.cjs",
+    "electron/approvals.cjs"
+  ]
+}

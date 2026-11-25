@@ -1,0 +1,675 @@
+/*
+ * Mova design canvas — OpenPencil layout in Mova's dark shell.
+ *
+ * Geometry follows OpenPencil's panel themes (root font size 16px, text-2xs = 11px,
+ * fields 24px, rows 24px, section header 32px). Colours follow OpenPencil's dark
+ * token set so the canvas reads as the same product as the side browser.
+ */
+
+.mova-design-panel {
+  --dp-panel: #2a2a2a;
+  --dp-panel-2: #242424;
+  --dp-field: #383838;
+  --dp-field-hover: #404040;
+  --dp-canvas: #1e1e1e;
+  --dp-border: #3a3a3a;
+  --dp-hover: #353535;
+  --dp-accent: #2563eb;
+  --dp-primary: #60a5fa;
+  --dp-focus: #3b82f6;
+  --dp-surface: #f0f0f0;
+  --dp-muted: #a6a6a6;
+  --dp-selected: #2f6fdd;
+  --dp-selected-muted: #353b46;
+  --dp-component: #bb8cff;
+  --dp-slot: #f45cc4;
+  --dp-shadow: 0 3px 8px rgb(0 0 0 / .35), 0 1px 3px rgb(0 0 0 / .5),
+    inset 0 .5px 0 rgb(255 255 255 / .08), inset 0 0 .5px rgb(255 255 255 / .3);
+
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--dp-canvas);
+  color: var(--dp-surface);
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.mova-design-panel[hidden] { display: none !important; }
+/* Standalone (opened outside the browser panel) keeps the old split behaviour. */
+.mova-design-panel.is-standalone {
+  position: relative;
+  inset: auto;
+  flex: 0 0 65%;
+  min-width: 300px;
+  border-left: 1px solid #2f2f2f;
+  background: #181818;
+}
+
+/* `:where()` keeps this reset at class specificity instead of element-plus-class. Without it the
+   reset beat every component's own `background`/`display` — `.dp-select` rendered as a transparent
+   inline-flex button instead of a filled field, and `.dp-add-button` lost its box too. */
+.mova-design-panel :where(button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.mova-design-panel svg { display: block; flex: none; }
+.mova-design-panel *,
+.mova-design-panel *::before,
+.mova-design-panel *::after { box-sizing: border-box; }
+
+/* ---------------------------------------------------------------- head ---- */
+/* The head reuses the side browser's toolbar classes; these rules only cover
+   what a browser toolbar has no equivalent for. */
+.mova-design-head .mova-design-address-title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #ededed;
+  font-size: 11px;
+  letter-spacing: .1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mova-design-head .browser-icon-button[aria-pressed="true"] svg { stroke: #fff; }
+
+/* The layer picker: armed state has to be unmistakable, because the next click on the
+   canvas is consumed as a reference rather than an ordinary selection. */
+.mova-design-pick[aria-pressed="true"] {
+  background: var(--dp-selected, #2f6fdd);
+  color: #fff;
+}
+.mova-design-pick[aria-pressed="true"] svg { stroke: #fff; }
+.mova-design-panel.is-picking .mova-design-canvas canvas { cursor: crosshair; }
+
+/* Play keeps its own round button on the toolbar; it gets a filled circle so it reads as a
+   toggle rather than a bare glyph. */
+.mova-design-head > .mova-design-play {
+  border-radius: 50%;
+  background: var(--dp-field);
+  color: var(--dp-surface);
+}
+.mova-design-head > .mova-design-play:hover { background: var(--dp-field-hover); }
+.mova-design-head > .mova-design-play[aria-pressed="true"] { background: var(--dp-selected, #2f6fdd); color: #fff; }
+.mova-design-head > .mova-design-play[aria-pressed="true"] svg { stroke: #fff; }
+
+.mova-design-body {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+}
+.mova-design-canvas {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  background: var(--dp-canvas);
+}
+/* The dot matrix sits under the canvas, so it never lands on top of artwork. */
+.dp-canvas-dots {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+}
+.mova-design-canvas canvas { position: relative; z-index: 1; display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
+
+.mova-design-loading,
+.mova-design-error {
+  position: absolute;
+  z-index: 5;
+  inset: auto 12px 12px auto;
+  padding: 7px 10px;
+  border: 1px solid var(--dp-border);
+  border-radius: 8px;
+  background: var(--dp-panel-2);
+  color: var(--dp-muted);
+  font-size: 11px;
+}
+.mova-design-error { color: #fa8585; cursor: pointer; }
+
+/* ------------------------------------------------------------- toolbar ---- */
+/* 3/4 of OpenPencil's toolbar: 24px buttons, 12px icons, 30px bar. */
+.mova-design-tools {
+  position: absolute;
+  z-index: 10;
+  bottom: 12px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  max-width: calc(100% - 24px);
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--dp-panel);
+  box-shadow: var(--dp-shadow);
+  transform: translateX(-50%);
+}
+.mova-design-tools.dt-docked-left { left: 12px; transform: none; }
+.mova-design-tools.dt-docked-right { right: 12px; left: auto; transform: none; }
+
+.dt-item { position: relative; display: flex; align-items: center; }
+.dt-tool {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dp-muted);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.dt-tool svg { width: 12px; height: 12px; stroke-width: 1.9; }
+.dt-tool:hover { background: var(--dp-hover); color: var(--dp-surface); }
+.dt-tool[aria-pressed="true"] { background: var(--dp-accent); color: #fff; }
+.dt-tool[aria-pressed="true"]:hover { background: var(--dp-accent); color: #fff; }
+
+.dt-flyout-trigger {
+  display: flex;
+  width: 9px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dp-muted);
+}
+.dt-flyout-trigger svg { width: 7.5px; height: 7.5px; stroke-width: 2.2; }
+.dt-flyout-trigger:hover,
+.dt-flyout-trigger[aria-expanded="true"] { background: var(--dp-hover); color: var(--dp-surface); }
+
+.dt-menu {
+  position: absolute;
+  z-index: 20;
+  bottom: calc(100% + 8px);
+  left: -6px;
+  width: 168px;
+  max-width: 200px;
+  padding: 3px;
+  border: 1px solid var(--dp-border);
+  border-radius: 8px;
+  background: var(--dp-panel-2);
+  box-shadow: 0 14px 34px #0009;
+  transform-origin: bottom left;
+}
+.dt-menu[hidden] { display: none !important; }
+.dt-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dp-surface);
+  font-size: 11px;
+  text-align: left;
+}
+.dt-menu-item:hover { background: var(--dp-hover); }
+/* 当前选中的一项用和字段一致的灰底，选中状态一眼可辨。 */
+.dt-menu-item[data-active="true"] { background: var(--dp-field); color: var(--dp-surface); }
+.dt-menu-item svg.dt-menu-icon { width: 10.5px; height: 10.5px; color: var(--dp-muted); }
+.dt-menu-item .dt-menu-check { width: 10.5px; height: 10.5px; color: var(--dp-primary); opacity: 0; }
+.dt-menu-item[data-active="true"] .dt-menu-check { opacity: 1; }
+.dt-menu-item .dt-menu-label { flex: 1; }
+.dt-menu-item .dt-menu-key { color: var(--dp-muted); font-size: 10px; }
+
+/* --------------------------------------------------------------- pages ---- */
+/* The pages/layers tree pops out over the canvas, as the panel's icon implies;
+   the inspector stays a column so the canvas keeps its own edge, as OpenPencil. */
+.mova-design-pages {
+  position: absolute;
+  z-index: 9;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: 232px;
+  flex-direction: column;
+  border-inline-end: 1px solid var(--dp-border);
+  background: var(--dp-panel);
+  box-shadow: 14px 0 34px #0007;
+  animation: dp-pages-in 180ms cubic-bezier(.22, .9, .26, 1);
+}
+@keyframes dp-pages-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: none; }
+}
+.mova-design-pages[hidden] { display: none !important; }
+
+.dp-pages-block { display: flex; min-height: 0; flex-direction: column; }
+.dp-pages-block.is-layers { flex: 1; border-top: 1px solid var(--dp-border); }
+.dp-block-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+}
+.dp-block-head strong { color: var(--dp-surface); font-size: 11px; font-weight: 600; }
+.dp-block-add {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  color: var(--dp-muted);
+  font-size: 14px;
+  line-height: 1;
+}
+.dp-block-add:hover { background: var(--dp-hover); color: var(--dp-surface); }
+.dp-block-add svg { width: 12px; height: 12px; }
+
+.dp-pages-viewport { padding: 0 4px 4px; }
+.dp-layer-viewport { min-height: 0; flex: 1; overflow: auto; padding: 0 4px 6px; scrollbar-width: thin; scrollbar-color: var(--dp-border) transparent; }
+
+.dp-page-row {
+  display: flex;
+  width: 100%;
+  height: 24px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dp-muted);
+  font-size: 11px;
+  text-align: left;
+}
+.dp-page-row:hover { background: var(--dp-hover); color: var(--dp-surface); }
+.dp-page-row.is-active { background: var(--dp-hover); color: var(--dp-surface); }
+.dp-page-row svg { width: 12px; height: 12px; opacity: .7; }
+.dp-page-row span { overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap; }
+.dp-page-input {
+  min-width: 0;
+  flex: 1;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--dp-accent);
+  border-radius: 3px;
+  outline: none;
+  background: var(--dp-canvas);
+  color: var(--dp-surface);
+  font: inherit;
+  font-size: 11px;
+}
+
+.dp-layer-row {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 24px;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dp-surface);
+  font-size: 11px;
+  text-align: left;
+}
+.dp-layer-row:hover { background: var(--dp-hover); }
+.dp-layer-row.is-selected { background: var(--dp-selected); color: #fff; }
+.dp-layer-row.is-hidden { opacity: .65; }
+.dp-layer-row.is-hidden.is-selected { opacity: 1; }
+
+.dp-layer-disclosure {
+  display: flex;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+.dp-layer-disclosure svg { width: 10px; height: 10px; transition: transform 120ms ease; }
+.dp-layer-disclosure[data-expanded="true"] svg { transform: rotate(90deg); }
+.dp-layer-disclosure.is-empty { pointer-events: none; }
+.dp-layer-row > svg.dp-layer-icon { width: 12px; height: 12px; opacity: .7; }
+.dp-layer-row.is-component > svg.dp-layer-icon { color: var(--dp-component); opacity: 1; }
+.dp-layer-row.is-selected > svg.dp-layer-icon { opacity: 1; }
+.dp-layer-row > span {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dp-layer-actions { display: flex; flex: none; align-items: center; gap: 2px; opacity: 0; }
+.dp-layer-row:hover .dp-layer-actions,
+.dp-layer-actions.is-visible { opacity: 1; }
+.dp-layer-action {
+  display: flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+}
+.dp-layer-action:hover { background: rgb(255 255 255 / .15); }
+.dp-layer-action svg { width: 12px; height: 12px; }
+.dp-layer-action.is-off svg { opacity: 1; }
+.dp-layer-action:not(.is-off) svg { opacity: 0; }
+.dp-layer-row:hover .dp-layer-action:not(.is-off) svg,
+.dp-layer-actions.is-visible .dp-layer-action:not(.is-off) svg { opacity: .7; }
+
+/* ----------------------------------------------------------- inspector ---- */
+.mova-design-properties {
+  position: relative;
+  z-index: 8;
+  display: flex;
+  width: 244px;
+  flex: none;
+  flex-direction: column;
+  border-inline-start: 1px solid var(--dp-border);
+  background: var(--dp-panel);
+}
+.mova-design-properties[hidden] { display: none !important; }
+
+.dp-inspector-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dp-border) transparent;
+}
+
+/* Object header — OpenPencil's PanelHeader. */
+.dp-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--dp-border);
+}
+.dp-header-icon { display: flex; min-width: 14px; align-items: center; justify-content: center; color: var(--dp-muted); }
+.dp-header-icon svg { width: 14px; height: 14px; }
+.dp-header-title { overflow: hidden; color: var(--dp-surface); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.dp-header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+
+.dp-icon-button {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dp-muted);
+}
+.dp-icon-button svg { width: 14px; height: 14px; stroke-width: 1.7; }
+.dp-icon-button:hover { background: var(--dp-hover); color: var(--dp-surface); }
+.dp-icon-button[aria-pressed="true"] { color: var(--dp-surface); }
+.dp-icon-button.is-active { border-color: var(--dp-accent); color: var(--dp-primary); }
+
+/* Section chrome — OpenPencil's PanelSection. */
+.dp-section { padding: 0 12px 12px; border-bottom: 1px solid var(--dp-border); }
+.dp-section-head { display: flex; height: 32px; min-width: 0; align-items: center; gap: 6px; }
+.dp-section-head h4 {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  color: var(--dp-surface);
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dp-section-actions { display: flex; height: 28px; width: 26px; flex: none; align-items: center; justify-content: flex-end; gap: 2px; }
+.dp-section-actions .dp-icon-button { width: 24px; height: 24px; border-radius: 4px; }
+
+/* Rows and fields. */
+.dp-row { display: flex; align-items: flex-end; gap: 6px; }
+.dp-row + .dp-row { margin-top: 6px; }
+.dp-fields { display: grid; min-width: 0; flex: 1; align-items: end; gap: 6px; }
+.dp-fields-1 { grid-template-columns: minmax(0, 1fr); }
+.dp-fields-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dp-fields-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.dp-label { display: block; margin-bottom: 4px; overflow: hidden; color: var(--dp-muted); font-size: 11px; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+
+.dp-field {
+  display: flex;
+  height: 24px;
+  min-width: 0;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: var(--dp-field);
+  color: var(--dp-surface);
+  font-size: 11px;
+}
+.dp-field:hover { background: var(--dp-field-hover); }
+.dp-field:focus-within { border-color: var(--dp-focus); background: var(--dp-field-hover); }
+.dp-field-leading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  padding: 0 5px;
+  color: var(--dp-muted);
+  font-size: 10px;
+  user-select: none;
+}
+.dp-field-leading svg { width: 10px; height: 10px; }
+.dp-field-input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  flex: 1;
+  padding: 0 6px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  text-align: start;
+}
+.dp-field-leading + .dp-field-input { padding-inline-start: 0; }
+.dp-field-input::-webkit-outer-spin-button,
+.dp-field-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.dp-field-trailing { display: flex; flex: none; align-items: center; align-self: stretch; padding-inline-end: 2px; }
+.dp-field-suffix { flex: none; padding-inline-end: 6px; color: var(--dp-muted); font-size: 10px; }
+.dp-field-value { overflow: hidden; min-width: 0; flex: 1; padding: 0 6px; text-overflow: ellipsis; white-space: nowrap; }
+.dp-field-menu { display: flex; width: 20px; height: 100%; flex: none; align-items: center; justify-content: center; border-radius: 3px; color: var(--dp-muted); }
+.dp-field-menu:hover { background: rgb(255 255 255 / .1); color: var(--dp-surface); }
+.dp-field-menu svg { width: 11px; height: 11px; }
+.dp-field-binding {
+  display: flex;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  margin-inline-end: 2px;
+  border-radius: 3px;
+  color: var(--dp-muted);
+}
+.dp-field-binding:hover { background: rgb(255 255 255 / .1); color: var(--dp-surface); }
+.dp-field-binding svg { width: 11px; height: 11px; }
+
+/* A read-only shell that opens a menu (select-like). */
+.dp-select {
+  display: flex;
+  width: 100%;
+  height: 24px;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 7px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: var(--dp-field);
+  color: var(--dp-surface);
+  font-size: 11px;
+  text-align: left;
+}
+.dp-select:hover { background: var(--dp-field-hover); }
+.dp-select > span { overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap; }
+.dp-select > svg { width: 11px; height: 11px; flex: none; color: var(--dp-muted); }
+
+/* Segmented icon rows (flow, alignment grid, padding). */
+.dp-segment { display: flex; height: 24px; align-items: center; gap: 2px; padding: 0 2px; border-radius: 4px; background: var(--dp-field); }
+.dp-segment button {
+  display: flex;
+  width: 22px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--dp-muted);
+}
+.dp-segment button svg { width: 12px; height: 12px; }
+.dp-segment button:hover { background: var(--dp-field-hover); color: var(--dp-surface); }
+.dp-segment button[aria-pressed="true"] { background: #4a4a4a; color: var(--dp-surface); }
+
+.dp-icon-row { display: flex; height: 24px; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.dp-icon-row > div { display: flex; align-items: center; gap: 2px; }
+.dp-icon-row .dp-icon-button,
+.dp-inline-actions .dp-icon-button { width: 24px; height: 24px; }
+
+.dp-inline-actions { display: flex; height: 24px; min-width: 0; align-items: center; justify-content: flex-end; gap: 2px; }
+/* A grid's trailing control rail sits at the bottom of the fields it belongs to. */
+.dp-rail { display: flex; height: 24px; flex: none; align-items: center; justify-content: flex-end; gap: 2px; }
+.dp-rail .dp-icon-button { width: 24px; height: 24px; }
+.dp-caption { display: block; margin: 8px 0 4px; color: var(--dp-muted); font-size: 11px; line-height: 1; }
+
+/* A field that owns a dropdown; the menu needs an unclipped positioned box. */
+.dp-menu-host { position: relative; min-width: 0; }
+.dp-menu-host > .dp-select { width: 100%; }
+
+/* 3 × 3 anchor grid. */
+.dp-anchor {
+  display: grid;
+  width: 100%;
+  height: 72px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  padding: 3px;
+  border-radius: 4px;
+  background: var(--dp-field);
+}
+.dp-anchor button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+}
+.dp-anchor button::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #8c8c8c; }
+.dp-anchor button:hover { background: var(--dp-field-hover); }
+.dp-anchor button:hover::after { background: var(--dp-surface); }
+.dp-anchor button[aria-pressed="true"] { background: #1f3557; }
+.dp-anchor button[aria-pressed="true"]::after { background: #2f6fdd; }
+
+/* Checkbox row. */
+.dp-check { display: flex; align-items: center; gap: 7px; color: var(--dp-surface); font-size: 11px; }
+.dp-check input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  border: 1px solid #5a5a5a;
+  border-radius: 3px;
+  accent-color: var(--dp-accent);
+  background: var(--dp-field);
+}
+.dp-check span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Colour swatch rows (fill / stroke). */
+.dp-swatch-row { display: flex; height: 24px; align-items: center; gap: 6px; }
+.dp-swatch {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / .18);
+  border-radius: 3px;
+  background-image: linear-gradient(45deg, #555 25%, transparent 25%, transparent 75%, #555 75%),
+    linear-gradient(45deg, #555 25%, transparent 25%, transparent 75%, #555 75%);
+  background-position: 0 0, 4px 4px;
+  background-size: 8px 8px;
+}
+.dp-swatch i { display: block; width: 100%; height: 100%; border-radius: 2px; }
+.dp-swatch-row .dp-swatch-value { overflow: hidden; min-width: 0; flex: 1; color: var(--dp-surface); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.dp-add-button {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--dp-muted);
+}
+.dp-add-button:hover { background: var(--dp-hover); color: var(--dp-surface); }
+.dp-add-button svg { width: 12px; height: 12px; }
+
+.dp-empty { padding: 0 0 2px; color: var(--dp-muted); font-size: 11px; }
+
+/* Small dark menu shared by the panel's popovers. */
+.dp-menu {
+  position: absolute;
+  z-index: 30;
+  width: max-content;
+  min-width: 148px;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 3px;
+  border: 1px solid var(--dp-border);
+  border-radius: 8px;
+  background: var(--dp-panel-2);
+  box-shadow: 0 14px 34px #0009;
+}
+.dp-menu[hidden] { display: none !important; }
+.dp-menu button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dp-surface);
+  font-size: 11px;
+  text-align: left;
+}
+.dp-menu button:hover { background: var(--dp-hover); }
+.dp-menu button[data-active="true"] { background: var(--dp-field); color: var(--dp-surface); }
+.dp-menu button[data-active="true"] svg { color: var(--dp-primary); }
+.dp-menu button svg { width: 11px; height: 11px; color: var(--dp-muted); }
+
+@media (max-width: 720px) {
+  .mova-design-pages, .mova-design-properties { width: 208px; }
+  .mova-design-panel.is-standalone { flex-basis: 100%; min-width: 0; }
+}

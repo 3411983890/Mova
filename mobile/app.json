@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Mova",
+    "slug": "mova-mobile",
+    "version": "0.1.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "scheme": "mova",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "连接同一网络中的 Mova 开发电脑。",
+        "NSCameraUsageDescription": "使用相机拍摄图片并在对话中发送给 Mova。",
+        "NSPhotoLibraryUsageDescription": "访问相册选择图片并发送给 Mova。"
+      }
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/icon.png",
+          "imageWidth": 80,
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-notifications"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

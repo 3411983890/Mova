@@ -1,0 +1,49 @@
+/* 选择工作位置弹窗 */
+
+.place-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(380px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(520px, calc(100dvh - 40px));
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #3a3a3a;
+  border-radius: 18px;
+  background: #1b1b1b;
+  color: #e8e8e8;
+  box-shadow: 0 30px 80px #000b;
+}
+.place-dialog::backdrop { background: #000a; }
+
+.place-dialog-panel { display: flex; max-height: min(520px, calc(100dvh - 40px)); flex-direction: column; }
+.place-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 6px; }
+.place-dialog-head h2 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.2px; }
+.place-dialog-close { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; color: #a2a2a2; font-size: 19px; line-height: 1; }
+.place-dialog-close:hover { background: #ffffff12; color: #f0f0f0; }
+
+.place-dialog-body { display: flex; min-height: 0; flex-direction: column; gap: 12px; padding: 2px 16px 12px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+.place-dialog-note { margin: 0; color: #8d8d8d; font-size: 11.5px; line-height: 1.6; }
+
+.place-group { display: flex; flex-direction: column; gap: 4px; }
+.place-group-label { margin: 0 0 2px; color: #7f7f7f; font-size: 10.5px; letter-spacing: .04em; }
+.place-option { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 9px; border: 1px solid transparent; border-radius: 9px; background: #232323; color: #e2e2e2; text-align: left; transition: border-color 130ms ease, background-color 130ms ease; }
+.place-option:hover { border-color: #3c3c3c; background: #2a2a2a; }
+.place-option.is-current { border-color: #40608a; background: #1c2734; }
+.place-option > svg:first-child { flex: none; color: #8d8d8d; }
+.place-option.is-current > svg:first-child { color: #8fbcf0; }
+.place-option > svg:last-child { flex: none; color: #7fb0f0; }
+.place-option-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.place-option-copy strong { overflow: hidden; font-size: 12.5px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.place-option-copy small { color: #8a8a8a; font-size: 10.5px; }
+
+.place-clear { align-self: flex-start; padding: 4px 6px; margin-left: -6px; border-radius: 6px; color: #b98b86; font-size: 11.5px; }
+.place-clear:hover { background: #e0928c14; color: #e0928c; }
+
+.place-dialog-actions { display: flex; justify-content: flex-end; padding: 10px 16px 14px; border-top: 1px solid #2b2b2b; }
+.place-dialog-cancel { height: 30px; padding: 0 14px; border-radius: 8px; color: #d6d6d6; font-size: 12px; }
+.place-dialog-cancel:hover { background: #ffffff10; }
+.place-dialog-actions { gap: 6px; }
+.place-dialog-save { background: #eeeeee; color: #222; }
+.place-dialog-save:hover { background: #fff; color: #222; }

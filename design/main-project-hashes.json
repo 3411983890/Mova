@@ -1,0 +1,234 @@
+[
+  {
+    "path": "Mova开发方案.md",
+    "sha256": "eb70e19e5f561bcb660544825ee50b332da49737d12c230707d9df54a7c8fe07"
+  },
+  {
+    "path": "Mova设计规范.md",
+    "sha256": "9dd133349b03ab31ba4943dd65dc8b21693f2c833bbd9f10554662b09af2b506"
+  },
+  {
+    "path": "THIRD_PARTY_NOTICES.md",
+    "sha256": "9ce752158af1eeb5ca0bb7eeea99c9793f4a70c8298220d6168c671e4bdb7dc6"
+  },
+  {
+    "path": "app.js",
+    "sha256": "8305732a67b3bd5351c8b0e4a6abd22b776dafe46cabd54f93226a4620ce15b0"
+  },
+  {
+    "path": "assets/forum-workspace.png",
+    "sha256": "e98954440b81abbbeca9d2d5d948dd12f508e0d83465ee5398f13b9d05f2f5ba"
+  },
+  {
+    "path": "assets/icons/LICENSE",
+    "sha256": "687fbe52d0eb5c2353eca27a4037e889145ee0b584d3b1abf67581c4a4a4e47c"
+  },
+  {
+    "path": "assets/icons/fill/Phosphor-Fill.woff2",
+    "sha256": "660bd6045c0e0d9756cddb8ba2ece3aad855df7d4a170ef23f7b1c0bf511c430"
+  },
+  {
+    "path": "assets/icons/fill/style.css",
+    "sha256": "4294796e3a001c21a7011fb9ded845ca437fc0cd2eff4f27c432639ecd602480"
+  },
+  {
+    "path": "assets/icons/regular/Phosphor.woff2",
+    "sha256": "c2ea45ea05ff5c7df1936770c104725f2a68f43fd343f35f3da23a30b27de32a"
+  },
+  {
+    "path": "assets/icons/regular/style.css",
+    "sha256": "d8e3612a05d235222f4304f54f0b626ae4eb0a84b2c0ccd1a27ed6332052eb15"
+  },
+  {
+    "path": "assets/model-picker.png",
+    "sha256": "f347f97af1c6a372e9b32fed3203aa7d26cb4254916074b2aa8a03ff56605ee1"
+  },
+  {
+    "path": "assets/plugin-reference.png",
+    "sha256": "b6cb50f7e77c370138beb0d2568479b3c8f4649eac0ad293088158ab33066a24"
+  },
+  {
+    "path": "assets/project-dialog.png",
+    "sha256": "be6eb80ddb0d9a38309b2f5e4462cb2e00688665b109eb289bd9aa788edc2545"
+  },
+  {
+    "path": "assets/status-reference.png",
+    "sha256": "6794f92933a9c509a1a7abb66716b04c332e890d678d0d592166f524e7768084"
+  },
+  {
+    "path": "assets/welcome-reference.png",
+    "sha256": "365cf7ca011ad63e845feb409050a250802102432ed5624aa89a66a228ef37c6"
+  },
+  {
+    "path": "bot-builder.jsx",
+    "sha256": "eb109ac1e431b8e5eb7e49bc97ae065dddc41b0a0a28aba23c641869e740b833"
+  },
+  {
+    "path": "bot-conversation.jsx",
+    "sha256": "cc5a527fbabbb2d1e65d5e7c9173ca72ab9ca5140741a030d2bc3ec83d9c5cf9"
+  },
+  {
+    "path": "composer-dark.css",
+    "sha256": "23c4753ad8d3f77025511f61db4c3a8602e5706e0a2ea4d0658ac1277d3b7ed1"
+  },
+  {
+    "path": "composer-usage.jsx",
+    "sha256": "10a345a83ec56bd0790503db351db42f460ef063f1431fd48379960f6e8e9e2e"
+  },
+  {
+    "path": "composer.js",
+    "sha256": "b4728ca56a5d9d5a11387cb0ead499b89d8182fbb7e347c9e2498ba5837c829c"
+  },
+  {
+    "path": "forum.jsx",
+    "sha256": "c4af5d37c8aa3912832dadd83e95a1bcd0ec22d867bbdf9251768e6fd1fc1e3b"
+  },
+  {
+    "path": "icons.js",
+    "sha256": "9e0bb809a034795c98dbeade3fb2837185a229c50deae9ccf7e1b7363d50734a"
+  },
+  {
+    "path": "index.html",
+    "sha256": "eb8fe0d597b88faf36b9b8ed4a38d4238796bd7c0c2a1ce5f40a8df880b10180"
+  },
+  {
+    "path": "keyline-icons.css",
+    "sha256": "a06db73bc7eb4112825efd07bb204f6e4ab63837816e1477a439699094065b47"
+  },
+  {
+    "path": "package.json",
+    "sha256": "f6e09bc0c8fde24f7d40dec284f23a3827fd1824a146f2d6a3cb9f3d6bc97afd"
+  },
+  {
+    "path": "project-data.js",
+    "sha256": "1a86a7bfeb182553ae6dcb25d2069b12dbf3055935916a4e08d850cf2a2d2550"
+  },
+  {
+    "path": "project-dialog.css",
+    "sha256": "ee9014d6bfb7f187248a754e76718d708e911594df62689bcd0ed5f1f62586f4"
+  },
+  {
+    "path": "project-popover.js",
+    "sha256": "2ca564254ad1b36792e3173dc64c3f7dca49b4df5ec68613951eed30cd6473bf"
+  },
+  {
+    "path": "sidebar-chats.js",
+    "sha256": "6d88bc15046f3f1643559a71592b30db863c660e07e299d1e55ffb3baabbaea2"
+  },
+  {
+    "path": "sidebar-resize.js",
+    "sha256": "3ffddf7bc189b8c6740fc26282eed80891db0424336c7e20ec6f2924844af996"
+  },
+  {
+    "path": "src/app/desktop.d.ts",
+    "sha256": "d5acb8b42675dd93c3cd23256d4ea6c0419d69d1a3c756c271ba4a44bad4f0a7"
+  },
+  {
+    "path": "src/app/main.tsx",
+    "sha256": "e534f8d5fa21c1b4aff13203503867a0d84d56c2cd568e689a3d30cbf20c38f4"
+  },
+  {
+    "path": "src/app/window-controls.tsx",
+    "sha256": "9a936e0284556f62e6b95956276cf08094f4ade3e74b4cd1b26fcf50b4cd7ad7"
+  },
+  {
+    "path": "src/features/chat/chat-reply.ts",
+    "sha256": "44603bf87c902fbc631fb8d4e7979c7bc8d55366202abcda4ef96da74a5fd06a"
+  },
+  {
+    "path": "src/features/chat/chat-transcript.tsx",
+    "sha256": "9893add09385556d57a642566da68f9d47826fc627df048bd7bd205f3c1d7780"
+  },
+  {
+    "path": "src/features/chat/context-budget.mjs",
+    "sha256": "3481aa38811d79ab7d596f072bd7f8fd60d4de546a09b4c701428a464aa23ad9"
+  },
+  {
+    "path": "src/features/chat/markdown-renderer.js",
+    "sha256": "b11fd191d786f610ac2dc38055259a625e6c30a70fcbcce7c95c96e4f472fcdf"
+  },
+  {
+    "path": "src/features/chat/markdown.css",
+    "sha256": "b300c0e2e106735385789d19d62ae5d8962bc154339a7e664033a99de93246e2"
+  },
+  {
+    "path": "src/features/chat/markdown.jsx",
+    "sha256": "f4379a12d849666e0166b4808887401ca59131cc4341c0a45da254eae7461112"
+  },
+  {
+    "path": "src/features/memory/memory-settings.css",
+    "sha256": "1a140c9431bc51dc731d2700ef4eff7b3a103f38f34f80fa3c87bfbc9e72dde9"
+  },
+  {
+    "path": "src/features/memory/memory-settings.jsx",
+    "sha256": "9175b10b004f16f4cd9d37afa23c6c024e3bd4cf95ab6fca311cb844ecd6a888"
+  },
+  {
+    "path": "src/services/desktop-model-client.ts",
+    "sha256": "37855739958ee3a027f9c8d1623283d689d76955366234da727d24768bd0789d"
+  },
+  {
+    "path": "src/services/mock-mova-client.ts",
+    "sha256": "f98967e7c2ffa37dc7a326fae24bd08c1817c6a8c3116f6a7db2595d4b57cc9f"
+  },
+  {
+    "path": "src/services/mova-client.ts",
+    "sha256": "be50b25eb324402c3bb6d13993d03d90f2d4e42a9c8e97fa0eb42a614a555d47"
+  },
+  {
+    "path": "styles.css",
+    "sha256": "c18f8df5175868c07e8e2926659815efb0f361049c281489749f0be7c36083ff"
+  },
+  {
+    "path": "thinking-block.jsx",
+    "sha256": "6b431a4998b3e6cb1d9d38cece75e304f698567f65f9531bc83e24b82a09dc1c"
+  },
+  {
+    "path": "tsconfig.json",
+    "sha256": "c0a9b6ab05965458490426f2ebab7b73d80e8d6641af7eecb7ca21fab7945e75"
+  },
+  {
+    "path": "vendor/emotion-ball/LICENSE",
+    "sha256": "315bd49d2acf1e78a688a66f119b5f30a3d2003f3a97e0116f3dceaf13c1e053"
+  },
+  {
+    "path": "vendor/emotion-ball/LICENSE-COMMERCIAL.md",
+    "sha256": "0f45a7afc08d307376406153bd74883c030ec7d0b5ffdf2c182d46f0b4150002"
+  },
+  {
+    "path": "vendor/emotion-ball/js/ball.js",
+    "sha256": "a08e3051e1da63a9153395409549268bb8a154fad482d934c9a145b6e1a3b8f1"
+  },
+  {
+    "path": "vendor/emotion-ball/js/emotions.js",
+    "sha256": "2961bad62de243a3a1515e716039638424e9985203af19115660261523f5438e"
+  },
+  {
+    "path": "vendor/emotion-ball/js/engine.js",
+    "sha256": "428dd287266f641836c2bcc05ce8b1def6d5a1b2974d3560fc68b3d9c183d11d"
+  },
+  {
+    "path": "vendor/emotion-ball/js/rings.js",
+    "sha256": "9cf9733b8d3b2fa1043019dabfd3a26c25ad783bc7625d8a5e391c281e092270"
+  },
+  {
+    "path": "vendor/leibox/DeepAgentComposerEngine.js",
+    "sha256": "3b9febcce7be6d9b4a8df192eb95a1e628fec5c4e8418659a412aadb29115720"
+  },
+  {
+    "path": "vendor/leibox/LICENSE.md",
+    "sha256": "2a9a221a47f581d7984ca3a568e38fb17d5b6e43164db3f3482b4767c8e8e5b3"
+  },
+  {
+    "path": "vendor/leibox/keyline-fontawesome.js",
+    "sha256": "b49a5ddfb9dbf87bffb6cfa59181c725eddbda76d52fd034cb15ed489823a3fc"
+  },
+  {
+    "path": "vendor/leibox/keyline-lucide.js",
+    "sha256": "d71d4f719c93e31f8fb7c84e21338443d28751e43395140a347bb82e116c0056"
+  },
+  {
+    "path": "vite.config.js",
+    "sha256": "2be94e17c7f4a0f0fc2d7598471d253dd53c4cfc73db7d94695c461f97305742"
+  }
+]

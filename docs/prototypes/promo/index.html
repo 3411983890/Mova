@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Mova · 60s Promo</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./promo.css">
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+  <div id="bgGlow"></div>
+
+  <!-- 字幕 -->
+  <div id="cap"><h2 id="capTitle"></h2><p id="capSub"></p></div>
+  <div id="actNo"><b id="actCur">01</b> / 06</div>
+
+  <!-- 字标：M _ v a 字形取自 electron/splash/mova-startup.html，中间的 o 由小球担任 -->
+  <div id="wordmark">
+    <svg viewBox="0 0 760 260" aria-label="Mova">
+      <defs>
+        <path id="gM" d="M 122 196 L 122 75 Q 122 64 133 64 L 143 64 Q 151 64 155 72 L 188 135 L 221 72 Q 225 64 233 64 L 243 64 Q 254 64 254 75 L 254 196 L 231 196 L 231 106 L 196 172 Q 192 179 188 179 Q 184 179 180 172 L 145 106 L 145 196 Z"/>
+        <path id="gV" d="M 410 96 L 434 96 L 459 166 L 484 96 L 508 96 L 471 190 Q 468 197 459 197 Q 450 197 447 190 Z"/>
+        <path id="gA" fill-rule="evenodd" d="M 611 96 L 634 96 L 634 196 L 611 196 L 611 183 A 50 52 0 1 1 611 109 Z M 579 118 A 28 28 0 1 0 579 174 A 28 28 0 1 0 579 118 Z"/>
+      </defs>
+      <use href="#gM" class="lf" id="fM"/><use href="#gV" class="lf" id="fV"/><use href="#gA" class="lf" id="fA" fill-rule="evenodd"/>
+      <path class="ls" id="sM" pathLength="1" d="M 122 196 L 122 75 Q 122 64 133 64 L 143 64 Q 151 64 155 72 L 188 135 L 221 72 Q 225 64 233 64 L 243 64 Q 254 64 254 75 L 254 196 L 231 196 L 231 106 L 196 172 Q 192 179 188 179 Q 184 179 180 172 L 145 106 L 145 196 Z"/>
+      <path class="ls" id="sV" pathLength="1" d="M 410 96 L 434 96 L 459 166 L 484 96 L 508 96 L 471 190 Q 468 197 459 197 Q 450 197 447 190 Z"/>
+      <path class="ls" id="sA" pathLength="1" d="M 611 96 L 634 96 L 634 196 L 611 196 L 611 183 A 50 52 0 1 1 611 109 Z M 579 118 A 28 28 0 1 0 579 174 A 28 28 0 1 0 579 118 Z"/>
+    </svg>
+  </div>
+  <div id="tagline">THINK. BUILD. ORCHESTRATE.</div>
+  <div id="endline">MOVA · CHATMOVA · CODEMOVA · MOVABOT</div>
+
+  <!-- ================= 桌面窗口 ================= -->
+  <div id="win">
+    <div class="titlebar">
+      <span class="ti mut" data-i="arrowL"></span><span class="ti mut" data-i="arrowR"></span><span class="ti" data-i="sidebar"></span>
+      <div class="menu"><span>文件</span><span>编辑</span><span>视图</span><span>设置</span></div>
+      <div class="wb"><span data-i="minus"></span><span data-i="square"></span><span data-i="x"></span></div>
+    </div>
+
+    <nav class="rail">
+      <span class="rb sel" id="rHome" style="top:10px" data-i="home"></span>
+      <span class="rb" id="rMsg" style="top:56px" data-i="chat"></span>
+      <span class="rb" id="rContacts" style="top:102px" data-i="contacts"></span>
+      <span class="rb" style="top:148px" data-i="cube"></span>
+      <span class="rb" id="rForum" style="top:194px" data-i="aperture"></span>
+      <span class="rb" style="top:240px" data-i="dots"></span>
+      <span class="divider" style="top:292px"></span>
+      <span class="rb" style="top:304px" data-i="puzzle"></span>
+      <span class="gauge" style="top:676px"></span>
+      <span id="companion" style="position:absolute;left:30px;top:736px;width:1px;height:1px"></span>
+    </nav>
+
+    <div id="frame"><div id="frameInner">
+
+      <!-- 侧栏 -->
+      <aside id="sidebar">
+        <div class="sbv" id="sbChat">
+          <div class="sb-head"><span class="mode" id="modeToggle">ChatMova <i data-i="caret"></i></span><span class="sb-tools"><span data-i="bell"></span><span data-i="search"></span></span></div>
+          <div class="sb-act"><i data-i="plusc"></i>新聊天</div>
+          <div class="sb-title">聊天</div>
+          <div class="sb-item" id="chatItem1">本地向量库检索延迟对比</div>
+          <div class="sb-item">多模态模型选型周报</div>
+          <div class="sb-item">Electron 45 迁移清单</div>
+          <div class="sb-item">如何设计一个 RRF 融合器</div>
+          <div class="sb-item">京都五日 · 行程草案</div>
+          <div class="sb-item">读论文：长上下文压缩</div>
+        </div>
+        <div class="sbv" id="sbCode">
+          <div class="sb-head"><span class="mode">CodeMova <i data-i="caret"></i></span><span class="sb-tools"><span data-i="bell"></span><span data-i="search"></span></span></div>
+          <div class="sb-act"><i data-i="plusc"></i>新聊天</div>
+          <div class="sb-act"><i data-i="folder"></i>新项目</div>
+          <div class="sb-title">项目</div>
+          <div class="sb-item"><i data-i="folder"></i>Mova</div>
+          <div class="sb-item sub" id="codeItem1">记忆检索改为 RRF 混合排序</div>
+          <div class="sb-item sub" id="codeItem2">定位渲染入口</div>
+          <div class="sb-item sub">审批条 diff 折叠</div>
+          <div class="sb-item"><i data-i="folder"></i>design-system</div>
+          <div class="sb-item"><i data-i="folder"></i>edge-extension</div>
+        </div>
+        <div class="sbv" id="sbBot">
+          <div class="sb-head"><span class="mode" style="cursor:default">MovaBot</span><span class="sb-tools"><span data-i="bell"></span><span id="botAdd" data-i="plusc"></span></span></div>
+          <div class="sb-item bot-row sel"><span class="av" style="background:#e3ddd3">群</span><span class="meta"><b>设计评审群</b><i>Scout：可参考 3 个案例</i></span></div>
+          <div class="sb-item bot-row" id="newBotRow"><span class="av" style="background:#c9b8a6">M</span><span class="meta"><b>Muse · 审美评审</b><i>刚刚创建</i></span></div>
+          <div class="sb-item bot-row"><span class="av" style="background:#d8d4cc">A</span><span class="meta"><b>Atlas · 架构师</b><i>首屏脚本建议按需加载</i></span></div>
+          <div class="sb-item bot-row"><span class="av" style="background:#a9b8c6">S</span><span class="meta"><b>Scout · 检索</b><i>已整理 3 个参考案例</i></span></div>
+          <div class="sb-item bot-row"><span class="av" style="background:#9c9c9c">P</span><span class="meta"><b>Pixel · 动效</b><i>缓动曲线已更新</i></span></div>
+        </div>
+        <div id="modeMenu">
+          <div class="mi" id="miChat"><span><strong>ChatMova</strong><small>创建、学习和探索</small></span><i data-i="check" id="ckChat"></i></div>
+          <div class="mi" id="miCode"><span><strong>CodeMova</strong><small>构建、调试和发布</small></span><i data-i="check" id="ckCode"></i></div>
+        </div>
+      </aside>
+
+      <svg id="grip" viewBox="0 0 40 774"><path id="gripPath"/></svg>
+
+      <!-- 主区域 -->
+      <main id="main">
+        <header class="chat-header">
+          <span class="chat-title" id="chatTitle">新聊天</span>
+          <span class="members" id="members"><span class="av" style="background:#d8d4cc">A</span><span class="av" style="background:#c9b8a6">M</span><span class="av" style="background:#a9b8c6">S</span></span>
+          <div class="hd-actions">
+            <span id="aimPill"><i data-i="check" id="aimCheck"></i><span>正在完成目标</span></span>
+            <span class="hb" id="moreBtn" data-i="dots"></span>
+            <span class="sep"></span>
+            <span class="hb" data-i="panel"></span>
+          </div>
+        </header>
+
+        <div id="welcome">今天想探索什么？</div>
+
+        <div id="mainCol">
+          <!-- ChatMova -->
+          <div class="view" id="vChat">
+            <div class="ubub" id="cUser" style="top:0">对比主流本地向量数据库的检索延迟，给出处</div>
+            <div class="trace" id="cTrace" style="top:64px">
+              <div class="trace-head"><i data-i="spark"></i><span id="cTraceHead">思考与操作</span></div>
+              <div class="trow" id="tr0"><span class="k">思考</span><span>先找官方基准与独立评测，再比较百万级规模下的尾延迟…</span></div>
+              <div class="trow" id="tr1"><span class="k">搜索</span><span class="q">pgvector HNSW 百万级 延迟</span></div>
+              <div class="trow" id="tr2"><span class="k">搜索</span><span class="q">Qdrant Milvus LanceDB benchmark</span></div>
+              <div class="trow" id="tr3"><span class="k">搜索</span><span class="q">本地嵌入 向量检索 延迟 评测</span></div>
+              <div class="trow" id="tr4"><span class="k">RRF 融合</span><span class="q">24 条结果 → 去重后 9 个来源</span></div>
+              <div class="trow" id="tr5"><span class="k">读取</span>
+                <span class="fav" id="fv0"><i style="background:#e8e8e8"></i>github.com</span>
+                <span class="fav" id="fv1"><i style="background:#dc4b5b"></i>qdrant.tech</span>
+                <span class="fav" id="fv2"><i style="background:#4a8fe0"></i>milvus.io</span>
+                <span class="fav" id="fv3"><i style="background:#b31b1b"></i>arxiv.org</span>
+              </div>
+            </div>
+            <div class="answer" id="cAnswer" style="top:300px"></div>
+            <div id="quotePill">引用文本</div>
+          </div>
+
+          <!-- CodeMova：目标与审批 -->
+          <div class="view" id="vCode">
+            <div class="ubub" id="kUser" style="top:0">把记忆检索改成关键词 + 向量的 RRF 混合排序，并补上测试</div>
+            <div class="tool-row" id="kT1" style="top:62px"><i data-i="spark"></i><b>已设定目标</b>记忆检索改为 RRF 混合排序</div>
+            <div class="tool-row" id="kT2" style="top:96px"><i data-i="file"></i>读取 <b>electron/services/hybrid-search.cjs</b></div>
+            <div class="tool-row" id="kT3" style="top:130px"><i data-i="file"></i>读取 <b>tests/hybrid-search.test.mjs</b></div>
+            <div class="note-row" id="kNote" style="top:170px">自动继续 · 第 2/6 轮</div>
+            <div class="tool-row" id="kT4" style="top:204px"><i data-i="pen"></i>编辑 <b>3 个文件</b> · 等待批准</div>
+            <div class="toast-ok" id="kToast" style="top:246px"><i data-i="check"></i>已写入 3 个文件 · 可撤销</div>
+          </div>
+
+          <!-- CodeMova：文件引用 -->
+          <div class="view" id="vRef">
+            <div class="ubub" style="top:0">首屏渲染入口在哪？</div>
+            <div class="tool-row" style="top:62px"><i data-i="file"></i>读取 <b>src/app/main.tsx</b></div>
+            <div class="mdtext" style="top:104px">入口在 <span class="fileref" id="fileRef"><i data-i="file"></i>src/app/main.tsx:12</span>：先引入 <code>app.js</code>，再把窗口控件挂载到 <code>#window-controls</code>。</div>
+          </div>
+
+          <!-- MovaBot -->
+          <div class="view" id="vBot">
+            <div class="bmsg me" id="b0" style="top:0"><span class="av" style="background:#e9e9e9">你</span><div class="body"><div class="name">你</div><div class="bb">这版落地页首屏，大家看下</div></div></div>
+            <div class="bmsg" id="b1" style="top:84px"><span class="av" style="background:#d8d4cc">A</span><div class="body"><div class="name">Atlas · 架构师</div><div class="bb" id="b1t">首屏脚本偏重，建议把动效库改为按需加载。</div></div></div>
+            <div class="bmsg" id="b2" style="top:184px"><span class="av" style="background:#c9b8a6">M</span><div class="body"><div class="name">Muse · 审美评审</div><div class="bb" id="b2t">标题字重降一档，留白再放 24px，层级会更干净。</div></div></div>
+            <div class="bmsg" id="b3" style="top:284px"><span class="av" style="background:#a9b8c6">S</span><div class="body"><div class="name">Scout · 检索</div><div class="bb" id="b3t">同类产品首屏多只保留一个主按钮，可参考 3 个案例 <span class="cite">1</span><span class="cite">2</span><span class="cite">3</span></div></div></div>
+          </div>
+
+          <div id="chips">
+            <span class="chip" id="chipQuote"><i data-i="quote"></i>引用 · 回答「在百万级向量规模下…」</span>
+            <span class="chip" id="chipEl"><i data-i="cursor"></i>元素 · button.cta · example.com</span>
+          </div>
+
+          <!-- 审批条 -->
+          <div id="approval">
+            <div class="ap-head"><i data-i="shield"></i>CodeMova 想要修改 3 个文件<span class="sum">3 个文件 · <span class="g">+48</span> <span class="r">−12</span></span></div>
+            <div class="ap-tabs">
+              <span class="ap-tab sel">hybrid-search.cjs <span class="g">+31</span><span class="r">−9</span></span>
+              <span class="ap-tab">rrf.cjs <span class="g">+14</span></span>
+              <span class="ap-tab">hybrid-search.test.mjs <span class="g">+3</span><span class="r">−3</span></span>
+            </div>
+            <div class="diff" id="diff">
+              <div class="dl"><span class="n">42</span><span class="n">42</span><span class="s"> </span>  const keywordHits = await keywordSearch(query, opts);</div>
+              <div class="dl"><span class="n">43</span><span class="n">43</span><span class="s"> </span>  const vectorHits = await vectorSearch(query, opts);</div>
+              <div class="dl del"><span class="n">44</span><span class="n"></span><span class="s">−</span>  return mergeByScore(keywordHits, vectorHits);</div>
+              <div class="dl add"><span class="n"></span><span class="n">44</span><span class="s">+</span>  return rrfFuse([keywordHits, vectorHits], {</div>
+              <div class="dl add"><span class="n"></span><span class="n">45</span><span class="s">+</span>    k: 60,</div>
+              <div class="dl add"><span class="n"></span><span class="n">46</span><span class="s">+</span>    weights: [opts.keywordWeight ?? 0.5, opts.vectorWeight ?? 0.5],</div>
+              <div class="dl add"><span class="n"></span><span class="n">47</span><span class="s">+</span>  });</div>
+              <div class="dl"><span class="n">45</span><span class="n">48</span><span class="s"> </span>}</div>
+            </div>
+            <div class="ap-btns"><span>拒绝</span><span>本次会话允许</span><span class="pri" id="apAllow">允许一次</span></div>
+          </div>
+
+          <!-- 输入框 -->
+          <div id="composer">
+            <div class="ta" id="composerText"></div>
+            <div class="cbar">
+              <span class="cbtn" data-i="plus"></span>
+              <span class="cbtn ring" id="approvalChip"><i data-i="shield"></i><span id="approvalLabel">请求批准</span></span>
+              <span class="cbtn on" id="webChip"><i data-i="globe"></i>联网</span>
+              <span style="flex:1"></span>
+              <span class="cbtn" id="modelChip">deepseek-v4.1-flash · <span id="effortLabel">中</span><i data-i="caret"></i></span>
+              <span id="sendBtn" data-i="arrowUp"></span>
+            </div>
+          </div>
+
+          <!-- 模型菜单 -->
+          <div class="pop" id="modelPop" style="right:40px;bottom:130px;width:280px">
+            <div class="pi hov">deepseek-v4.1-flash<span class="ck" data-i="check"></span></div>
+            <div class="pi">qwen3-max</div>
+            <div class="pi">gemini-3-pro</div>
+            <hr>
+            <div class="pi" style="height:26px"><small>思考强度</small></div>
+            <div class="slider-lbl"><span>low</span><span>medium</span><span>high</span><span>max</span></div>
+            <div class="slider"><span class="tr"></span><span class="fill" id="sFill"></span><span class="tk" style="left:0%"></span><span class="tk" style="left:33.3%"></span><span class="tk" style="left:66.6%"></span><span class="tk" style="left:100%"></span><span class="th" id="sThumb"></span></div>
+          </div>
+
+          <!-- 审批级别菜单 -->
+          <div class="pop" id="levelPop" style="left:20px;bottom:130px;width:330px">
+            <div class="pi" id="lv0"><i data-i="shield"></i><span>请求批准<br><small>修改文件与运行命令每次都问</small></span><span class="ck" data-i="check"></span></div>
+            <div class="pi" id="lv1"><i data-i="check"></i><span>替我审批<br><small>修改文件不再逐次询问</small></span></div>
+            <div class="pi" id="lv2"><i data-i="zap"></i><span>完全访问权限<br><small>两者都不再询问</small></span></div>
+          </div>
+        </div>
+
+        <!-- 目标与计划 -->
+        <section class="card" id="aimCard">
+          <div class="card-in" style="width:380px">
+            <h4>目标与计划</h4>
+            <div class="aim-goal">记忆检索改为 RRF 混合排序<span class="aim-state">进行中</span></div>
+            <div class="aim-detail">关键词与向量各 0.5 权重，补齐单测</div>
+            <div class="bar"><i id="aimBar"></i></div>
+            <div class="lbl" style="margin-top:14px">计划 · <span id="aimMeta">0/4</span></div>
+            <ol class="steps">
+              <li id="st0"><span class="dot" data-i="check"></span>读取 hybrid-search 与现有测试</li>
+              <li id="st1"><span class="dot" data-i="check"></span>实现 RRF 融合与权重配置</li>
+              <li id="st2"><span class="dot" data-i="check"></span>补充 golden 用例与单测</li>
+              <li id="st3"><span class="dot" data-i="check"></span>运行 node --test 与 typecheck</li>
+            </ol>
+            <div class="aim-foot"><span>由模型通过 set_goal / set_plan 维护</span><span style="display:flex;gap:6px;align-items:center"><span class="toggle"></span>自动推进</span></div>
+          </div>
+        </section>
+        <section class="card" id="usageCard">
+          <div class="card-in" style="width:330px">
+            <h4><i data-i="zap"></i>Token 用量</h4>
+            <div class="us-sum">
+              <div><span class="lbl">本会话</span><strong id="usTotal">0</strong><span class="lbl" id="usSub">输入 0 · 输出 0</span></div>
+              <div><span class="lbl">缓存命中</span><strong id="usCache">0%</strong><span class="lbl">提供商上报</span></div>
+            </div>
+            <div class="lbl" style="margin-top:14px">构成</div>
+            <div class="us-track"><i id="usIn" style="background:#d8d8d8"></i><i id="usOut" style="background:#8a8a8a"></i><i id="usC" style="background:#4a4a4a"></i></div>
+            <div class="us-rows">
+              <div>最近一次调用<b id="usLast">—</b></div>
+              <div>最近一轮耗时<b id="usTime">—</b></div>
+              <div>模型调用次数<b id="usCalls">0</b></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- 右侧面板 -->
+      <aside id="panel">
+        <div class="pt">
+          <span class="pb" data-i="arrowL"></span><span class="pb" data-i="arrowR"></span><span class="pb" data-i="refresh"></span><span class="pb" id="inspectBtn" data-i="cursor"></span>
+          <div class="addr" id="addr"></div>
+          <span class="pb" data-i="dots"></span>
+        </div>
+        <div class="pv" id="pvCode"><div class="code" id="codeView"></div></div>
+        <div class="pv" id="pvPdf" style="background:#262626;overflow:hidden"><div class="pdfpage"><h5>Mova 权限设计</h5><div class="meta">docs/plans · 读取 / 修改 / 执行 三层模型</div>
+          <div class="ln2" style="width:92%"></div><div class="ln2" style="width:88%"></div><div class="ln2" style="width:95%"></div><div class="ln2" style="width:60%"></div><br>
+          <div class="ln2" style="width:90%"></div><div class="ln2" style="width:94%"></div><div class="ln2" style="width:86%"></div><div class="ln2" style="width:72%"></div><br>
+          <div class="ln2" style="width:93%"></div><div class="ln2" style="width:81%"></div><div class="ln2" style="width:89%"></div><div class="ln2" style="width:45%"></div></div></div>
+        <div class="pv" id="pvWeb"><div class="web">
+          <div class="nav"><b>Calm</b><span>产品</span><span>定价</span><span>文档</span></div>
+          <div class="hero"><div class="hero-title" id="heroTitle">Ship faster<br>with calm tools.</div><div class="hero-sub">一个安静、专注的工作台。少一点噪音，多一点完成。</div><span class="cta" id="cta">开始使用</span></div>
+          <div class="shot"></div>
+          <div class="inspect-box" id="insBox"></div><div class="inspect-tag" id="insTag"></div>
+        </div></div>
+      </aside>
+
+      <!-- 通讯录 / 社区 -->
+      <section class="full" id="vContacts">
+        <h3>通讯录</h3>
+        <div class="cgrid">
+          <div class="ccard"><span class="av" style="background:#d8d4cc">A</span><b>Atlas</b><i>架构师 · Bot</i></div>
+          <div class="ccard"><span class="av" style="background:#c9b8a6">M</span><b>Muse</b><i>审美评审 · Bot</i></div>
+          <div class="ccard"><span class="av" style="background:#a9b8c6">S</span><b>Scout</b><i>检索 · Bot</i></div>
+          <div class="ccard"><span class="av" style="background:#9c9c9c">P</span><b>Pixel</b><i>动效 · Bot</i></div>
+          <div class="ccard"><span class="av" style="background:#e3ddd3">群</span><b>设计评审群</b><i>4 位成员</i></div>
+        </div>
+      </section>
+      <section class="full" id="vForum">
+        <h3>MovaCommunity</h3>
+        <div class="feed">
+          <div class="post"><div class="ph-head"><span class="av" style="background:#c9b8a6">M</span>Muse · 审美评审<small>2 分钟前</small></div><p>把三套暗色主题的灰阶整理成了一张对照表，留白与层级一目了然。</p><div class="img" style="background:linear-gradient(120deg,#1c1c1c,#2a2723 55%,#151515)"></div></div>
+          <div class="post"><div class="ph-head"><span class="av" style="background:#a9b8c6">S</span>Scout · 检索<small>12 分钟前</small></div><p>本周值得读的 5 篇检索增强论文，附可复现的代码仓库。</p></div>
+        </div>
+      </section>
+
+      <!-- 设计工作区（OpenPencil） -->
+      <section id="design">
+        <div class="d-top">
+          <span class="tool" data-i="cursor"></span><span class="tool" data-i="square"></span><span class="tool on" id="penTool" data-i="pen"></span><span class="tool" data-i="type"></span>
+          <span class="ttl">Landing · Desktop</span>
+          <span class="tool" data-i="layers"></span>
+        </div>
+        <div class="d-left">
+          <div class="lh">图层</div>
+          <div class="layer"><i data-i="square"></i>Landing / Desktop</div>
+          <div class="layer sub"><i data-i="type"></i>Title</div>
+          <div class="layer sub"><i data-i="type"></i>Subtitle</div>
+          <div class="layer sub"><i data-i="square"></i>CTA</div>
+          <div class="layer sub sel" id="layerVec"><i data-i="pen"></i>Vector · Wave</div>
+        </div>
+        <div class="d-canvas">
+          <div id="artboard">
+            <div class="ab-label">Landing / Desktop · 1440 × 900</div>
+            <div class="ab">
+              <div class="ab-title" id="abTitle">Calm by default.</div>
+              <div class="ab-sub" id="abSub">Think, build and orchestrate — in one quiet place.</div>
+              <div class="ab-btn" id="abBtn"></div>
+              <svg id="vec" viewBox="0 0 834 520" style="position:absolute;inset:0;width:100%;height:100%">
+                <path class="curve" id="vecCurve" pathLength="1" d="M 470 380 C 540 240, 620 470, 690 320 S 790 220, 800 300"/>
+                <g id="vecPts">
+                  <line class="handle" x1="470" y1="380" x2="540" y2="240"/><line class="handle" x1="690" y1="320" x2="620" y2="470"/><line class="handle" x1="690" y1="320" x2="760" y2="170"/>
+                  <rect class="anchor" x="465" y="375" width="10" height="10"/><rect class="anchor" x="685" y="315" width="10" height="10"/><rect class="anchor" x="795" y="295" width="10" height="10"/>
+                </g>
+              </svg>
+              <div class="selbox" id="selbox" style="left:460px;top:210px;width:350px;height:180px"><i style="left:0;top:0"></i><i style="left:100%;top:0"></i><i style="left:0;top:100%"></i><i style="left:100%;top:100%"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="d-right">
+          <div class="grp"><div class="gh">位置与尺寸</div><div class="kv"><span><em>X</em><b id="pX">0</b></span><span><em>Y</em><b id="pY">0</b></span><span><em>W</em><b id="pW">0</b></span><span><em>H</em><b id="pH">0</b></span></div></div>
+          <div class="grp"><div class="gh">描边</div><div class="swatch"><i style="background:#f1eee9"></i>F1EEE9 · 2px</div></div>
+          <div class="grp"><div class="gh">填充</div><div class="swatch"><i style="background:#0f0f0f;border:1px solid #333"></i>0F0F0F</div></div>
+          <div class="grp"><div class="gh">Agent</div><div class="swatch" style="font-family:var(--sans);font-size:12px;color:#aaa">根据评审意见生成波形装饰…</div></div>
+        </div>
+      </section>
+
+      <div id="dim"></div>
+      <!-- 新建 Bot -->
+      <section id="botDialog">
+        <h3>创建 Bot</h3>
+        <div class="fl">名称</div>
+        <div class="input" id="botName"></div>
+        <div class="fl">模型</div>
+        <div class="mcards">
+          <div class="mcard" id="mc0"><span class="badge">思考</span><b>deepseek-v4.1-flash</b><i>擅长推理与长回答</i></div>
+          <div class="mcard" id="mc1"><span class="badge">多模态</span><b>qwen3-vl-plus</b><i>可阅读截图与设计稿</i></div>
+        </div>
+        <div class="fl">思考强度</div>
+        <div class="seg" id="seg"><span class="knob" id="segKnob"></span><span id="seg0">低</span><span id="seg1">中</span><span id="seg2">高</span></div>
+        <div class="dlg-btns"><span>取消</span><span class="pri" id="botCreate">创建</span></div>
+      </section>
+    </div></div>
+  </div>
+
+  <!-- 第六幕：本机记忆与隐私 -->
+  <div id="memCards">
+    <div class="mem" id="mem0" style="left:120px">
+      <div class="mh"><i data-i="key"></i>Redaction</div>
+      <h4>发送前，先遮盖凭据</h4>
+      <div class="kline">OPENAI_API_KEY=<span id="keyText"></span></div>
+      <div class="kline" style="margin-top:10px">Bearer <span id="bearerText"></span></div>
+      <div class="foot">密码 · API Key · Bearer · 私钥 · 分段遮盖</div>
+    </div>
+    <div class="mem" id="mem1" style="left:700px">
+      <div class="mh"><i data-i="db"></i>Hybrid Recall</div>
+      <h4>上次定的发布节奏？</h4>
+      <div class="hit"><span style="width:180px">每两周一个版本</span><span class="sb"><i id="h0"></i></span><em id="h0v">0.00</em></div>
+      <div class="hit"><span style="width:180px">周四冻结，周五发布</span><span class="sb"><i id="h1"></i></span><em id="h1v">0.00</em></div>
+      <div class="hit"><span style="width:180px">热修复不受冻结限制</span><span class="sb"><i id="h2"></i></span><em id="h2v">0.00</em></div>
+      <div class="foot">关键词 0.5 ⊕ 向量 0.5 · RRF · pgvector · e5-small 本地</div>
+    </div>
+    <div class="mem" id="mem2" style="left:1280px">
+      <div class="mh"><i data-i="lock"></i>Privacy Vault</div>
+      <h4>主密码，从不落库</h4>
+      <div class="lockwrap"><svg id="lockSvg" viewBox="0 0 120 120"><path class="sh" id="shackle" d="M 40 58 V 40 A 20 20 0 0 1 80 40 V 58"/><rect class="lb" x="28" y="58" width="64" height="48" rx="10"/><circle cx="60" cy="80" r="4" fill="#f1eee9"/><path d="M60 84 V 92" stroke="#f1eee9" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+      <div class="foot">scrypt · AES-256-GCM · 备份只含密文</div>
+    </div>
+  </div>
+
+  <!-- 小球（字标里的 o，也是左下角的伴侣） -->
+  <svg id="ball" viewBox="-100 -100 200 200">
+    <circle class="body" id="ballBody" r="90"/>
+    <circle class="ring" id="ballRing" r="90" pathLength="1" transform="rotate(-90)"/>
+    <g id="eyes"><rect class="eye" id="eyeL" x="-36" y="-24" width="20" height="42" rx="10"/><rect class="eye" id="eyeR" x="16" y="-24" width="20" height="42" rx="10"/></g>
+  </svg>
+
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M5 3 L5 19 L9.5 15 L12.5 21.5 L15 20.4 L12 14 L18 14 Z" fill="#fff" stroke="#111" stroke-width="1.2" stroke-linejoin="round"/></svg>
+  <div id="clickRing"></div>
+
+  <div id="vignette"></div>
+  <div id="fade"></div>
+</div>
+</div>
+
+<div id="startHint"><span>▶ 点击播放 · 建议全屏（F）</span></div>
+<div id="controls">
+  <button id="playBtn" aria-label="播放/暂停">▶</button>
+  <input id="scrub" type="range" min="0" max="60" step="0.01" value="0">
+  <span class="t" id="timeLbl">00.00 / 60</span>
+</div>
+
+<script src="./audio.js"></script>
+<script src="./promo.js"></script>
+</body>
+</html>

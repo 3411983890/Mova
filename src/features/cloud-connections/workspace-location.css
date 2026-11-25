@@ -1,0 +1,33 @@
+.workspace-location .project-device-wrap,
+.workspace-location .project-device-toggle { max-width: 100%; }
+.workspace-location .project-device-toggle span,
+.workspace-location .project-device-menu button > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.workspace-location .project-device-menu { max-width: calc(100vw - 52px); max-height: 280px; overflow: auto; }
+.workspace-location .project-device-toggle:focus-visible,
+.workspace-location button:focus-visible { outline: 2px solid #6192b4; outline-offset: 2px; }
+.workspace-location-hint { margin: 0; color: #a9a9a9; font-size: .85em; text-align: center; }
+.group-dialog .workspace-location { gap: 11px; min-height: 104px; border-radius: 12px; }
+.place-dialog .workspace-location .project-device-menu { position: static; transform: none; margin-top: 8px; }
+.group-dialog .workspace-location .project-device-toggle,
+.group-dialog .workspace-location .project-folder-button,
+.place-dialog .workspace-location .project-device-toggle,
+.place-dialog .workspace-location .project-folder-button { font-size: 13px; }
+.group-dialog .workspace-location .project-device-menu button,
+.group-dialog .workspace-location .project-device-caption,
+.group-dialog .workspace-location .project-device-empty,
+.place-dialog .workspace-location .project-device-menu button,
+.place-dialog .workspace-location .project-device-caption,
+.place-dialog .workspace-location .project-device-empty { font-size: 13px; }
+.remote-host-dialog { position: fixed; inset: 0; margin: auto; width: min(430px, calc(100vw - 32px)); padding: 24px; border: 1px solid #414141; border-radius: 20px; background: #242424; color: #eee; }
+.remote-host-dialog::backdrop { background: #0009; }
+.remote-host-form { display: grid; gap: 13px; }
+.remote-host-form h2 { margin: 0 0 5px; font-size: 20px; }
+.remote-host-form label { display: grid; gap: 6px; font-size: 13px; }
+.remote-host-form input, .remote-host-form select { min-width: 0; padding: 9px 11px; border: 1px solid #4a4a4a; border-radius: 9px; background: #272727; color: #eee; font: inherit; }
+.remote-host-form p { margin: 0; color: #aeaeae; font-size: 12px; }
+.remote-host-form .remote-host-error { color: #f0a6a1; }
+.remote-host-local { justify-self: start; color: #a5cbee; font-size: 12px; }
+.remote-host-form footer { display: flex; justify-content: end; gap: 8px; }
+.remote-host-form footer button { padding: 8px 13px; border-radius: 18px; background: #363636; }
+.remote-host-form footer button[type=submit] { background: #eee; color: #222; }
+.remote-host-form footer button:disabled { opacity: .55; }

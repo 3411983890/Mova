@@ -1,0 +1,9 @@
+﻿[data-message-composer-surface] {
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 8px 24px #0004;
+}
+
+/* Reduce the empty composer height while preserving multiline auto-growth. */
+[data-message-composer-surface] > .relative { padding-top: 2px; padding-bottom: 2px; }
+.composer-toolbar { margin-top: 0; }
+[data-message-composer-surface] textarea { min-height: 40px !important; }

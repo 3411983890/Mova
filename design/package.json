@@ -1,0 +1,37 @@
+{
+  "name": "mova-design-standalone",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated editable Mova frontend snapshot; no Electron backend",
+  "scripts": {
+    "dev": "vite --config vite.config.js",
+    "build": "node scripts/build.mjs",
+    "preview": "vite preview --config vite.config.js",
+    "typecheck": "tsc --noEmit --project source/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "6.0.3",
+    "vite": "6.4.2"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.6",
+    "@keyline-icons/react": "^2.6.0",
+    "@radix-ui/react-slider": "^1.4.7",
+    "clsx": "^2.1.1",
+    "deep-agent-base-ui": "npm:@base-ui/react@^1.8.0",
+    "deep-agent-lucide": "npm:lucide-react@^1.43.0",
+    "generative-loaders": "^0.1.1",
+    "gsap": "^3.12.7",
+    "react": "^19.3.1",
+    "react-circular-progressbar": "^2.2.0",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.7.0"
+  }
+}

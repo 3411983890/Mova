@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>表单卡 · 紧凑版（Mova）</title>
+<style>
+  /* ── 紧凑版：字段走 6 列网格，窄字段标签与控件同排，枚举用分段按钮 ── */
+  :root {
+    --canvas: #131313;
+    --card-bg: #1d1d1d;
+    --card-line: #343434;
+    --ink-1: #ededed;
+    --ink-2: #a2a2a2;
+    --ink-3: #808080;
+    --ink-4: #8f8f8f;
+    --accent: #3795f5;
+    --accent-strong: #2f6bd8;
+    --accent-hover: #3a7ae8;
+    --accent-surface: #1e2c3d;
+    --accent-line: #2d4c74;
+    --accent-ink: #9dc2f5;
+    --field-bg: #171717;
+    --field-line: #333333;
+    --field-bg-sunken: #191919;
+    --danger: #e0928c;
+    --danger-surface: #2c2322;
+    --danger-line: #74443e;
+    --warn-bg: #28251e;
+    --warn-line: #6b5232;
+    --warn-ink: #e5cc9e;
+    --line-soft: #2a2a2a;
+    --radius-card: 12px;
+    --radius-field: 8px;
+    --dur: 160ms;
+    --ease: cubic-bezier(.22, .9, .26, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    background: var(--canvas);
+    color: #d8d8d8;
+    font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .icon { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* ── 舞台 ─────────────────────────────────────────────────────── */
+  .stage { display: flex; flex-direction: column; min-height: 100vh; }
+  .thread {
+    width: 804px; max-width: calc(100% - 40px);
+    margin: 0 auto; padding: 34px 0 10px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .msg { display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.7; }
+  .msg-role { font-size: 11px; color: #6f6f6f; }
+  .msg.user .msg-body { color: #cfcfcf; }
+  .msg.agent .msg-body { color: #b5b5b5; }
+  .msg-body code {
+    padding: 1px 4px; border-radius: 4px; background: #1e1e1e; border: 1px solid #2c2c2c;
+    font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: #d0d0d0;
+  }
+
+  .composer-area {
+    width: 804px; max-width: calc(100% - 40px);
+    margin: 0 auto; padding: 0 0 24px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  /* ── 卡片 ─────────────────────────────────────────────────────── */
+  .ask-card {
+    position: relative; display: flex; flex-direction: column; width: 100%;
+    padding: 10px 12px 10px 14px;
+    border: 1px solid var(--card-line); border-radius: var(--radius-card);
+    background: var(--card-bg); box-shadow: 0 10px 26px #00000040;
+    animation: card-in 160ms var(--ease) both;
+  }
+  @keyframes card-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  .ask-card::before {
+    content: ""; position: absolute; inset: 9px auto 9px 0; width: 3px;
+    border-radius: 0 3px 3px 0; background: var(--accent);
+  }
+  .ask-card.is-degraded::before { background: var(--warn-line); }
+
+  .ask-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; flex: none; }
+  .ask-badge {
+    flex: none; padding: 0 7px; border: 1px solid #3f4a5c; border-radius: 999px;
+    color: var(--accent-ink); font-size: 10.5px; line-height: 1.6;
+  }
+  .ask-question { color: var(--ink-1); font-size: 12.5px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+  .ask-detail { flex: none; color: var(--ink-3); font-size: 11.5px; line-height: 1.5; max-width: 52ch; text-wrap: pretty; }
+
+  /* ── 字段网格 ─────────────────────────────────────────────────── */
+  .ask-body {
+    display: flex; flex-direction: column; min-height: 0;
+    margin-top: 8px; max-height: min(56vh, 520px); overflow-y: auto; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-color: #3a3a3a transparent;
+  }
+  .fields {
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px 12px; align-items: start;
+  }
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+  .span-4 { grid-column: span 4; }
+  .span-6 { grid-column: span 6; min-width: 0; }
+
+  .field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .field-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .field-label {
+    flex: none; min-width: 66px; max-width: 108px;
+    font-size: 11.5px; color: var(--ink-2); line-height: 1.5;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .field-label .req { color: var(--danger); margin-left: 1px; }
+  .field.is-block > .field-label { min-width: 0; max-width: none; white-space: normal; }
+  .field-desc { font-size: 11px; line-height: 1.45; color: var(--ink-3); text-wrap: pretty; }
+  .field-error { font-size: 11px; line-height: 1.4; color: var(--danger); }
+  .field-error:empty { display: none; }
+
+  /* 控件 */
+  .input, .textarea, .select-trigger {
+    width: 100%; min-width: 0; min-height: 30px; padding: 0 9px;
+    border: 1px solid var(--field-line); border-radius: var(--radius-field);
+    background: var(--field-bg); color: #e5e5e5;
+    font: inherit; font-size: 12px; line-height: 1.4;
+    transition: border-color var(--dur) var(--ease);
+  }
+  .input::placeholder, .textarea::placeholder { color: #6f6f6f; }
+  .input:focus, .textarea:focus, .select-trigger:focus { outline: none; border-color: #3f6ea8; }
+  .input[aria-invalid="true"], .textarea[aria-invalid="true"], .select-trigger[aria-invalid="true"] { border-color: var(--danger-line); }
+  .textarea { padding: 6px 9px; min-height: 54px; max-height: 112px; resize: vertical; }
+
+  .inline-control { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px; }
+  /* 块级字段（长文本 / 列表 / 键值对）必须撑满整行：flex 容器里的子元素默认不拉宽 */
+  .field.is-block .inline-control { display: block; width: 100%; }
+  .inline-control .input { flex: 1 1 auto; }
+  .inline-control input[type="number"] { max-width: 110px; }
+  .array, .kv-list, .chip-row { width: 100%; }
+  .unit { flex: none; font-size: 11px; color: var(--ink-3); }
+  .path-hint { flex: none; font-size: 10.5px; color: #8c8c8c; }
+
+  /* 分段选择（枚举 ≤ 4） */
+  .segment {
+    display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px;
+    border: 1px solid var(--field-line); border-radius: var(--radius-field);
+    background: #151515;
+  }
+  .segment button {
+    flex: 1 1 auto; min-width: 0; padding: 4px 10px;
+    border: 0; border-radius: 6px; background: transparent;
+    color: #bdbdbd; font: inherit; font-size: 11.5px; line-height: 1.5;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+    transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .segment button:hover { background: #242424; color: #e2e2e2; }
+  .segment button[data-selected] {
+    background: var(--accent-surface); color: #d6e6fb;
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  /* 下拉（枚举 ≥ 5） */
+  .select { position: relative; flex: 1 1 auto; min-width: 0; }
+  .select-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; text-align: left; }
+  .select-trigger .icon { color: var(--ink-3); font-size: 11px; }
+  .select-menu {
+    position: fixed; z-index: 40; min-width: 168px; max-width: 300px; padding: 6px;
+    border: 1px solid #3a3a3a; border-radius: var(--radius-field);
+    background: #212121; box-shadow: 0 16px 36px #0008; display: none;
+  }
+  .select-menu.is-open { display: block; }
+  .select-menu button {
+    display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px;
+    border: 0; border-radius: 6px; background: transparent;
+    color: #e2e2e2; font: inherit; font-size: 12px; text-align: left; cursor: pointer;
+  }
+  .select-menu button:hover { background: #2c2c2c; }
+  .select-menu button .icon { color: var(--accent); font-size: 11px; margin-left: auto; }
+
+  /* 开关 */
+  .switch {
+    position: relative; flex: none; width: 38px; height: 22px;
+    border: 0; border-radius: 999px; background: #3e3e3e; cursor: pointer;
+    transition: background var(--dur) var(--ease);
+  }
+  .switch > span {
+    position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+    background: #e2e2e2; transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
+  }
+  .switch[aria-checked="true"] { background: #2f7cf6; }
+  .switch[aria-checked="true"] > span { transform: translateX(16px); background: #fff; }
+  .switch-text { font-size: 11.5px; color: var(--ink-3); }
+
+  /* 分组 / 数组 / 键值对 */
+  .block-title {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 500; color: #c9c9c9; margin-bottom: 5px;
+  }
+  .block-title .count { font-size: 10.5px; font-weight: 400; color: var(--ink-3); }
+  .block-title .spacer { flex: 1; }
+
+  .array { display: flex; flex-direction: column; gap: 6px; }
+  .array-item {
+    border: 1px solid #2c2c2c; border-radius: 9px;
+    background: var(--field-bg-sunken); padding: 6px 9px 8px;
+  }
+  .array-item-head {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; color: #7d7d7d; margin-bottom: 4px;
+  }
+  .array-item-head .count { color: #6f6f6f; }
+  .array-item-head .spacer { flex: 1; }
+
+  .chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 1px 7px; border: 1px solid #3a3a3a; border-radius: 999px;
+    background: #1b1b1b; font-size: 11px; color: #d6d6d6; line-height: 1.7;
+  }
+  .chip button { border: 0; background: transparent; color: #8a8a8a; font: inherit; font-size: 11px; line-height: 1; cursor: pointer; padding: 0; }
+  .chip button:hover { color: var(--danger); }
+
+  .kv-list { display: flex; flex-direction: column; gap: 5px; }
+  .kv-row { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) 24px; gap: 6px; align-items: center; }
+  .kv-del {
+    width: 24px; height: 24px; display: grid; place-items: center;
+    border: 0; border-radius: 6px; background: transparent; color: #8a8a8a; cursor: pointer; font-size: 12px;
+  }
+  .kv-del:hover { background: #2d2d2d; color: var(--danger); }
+
+  .add-btn {
+    display: inline-flex; align-items: center; gap: 5px; align-self: flex-start;
+    min-height: 24px; padding: 0 8px;
+    border: 1px dashed #3a3a3a; border-radius: 7px;
+    background: transparent; color: #c2c2c2; font: inherit; font-size: 11px; cursor: pointer;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  .add-btn:hover { background: #232323; border-color: #575757; }
+  .add-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* 横幅 / 降级 */
+  .card-banner {
+    display: flex; gap: 7px; align-items: flex-start;
+    margin-top: 8px; padding: 7px 9px; border-radius: 7px;
+    font-size: 11.5px; line-height: 1.5;
+  }
+  .card-banner.error { background: var(--danger-surface); border: 1px solid var(--danger-line); color: #f0b9b2; }
+  .card-banner.warn { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink); }
+  .card-banner .icon { margin-top: 1px; }
+
+  .degrade-schema { margin-top: 8px; border: 1px solid var(--line-soft); border-radius: 7px; background: #191919; overflow: hidden; }
+  .degrade-schema summary { padding: 6px 9px; font-size: 11.5px; color: var(--ink-2); cursor: pointer; list-style: none; }
+  .degrade-schema summary::-webkit-details-marker { display: none; }
+  .degrade-schema pre {
+    margin: 0; padding: 0 10px 10px; max-height: 180px; overflow: auto;
+    font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; line-height: 1.55; color: #9a9a9a;
+  }
+
+  /* ── 底部 ─────────────────────────────────────────────────────── */
+  .ask-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; flex: none; }
+  .ask-hint {
+    flex: 1 1 auto; min-width: 0; color: var(--ink-4); font-size: 11px; line-height: 1.5;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ask-hint.is-warn { color: var(--warn-ink); }
+  .btn {
+    flex: none; min-height: 26px; padding: 0 12px;
+    border: 1px solid #3d3d3d; border-radius: 7px;
+    background: #262626; color: #e2e2e2; font: inherit; font-size: 12px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .btn:hover { border-color: #575757; background: #303030; }
+  .btn.primary { border-color: var(--accent-strong); background: var(--accent-strong); color: #fff; }
+  .btn.primary:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
+  .btn:disabled { border-color: #3d3d3d; background: #222; color: #6f6f6f; cursor: not-allowed; }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+  .btn.ghost:hover { background: #2a2a2a; color: #dcdcdc; }
+  .input:disabled, .textarea:disabled, .segment button:disabled, .switch:disabled,
+  .select-trigger:disabled, .add-btn:disabled, .kv-del:disabled {
+    opacity: .55; cursor: not-allowed;
+  }
+
+  .spinner {
+    width: 11px; height: 11px; border-radius: 50%;
+    border: 1.5px solid #ffffff66; border-top-color: #fff;
+    animation: spin 720ms linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 提交后摘要 */
+  .ask-summary {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px 9px 14px;
+    border: 1px solid var(--card-line); border-radius: var(--radius-card);
+    background: var(--card-bg); font-size: 12px; color: var(--ink-2);
+  }
+  .ask-summary::before { content: ""; width: 3px; align-self: stretch; border-radius: 999px; background: #3f6ea8; }
+  .ask-summary strong { color: #dcdcdc; font-weight: 500; }
+  .ask-summary .spacer { flex: 1; }
+  .summary-json {
+    margin-top: 6px; border: 1px solid var(--line-soft); border-radius: 7px; background: #191919;
+    padding: 8px 10px; font-family: ui-monospace, Consolas, monospace;
+    font-size: 10.5px; line-height: 1.55; color: #9a9a9a; white-space: pre-wrap; display: none;
+  }
+  .summary-json.is-open { display: block; }
+
+  .composer {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 11px; border: 1px solid #2a2a2a; border-radius: 10px;
+    background: #161616; color: #5f5f5f; font-size: 11.5px;
+  }
+  .composer.is-muted { opacity: .5; }
+  .composer .grow { flex: 1; }
+
+  /* 原型控件 */
+  .proto-panel {
+    position: fixed; right: 16px; top: 16px; z-index: 60;
+    display: flex; flex-direction: column; gap: 7px;
+    padding: 8px 10px; max-width: 250px;
+    border: 1px dashed #3a3a3a; border-radius: 9px;
+    background: #16161699; backdrop-filter: blur(6px);
+  }
+  .proto-title { font-size: 10px; color: #6f6f6f; letter-spacing: .3px; }
+  .proto-actions { display: flex; flex-wrap: wrap; gap: 5px; }
+  .proto-actions button {
+    padding: 3px 8px; border: 1px solid #333; border-radius: 6px;
+    background: #1e1e1e; color: #c9c9c9; font: inherit; font-size: 11px; cursor: pointer;
+  }
+  .proto-actions button:hover { background: #282828; border-color: #4a4a4a; }
+  .proto-actions button[data-active] { border-color: var(--accent-line); background: var(--accent-surface); color: var(--accent-ink); }
+
+  @media (max-width: 720px) {
+    .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .span-2, .span-3, .span-4, .span-6 { grid-column: span 1; }
+    .span-6 { grid-column: span 2; }
+    .field-label { min-width: 0; max-width: 40%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ask-card { animation: none; }
+    .spinner { animation-duration: 2s; }
+  }
+</style>
+</head>
+<body>
+<svg class="svg-defs" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L19 7"></path></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"></path></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4 3 20h18L12 4Z"></path><path d="M12 10v4M12 17.5h.01"></path></symbol>
+</svg>
+
+<div class="proto-panel">
+  <span class="proto-title">原型控件 · 落地时删除</span>
+  <div class="proto-actions" id="proto-actions">
+    <button data-example="simple" data-active>简单</button>
+    <button data-example="nested">嵌套数组</button>
+    <button data-example="kv">键值对</button>
+    <button data-example="degraded">超限降级</button>
+    <button data-example="invalid">校验失败</button>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="thread">
+    <div class="msg user">
+      <span class="msg-role">你</span>
+      <span class="msg-body">把 <code>src/features/chat</code> 里的空状态抽成组件，顺便补上测试。</span>
+    </div>
+    <div class="msg agent">
+      <span class="msg-role">Gemini · 后台执行</span>
+      <span class="msg-body">看完了，现有两处空状态样式重复。动手前需要你定三件事，选完我就直接改。</span>
+    </div>
+  </div>
+
+  <div class="composer-area">
+    <div id="card-host"></div>
+    <div class="composer is-muted">
+      <span>正在等待你的回答…</span>
+      <span class="grow"></span>
+      <span>Esc 收起</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  /* ── 示例 schema ─────────────────────────────────────────────── */
+  const EXAMPLES = {
+    simple: {
+      title: '需要你确认',
+      question: '这一步要怎么做？',
+      detail: '三个选择，提交后继续。',
+      schema: {
+        type: 'object',
+        required: ['strategy', 'tests'],
+        properties: {
+          strategy: {
+            type: 'string', title: '实现策略',
+            enum: ['按现有风格补', '重写整个文件', '只加一个用例'],
+            default: '按现有风格补',
+          },
+          tests: { type: 'boolean', title: '同时补测试', default: true },
+          path: { type: 'string', title: '输出目录', format: 'path', default: 'src/features/chat', maxLength: 120 },
+          note: { type: 'string', title: '备注', maxLength: 200, description: '可不填' },
+        },
+      },
+    },
+
+    nested: {
+      title: '需要你确认',
+      question: '流水线怎么配？',
+      detail: '两层数组 + 键值对，完整渲染。',
+      schema: {
+        type: 'object',
+        required: ['jobs'],
+        properties: {
+          pipeline: { type: 'string', title: '名称', default: 'ci', maxLength: 40 },
+          timeout: { type: 'integer', title: '超时', unit: '分钟', minimum: 1, maximum: 120, default: 15 },
+          jobs: {
+            type: 'array', title: '任务', minItems: 1, maxItems: 3,
+            items: {
+              type: 'object', required: ['name', 'runs'],
+              properties: {
+                name: { type: 'string', title: '任务名', maxLength: 40 },
+                runs: {
+                  type: 'array', title: '步骤', minItems: 1, maxItems: 5,
+                  items: {
+                    type: 'object', required: ['cmd'],
+                    properties: {
+                      cmd: { type: 'string', title: '命令', maxLength: 200 },
+                      env: { type: 'object', title: '环境变量', additionalProperties: { type: 'string' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      data: {
+        pipeline: 'ci', timeout: 15,
+        jobs: [{
+          name: 'build',
+          runs: [
+            { cmd: 'npm run build', env: { NODE_ENV: 'production' } },
+            { cmd: 'npm test', env: {} },
+          ],
+        }],
+      },
+    },
+
+    kv: {
+      title: '需要你确认',
+      question: '这些标签和环境变量对吗？',
+      detail: '标签用胶囊输入，环境变量支持增删。',
+      schema: {
+        type: 'object',
+        required: ['tags'],
+        properties: {
+          tags: { type: 'array', title: '标签', minItems: 1, maxItems: 6, items: { type: 'string' } },
+          retries: { type: 'integer', title: '重试', unit: '次', minimum: 0, maximum: 5, default: 2 },
+          env: { type: 'object', title: '环境变量', additionalProperties: { type: 'string' } },
+        },
+      },
+      data: { tags: ['chat', 'empty-state'], retries: 2, env: { NODE_ENV: 'development' } },
+    },
+
+    degraded: {
+      title: '需要你确认',
+      question: '这个表格过于复杂',
+      detail: '字段数 46 > 40，嵌套 6 层 > 5；按 §12.4.7 降级。',
+      degraded: true,
+      schema: {
+        type: 'object',
+        properties: Object.fromEntries(
+          Array.from({ length: 46 }, (_, index) => [
+            `field_${index + 1}`,
+            { type: 'string', title: `字段 ${index + 1}`, maxLength: 80 },
+          ]),
+        ),
+      },
+    },
+
+    invalid: {
+      title: '需要你确认',
+      question: '这一步要怎么做？',
+      detail: '提交时校验失败：必填未填、数字越界、列表为空。',
+      autoSubmit: true,
+      schema: {
+        type: 'object',
+        required: ['strategy', 'jobs'],
+        properties: {
+          strategy: { type: 'string', title: '实现策略', enum: ['按现有风格补', '重写整个文件'] },
+          retries: { type: 'integer', title: '重试', unit: '次', minimum: 0, maximum: 5 },
+          jobs: { type: 'array', title: '任务', minItems: 1, maxItems: 2, items: { type: 'string' } },
+          env: { type: 'object', title: '环境变量', additionalProperties: { type: 'string' } },
+        },
+      },
+      data: { retries: 9, env: { A: '1' } },
+    },
+  };
+
+  /* ── 基础工具 ────────────────────────────────────────────────── */
+  const host = document.getElementById('card-host');
+  const clone = value => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+  const isPlainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+  let scheduleCheck = () => {};
+  const check = () => scheduleCheck();
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function icon(id, className = 'icon') {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', className);
+    svg.innerHTML = `<use href="#${id}"></use>`;
+    return svg;
+  }
+
+  /* ── 下拉（枚举 ≥ 5） ───────────────────────────────────────── */
+  let openMenu = null;
+  function closeMenu() {
+    if (!openMenu) return;
+    openMenu.menu.classList.remove('is-open');
+    openMenu.trigger.setAttribute('aria-expanded', 'false');
+    openMenu = null;
+  }
+  document.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+
+  function buildSelect(options, value, onChange) {
+    const wrap = el('div', 'select');
+    const trigger = el('button', 'select-trigger');
+    trigger.type = 'button';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+    const menu = el('div', 'select-menu');
+    menu.setAttribute('role', 'listbox');
+
+    const setLabel = current => {
+      trigger.textContent = current || '请选择';
+      trigger.append(icon('i-caret'));
+    };
+    setLabel(value);
+
+    options.forEach(option => {
+      const item = el('button');
+      item.type = 'button';
+      item.textContent = option;
+      item.dataset.value = option;
+      if (option === value) item.append(icon('i-check'));
+      item.addEventListener('click', () => {
+        value = option;
+        setLabel(value);
+        menu.querySelectorAll('[data-value]').forEach(row => {
+          row.querySelector('.icon')?.remove();
+          if (row.dataset.value === value) row.append(icon('i-check'));
+        });
+        closeMenu();
+        onChange?.(value);
+      });
+      menu.append(item);
+    });
+
+    trigger.addEventListener('click', event => {
+      event.stopPropagation();
+      const isOpen = menu.classList.contains('is-open');
+      closeMenu();
+      if (isOpen) return;
+      menu.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+      const rect = trigger.getBoundingClientRect();
+      menu.style.visibility = 'hidden';
+      const width = menu.offsetWidth;
+      const height = menu.offsetHeight;
+      menu.style.left = `${Math.round(Math.min(rect.left, window.innerWidth - width - 12))}px`;
+      const below = rect.bottom + 5;
+      menu.style.top = `${Math.round(below + height > window.innerHeight - 12 ? rect.top - height - 5 : below)}px`;
+      menu.style.visibility = 'visible';
+      openMenu = { menu, trigger };
+    });
+
+    document.body.append(menu);
+    wrap.append(trigger);
+    wrap.__menu = menu;
+    return { el: wrap, read: () => value, setError: on => trigger.setAttribute('aria-invalid', String(Boolean(on))) };
+  }
+
+  /* ── 列宽：窄字段两列/三列并排 ───────────────────────────────── */
+  function spanFor(schema) {
+    const type = schema.type || 'string';
+    if (type === 'boolean') return 2;
+    if (type === 'number' || type === 'integer') return 2;
+    if (Array.isArray(schema.enum)) return schema.enum.length <= 2 ? 3 : 4;
+    if (type === 'array' || type === 'object') return 6;
+    if (schema.format === 'multi' || (schema.maxLength ?? 0) > 240) return 6;
+    return 3;
+  }
+
+  /* ── 字段壳：标签与控件同排（block 时标签在上） ───────────────── */
+  function fieldShell(schema, options = {}) {
+    const { block = false } = options;
+    const wrap = el('div', `field span-${spanFor(schema)}${block ? ' is-block' : ''}`);
+    const row = el('div', 'field-row');
+    const label = el('span', 'field-label');
+    label.append(el('span', null, schema.title || '未命名'));
+    if (schema.__required) label.append(el('span', 'req', '*'));
+    row.append(label);
+
+    const control = el('div', 'inline-control');
+    row.append(control);
+
+    if (block) {
+      wrap.append(label);
+      wrap.append(control);
+      wrap.firstChild.remove();
+      wrap.insertBefore(label, wrap.firstChild);
+    } else {
+      wrap.append(row);
+    }
+
+    if (schema.description) wrap.append(el('div', 'field-desc', schema.description));
+    const error = el('div', 'field-error');
+    error.setAttribute('role', 'alert');
+    wrap.append(error);
+    return { wrap, control, label, row, error };
+  }
+
+  /* ── 标量字段 ───────────────────────────────────────────────── */
+  function buildScalar(schema, value) {
+    const type = schema.type || 'string';
+    const enumValues = Array.isArray(schema.enum) ? schema.enum.filter(item => item !== null) : [];
+    const long = schema.format === 'multi' || (schema.maxLength ?? 0) > 240;
+    const { wrap, control, error } = fieldShell(schema, { block: long });
+    let read;
+    let markInvalid;
+
+    if (type === 'boolean') {
+      const sw = el('button', 'switch');
+      const on = value ?? schema.default ?? false;
+      sw.type = 'button';
+      sw.setAttribute('role', 'switch');
+      sw.setAttribute('aria-checked', String(Boolean(on)));
+      sw.setAttribute('aria-label', schema.title || '开关');
+      sw.append(el('span'));
+      const text = el('span', 'switch-text', on ? '是' : '否');
+      sw.addEventListener('click', () => {
+        const next = sw.getAttribute('aria-checked') !== 'true';
+        sw.setAttribute('aria-checked', String(next));
+        text.textContent = next ? '是' : '否';
+        check();
+      });
+      control.append(sw, text);
+      read = () => sw.getAttribute('aria-checked') === 'true';
+      wrap.__control = sw;
+    } else if (enumValues.length && enumValues.length <= 4) {
+      let picked = value ?? schema.default ?? null;
+      const group = el('div', 'segment');
+      group.setAttribute('role', 'radiogroup');
+      const buttons = enumValues.map(option => {
+        const button = el('button', null, option);
+        button.type = 'button';
+        button.setAttribute('role', 'radio');
+        button.dataset.value = option;
+        button.toggleAttribute('data-selected', option === picked);
+        button.setAttribute('aria-checked', String(option === picked));
+        button.addEventListener('click', () => {
+          picked = option;
+          buttons.forEach(row => {
+            const active = row.dataset.value === option;
+            row.toggleAttribute('data-selected', active);
+            row.setAttribute('aria-checked', String(active));
+          });
+          check();
+        });
+        return button;
+      });
+      buttons.forEach(button => group.append(button));
+      control.append(group);
+      read = () => picked;
+      wrap.__control = group;
+    } else if (enumValues.length >= 5) {
+      const select = buildSelect(enumValues, value ?? schema.default ?? '', () => check());
+      control.append(select.el);
+      read = () => select.read() || null;
+      wrap.__control = select.el;
+      markInvalid = select.setError;
+    } else if (type === 'number' || type === 'integer') {
+      const input = el('input', 'input');
+      input.type = 'number';
+      input.step = type === 'integer' ? '1' : 'any';
+      if (schema.minimum !== undefined) input.min = schema.minimum;
+      if (schema.maximum !== undefined) input.max = schema.maximum;
+      input.value = value ?? schema.default ?? '';
+      input.setAttribute('aria-label', schema.title || '数字');
+      input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); error.textContent = ''; check(); });
+      control.append(input);
+      if (schema.unit) control.append(el('span', 'unit', schema.unit));
+      read = () => input.value === '' ? undefined : Number(input.value);
+      wrap.__control = input;
+      markInvalid = on => input.setAttribute('aria-invalid', String(Boolean(on)));
+    } else if (schema.format === 'path') {
+      const input = el('input', 'input');
+      input.value = value ?? schema.default ?? '';
+      input.placeholder = '相对路径';
+      input.setAttribute('aria-label', schema.title || '路径');
+      input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); error.textContent = ''; check(); });
+      control.append(input);
+      read = () => input.value.trim();
+      wrap.__control = input;
+      markInvalid = on => input.setAttribute('aria-invalid', String(Boolean(on)));
+    } else {
+      const input = el(long ? 'textarea' : 'input', long ? 'textarea' : 'input');
+      if (long) input.rows = 2;
+      input.value = value ?? schema.default ?? '';
+      input.placeholder = schema.placeholder || '';
+      input.setAttribute('aria-label', schema.title || '文本');
+      if (schema.maxLength && !long) input.maxLength = schema.maxLength;
+      input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); error.textContent = ''; check(); });
+      control.append(input);
+      read = () => input.value.trim();
+      wrap.__control = input;
+      markInvalid = on => input.setAttribute('aria-invalid', String(Boolean(on)));
+    }
+
+    const showError = message => {
+      error.textContent = message || '';
+      markInvalid?.(Boolean(message));
+    };
+    wrap.__showError = showError;
+    return { el: wrap, read, validate: () => validateScalar(schema, read(), showError) };
+  }
+
+  function validateScalar(schema, value, showError) {
+    const empty = value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
+    if (schema.__required && empty) { showError(`${schema.title || '该项'}不能为空`); return false; }
+    if (empty) { showError(''); return true; }
+    if (typeof value === 'number') {
+      if (schema.type === 'integer' && !Number.isInteger(value)) { showError('需要整数'); return false; }
+      if (schema.minimum !== undefined && value < schema.minimum) { showError(`不能小于 ${schema.minimum}`); return false; }
+      if (schema.maximum !== undefined && value > schema.maximum) { showError(`不能大于 ${schema.maximum}`); return false; }
+    }
+    if (typeof value === 'string') {
+      if (schema.minLength !== undefined && value.length < schema.minLength) { showError(`至少 ${schema.minLength} 字`); return false; }
+      if (schema.maxLength !== undefined && value.length > schema.maxLength) { showError(`最多 ${schema.maxLength} 字`); return false; }
+    }
+    showError('');
+    return true;
+  }
+
+  /* ── 字符串数组（胶囊） ─────────────────────────────────────── */
+  function buildStringArray(schema, value) {
+    const { wrap, control, error } = fieldShell(schema, { block: true });
+    const chips = el('div', 'chip-row');
+    const add = el('button', 'add-btn');
+    add.type = 'button';
+    add.append(icon('i-plus'), el('span', null, '添加'));
+    let items = Array.isArray(value) ? value.slice() : [];
+    const limit = schema.maxItems ?? 20;
+
+    const render = () => {
+      chips.textContent = '';
+      items.forEach((item, index) => {
+        const chip = el('span', 'chip');
+        chip.append(el('span', null, item));
+        const remove = el('button');
+        remove.type = 'button';
+        remove.setAttribute('aria-label', `删除 ${item}`);
+        remove.append(icon('i-close'));
+        remove.addEventListener('click', () => { items.splice(index, 1); render(); check(); });
+        chip.append(remove);
+        chips.append(chip);
+      });
+      chips.append(add);
+      add.disabled = items.length >= limit;
+    };
+
+    add.addEventListener('click', () => {
+      const input = el('input', 'input');
+      input.placeholder = '回车确认';
+      input.style.maxWidth = '160px';
+      const commit = () => {
+        const text = input.value.trim();
+        if (!text) { input.remove(); return; }
+        if (!items.includes(text)) items.push(text);
+        render();
+        check();
+      };
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') { event.preventDefault(); commit(); }
+        if (event.key === 'Escape') input.remove();
+      });
+      input.addEventListener('blur', commit);
+      chips.insertBefore(input, add);
+      input.focus();
+    });
+
+    render();
+    control.append(chips);
+    return {
+      el: wrap,
+      read: () => items.slice(),
+      validate: () => {
+        if (schema.__required && items.length === 0) { error.textContent = '至少一项'; return false; }
+        if (schema.minItems !== undefined && items.length < schema.minItems) { error.textContent = `至少 ${schema.minItems} 项`; return false; }
+        if (items.length > limit) { error.textContent = `最多 ${limit} 项`; return false; }
+        error.textContent = '';
+        return true;
+      },
+    };
+  }
+
+  /* ── 键值对 ─────────────────────────────────────────────────── */
+  function buildKeyValue(schema, value) {
+    const { wrap, control, error } = fieldShell(schema, { block: true });
+    const list = el('div', 'kv-list');
+    let entries = isPlainObject(value) ? Object.entries(value).map(([k, v]) => [k, String(v)]) : [];
+    if (!entries.length) entries = [['', '']];
+
+    const add = el('button', 'add-btn');
+    add.type = 'button';
+    add.append(icon('i-plus'), el('span', null, '添加'));
+
+    const render = () => {
+      list.textContent = '';
+      entries.forEach((entry, index) => {
+        const row = el('div', 'kv-row');
+        const key = el('input', 'input');
+        key.placeholder = '键';
+        key.value = entry[0];
+        key.setAttribute('aria-label', `键 ${index + 1}`);
+        const val = el('input', 'input');
+        val.placeholder = '值';
+        val.value = entry[1];
+        val.setAttribute('aria-label', `值 ${index + 1}`);
+        key.addEventListener('input', () => { entries[index][0] = key.value; check(); });
+        val.addEventListener('input', () => { entries[index][1] = val.value; check(); });
+        const del = el('button', 'kv-del');
+        del.type = 'button';
+        del.setAttribute('aria-label', `删除第 ${index + 1} 项`);
+        del.append(icon('i-trash'));
+        del.addEventListener('click', () => {
+          entries.splice(index, 1);
+          if (!entries.length) entries.push(['', '']);
+          render();
+          check();
+        });
+        row.append(key, val, del);
+        list.append(row);
+      });
+      list.append(add);
+      add.disabled = entries.length >= 20;
+    };
+
+    add.addEventListener('click', () => { entries.push(['', '']); render(); });
+    render();
+    control.append(list);
+    return {
+      el: wrap,
+      read: () => {
+        const out = {};
+        for (const [key, val] of entries) {
+          const name = String(key).trim();
+          if (name) out[name] = String(val);
+        }
+        return out;
+      },
+      validate: () => {
+        const names = entries.map(([key]) => String(key).trim()).filter(Boolean);
+        const duplicate = names.find((name, index) => names.indexOf(name) !== index);
+        if (duplicate) { error.textContent = `键重复：${duplicate}`; return false; }
+        error.textContent = '';
+        return true;
+      },
+    };
+  }
+
+  /* 把字段按 6 列打包成行：行尾填不满时把该行最后一个字段加宽，避免右侧留空档 */
+  function widenSpan(child, extra) {
+    const cap = child.cap ?? 6;
+    const next = Math.min(cap, child.span + extra);
+    if (next === child.span) return;
+    child.span = next;
+    child.node.el.className = child.node.el.className.replace(/span-\d/, `span-${next}`);
+  }
+
+  function packSpans(children) {
+    let rowSum = 0;
+    let lastIndex = -1;
+    children.forEach((child, index) => {
+      if (lastIndex >= 0 && rowSum + child.span > 6) {
+        widenSpan(children[lastIndex], 6 - rowSum);
+        rowSum = 0;
+        lastIndex = -1;
+      }
+      rowSum += child.span;
+      lastIndex = index;
+      if (rowSum === 6) { rowSum = 0; lastIndex = -1; }
+    });
+    if (lastIndex >= 0) widenSpan(children[lastIndex], 6 - rowSum);
+  }
+
+  function spanOf(el) {
+    const match = /span-(\d)/.exec(el.className);
+    return match ? Number(match[1]) : 6;
+  }
+
+  function capFor(schema) {
+    const type = schema.type || 'string';
+    if (type === 'boolean' || type === 'number' || type === 'integer') return 4;
+    if (type === 'array' || type === 'object') return 6;
+    return 6;
+  }
+
+  /* ── object / array ─────────────────────────────────────────── */
+  function buildObject(schema, value, depth, title) {
+    const wrap = el('div', 'span-6');
+    if (title) {
+      const head = el('div', 'block-title');
+      head.append(el('span', null, title));
+      const requiredCount = Array.isArray(schema.required) ? schema.required.length : 0;
+      const total = Object.keys(schema.properties || {}).length;
+      head.append(el('span', 'count', requiredCount ? `${requiredCount}/${total} 必填` : `${total} 项`));
+      wrap.append(head);
+    }
+    const grid = el('div', 'fields');
+    const children = [];
+    for (const [key, child] of Object.entries(schema.properties || {})) {
+      const childSchema = { ...child, __required: (schema.required || []).includes(key) };
+      const node = buildNode(childSchema, value?.[key], depth + 1, child.title || key);
+      children.push({ key, node, span: spanOf(node.el), cap: capFor(childSchema) });
+      grid.append(node.el);
+    }
+    packSpans(children);
+    wrap.append(grid);
+    return {
+      el: wrap,
+      read: () => {
+        const out = {};
+        for (const child of children) out[child.key] = child.node.read();
+        return out;
+      },
+      validate: () => {
+        let ok = true;
+        for (const child of children) if (!child.node.validate()) ok = false;
+        return ok;
+      },
+    };
+  }
+
+  function buildArray(schema, value, depth) {
+    const { wrap, control, error, label } = fieldShell(schema, { block: true });
+    label.remove();
+    const head = el('div', 'block-title');
+    head.append(el('span', null, schema.title || '列表'));
+    if (schema.__required) head.append(el('span', 'req', '*'));
+    const counter = el('span', 'count');
+    head.append(counter);
+    wrap.insertBefore(head, wrap.firstChild);
+
+    const list = el('div', 'array');
+    const add = el('button', 'add-btn');
+    add.type = 'button';
+    add.append(icon('i-plus'), el('span', null, '添加'));
+    let items = Array.isArray(value) ? value.slice() : [];
+    if (!items.length && schema.minItems) items = Array.from({ length: schema.minItems }, () => undefined);
+    let controllers = [];
+    const limit = schema.maxItems ?? 20;
+
+    const render = () => {
+      list.textContent = '';
+      controllers = items.map((item, index) => {
+        const itemSchema = { ...schema.items };
+        const card = el('div', 'array-item');
+        if (isPlainObject(itemSchema) && itemSchema.type === 'object') {
+          const requiredCount = Array.isArray(itemSchema.required) ? itemSchema.required.length : 0;
+          const node = buildObject(itemSchema, item, depth + 1, null);
+          const headRow = el('div', 'array-item-head');
+          headRow.append(el('span', null, `第 ${index + 1} 项`));
+          if (requiredCount) headRow.append(el('span', 'count', `${requiredCount} 必填`));
+          headRow.append(el('span', 'spacer'));
+          const del = el('button', 'kv-del');
+          del.type = 'button';
+          del.setAttribute('aria-label', `删除第 ${index + 1} 项`);
+          del.append(icon('i-trash'));
+          del.addEventListener('click', () => { items.splice(index, 1); render(); check(); });
+          headRow.append(del);
+          card.append(headRow, node.el);
+          list.append(card);
+          return node;
+        }
+        const node = buildNode(itemSchema, item, depth + 1, `第 ${index + 1} 项`);
+        card.append(node.el);
+        list.append(card);
+        return node;
+      });
+      list.append(add);
+      counter.textContent = `${controllers.length}/${limit}`;
+      add.disabled = controllers.length >= limit;
+    };
+
+    add.addEventListener('click', () => { items.push(undefined); render(); check(); });
+    render();
+    control.append(list);
+    return {
+      el: wrap,
+      read: () => controllers.map(node => node.read()),
+      validate: () => {
+        if (schema.__required && controllers.length === 0) { error.textContent = '至少一项'; return false; }
+        if (schema.minItems !== undefined && controllers.length < schema.minItems) { error.textContent = `至少 ${schema.minItems} 项`; return false; }
+        error.textContent = '';
+        let ok = true;
+        for (const controller of controllers) if (!controller.validate()) ok = false;
+        return ok;
+      },
+    };
+  }
+
+  function buildUnsupported(schema) {
+    const { wrap, error } = fieldShell({ ...schema, title: schema.title || '字段' }, { block: true });
+    const banner = el('div', 'card-banner warn');
+    banner.append(icon('i-warn'), el('span', null, '这个字段暂不支持，请在终端填写。'));
+    wrap.insertBefore(banner, error);
+    return { el: wrap, read: () => undefined, validate: () => true };
+  }
+
+  function buildNode(schema, value, depth, title) {
+    if (!schema || typeof schema !== 'object') return buildUnsupported({ title: title || '字段' });
+    if (depth > 5) return buildUnsupported({ ...schema, title: schema.title || title });
+    if (schema.type === 'object' && schema.properties) return buildObject(schema, value, depth, title);
+    if (schema.type === 'object' && schema.additionalProperties) return buildKeyValue(schema, value);
+    if (schema.type === 'array') {
+      const itemType = schema.items?.type;
+      if (itemType === 'object') return buildArray(schema, value, depth);
+      return buildStringArray(schema, value);
+    }
+    if (schema.type === 'object') return buildKeyValue(schema, value);
+    return buildScalar(schema, value);
+  }
+
+  /* ── 卡片装配 ───────────────────────────────────────────────── */
+  function readHint(card, controller) {
+    const hint = card.querySelector('.ask-hint');
+    if (!hint || !controller) return;
+    const missing = countMissing(controller.rootSchema, controller.node.read());
+    hint.classList.toggle('is-warn', missing > 0);
+    hint.textContent = missing > 0 ? `还有 ${missing} 项必填` : '已填完';
+  }
+
+  function countMissing(schema, values) {
+    let count = 0;
+    for (const key of schema.required || []) {
+      const value = values?.[key];
+      const empty = value === undefined || value === null
+        || (typeof value === 'string' && value.trim() === '')
+        || (Array.isArray(value) && value.length === 0);
+      if (empty) count += 1;
+    }
+    for (const [key, child] of Object.entries(schema.properties || {})) {
+      if (child?.type === 'object' && child?.required && values?.[key]) count += countMissing(child, values[key]);
+      if (child?.type === 'array' && values?.[key]?.[0]) {
+        const item = child.items;
+        if (item?.required) count += countMissing(item, values[key][0]);
+      }
+    }
+    return count;
+  }
+
+  function cardShell(example) {
+    const card = el('div', 'ask-card');
+    const head = el('div', 'ask-head');
+    head.append(el('span', 'ask-badge', example.degraded ? '需要你确认 · 已降级' : '需要你确认'));
+    head.append(el('span', 'ask-question', example.question));
+    if (example.detail) head.append(el('span', 'ask-detail', example.detail));
+    card.append(head);
+    return card;
+  }
+
+  function renderExample(name) {
+    const example = EXAMPLES[name];
+    closeMenu();
+    host.textContent = '';
+
+    const card = cardShell(example);
+    card.dataset.example = name;
+
+    if (example.degraded) {
+      card.classList.add('is-degraded');
+      const banner = el('div', 'card-banner warn');
+      banner.append(icon('i-warn'), el('span', null, '字段数 46 超过上限 40，嵌套 6 层超过 5；这个表格无法在这里安全填写。'));
+      card.append(banner);
+
+      const details = el('details', 'degrade-schema');
+      details.append(el('summary', null, '查看 schema 原文'));
+      const pre = el('pre');
+      pre.textContent = JSON.stringify(example.schema, null, 2);
+      details.append(pre);
+      card.append(details);
+
+      const foot = el('div', 'ask-foot');
+      foot.append(el('span', 'ask-hint', '这个表格无法在这里安全填写'));
+      const skip = el('button', 'btn', '跳过');
+      const cancel = el('button', 'btn', '取消');
+      const terminal = el('button', 'btn primary', '在终端确认');
+      [skip, cancel, terminal].forEach(button => { button.type = 'button'; });
+      foot.append(skip, cancel, terminal);
+      card.append(foot);
+      [skip, cancel, terminal].forEach(button => button.addEventListener('click', () => showSummary(button.textContent)));
+      host.append(card);
+      return;
+    }
+
+    const body = el('div', 'ask-body');
+    const node = buildNode(example.schema, clone(example.data), 0, '');
+    body.append(node.el);
+    card.append(body);
+
+    const errorBanner = el('div', 'card-banner error');
+    errorBanner.style.display = 'none';
+    errorBanner.append(icon('i-warn'), el('span', null, '提交失败：请检查下面标红的字段。'));
+
+    const foot = el('div', 'ask-foot');
+    const hint = el('span', 'ask-hint', '');
+    const skip = el('button', 'btn', '跳过');
+    skip.type = 'button';
+    const submit = el('button', 'btn primary', '提交');
+    submit.type = 'button';
+    foot.append(hint, skip, submit);
+    card.append(errorBanner, foot);
+    host.append(card);
+
+    const controller = { node, rootSchema: example.schema };
+    const refresh = () => readHint(card, controller);
+    scheduleCheck = refresh;
+    card.addEventListener('input', refresh, true);
+    card.addEventListener('click', refresh, true);
+
+    skip.addEventListener('click', () => showSummary('已跳过'));
+
+    submit.addEventListener('click', async () => {
+      if (!node.validate()) {
+        errorBanner.style.display = 'flex';
+        const firstError = card.querySelector('[aria-invalid="true"], .field-error:not(:empty)');
+        firstError?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        refresh();
+        return;
+      }
+      errorBanner.style.display = 'none';
+      submit.disabled = true;
+      skip.disabled = true;
+      submit.textContent = '';
+      submit.append(el('span', 'spinner'), el('span', null, '提交中…'));
+      card.querySelectorAll('input, textarea, button').forEach(control => {
+        if (control !== submit) control.disabled = true;
+      });
+      card.setAttribute('aria-busy', 'true');
+      hint.textContent = '正在提交…';
+      await new Promise(resolve => setTimeout(resolve, 700));
+      showSummary('已提交', node.read());
+    });
+
+    if (example.autoSubmit) setTimeout(() => submit.click(), 100);
+    refresh();
+  }
+
+  function showSummary(label, content) {
+    scheduleCheck = () => {};
+    host.textContent = '';
+    const row = el('div', 'ask-summary');
+    row.append(el('strong', null, label));
+    if (content) {
+      const text = Object.entries(content)
+        .map(([key, value]) => `${key}=${Array.isArray(value) ? value.length + ' 项' : String(value)}`)
+        .slice(0, 3).join(' · ');
+      row.append(el('span', null, text));
+    }
+    row.append(el('span', 'spacer'));
+    if (content) {
+      const toggle = el('button', 'btn ghost', '查看 JSON');
+      toggle.type = 'button';
+      const json = el('pre', 'summary-json', JSON.stringify(content, null, 2));
+      row.append(toggle);
+      toggle.addEventListener('click', () => {
+        const open = json.classList.toggle('is-open');
+        toggle.textContent = open ? '收起 JSON' : '查看 JSON';
+      });
+      host.append(row, json);
+    } else {
+      host.append(row);
+    }
+  }
+
+  document.getElementById('proto-actions').addEventListener('click', event => {
+    const button = event.target.closest('button[data-example]');
+    if (!button) return;
+    document.querySelectorAll('#proto-actions button').forEach(row => row.removeAttribute('data-active'));
+    button.setAttribute('data-active', '');
+    renderExample(button.dataset.example);
+  });
+
+  renderExample('simple');
+})();
+</script>
+</body>
+</html>

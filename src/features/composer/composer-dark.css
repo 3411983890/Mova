@@ -1,0 +1,394 @@
+:host {
+  color-scheme: dark;
+  font-family: inherit;
+
+  /* 审批权限的橙色：在深色面板上仍需 4.5:1 以上对比度 */
+  --mova-approval-warn: #f0a05a;
+  --mova-approval-warn-dim: #d99a63;
+}
+
+.original-deep-agent-stage {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+}
+
+.original-composer-container { max-width: none; container-type: inline-size; }
+
+/* 权限按钮放不下整段文字时（composer.js 量出 label 已被截断），收成一个图标：
+   文字转为读屏可见，气泡只留权限图标。 */
+.morph-menu-compact button[data-mova-fit="icon"] {
+  width: 32px;
+  min-width: 32px;
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: center;
+}
+.morph-menu-compact button[data-mova-fit="icon"] > span.truncate {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.morph-menu-compact button[data-mova-fit="icon"] > svg:first-of-type { width: 14px; height: 14px; margin-right: 0; }
+.morph-menu-compact button[data-mova-fit="icon"] > svg:last-of-type { display: none; }
+
+/* 「完全访问权限」选中时按钮本身也换成本主题的橙色，避免 vendor 的暗橙叠深底 */
+.morph-menu-compact button[class*="text-[#e25507]"] {
+  color: var(--mova-approval-warn) !important;
+  background-color: rgba(240, 160, 90, 0.14) !important;
+}
+.morph-menu-compact button[class*="text-[#e25507]"]:hover { background-color: rgba(240, 160, 90, 0.22) !important; }
+.morph-menu-compact [class*="text-[#e25507]"] svg { color: var(--mova-approval-warn) !important; }
+
+[data-message-composer-surface] {
+  border: 1px solid var(--theme-border);
+  border-radius: 28px;
+  box-shadow: 0 8px 24px #0004;
+}
+
+/* Keep the empty composer compact while preserving multiline auto-growth. */
+[data-message-composer-surface] > .relative { padding-top: 6px; padding-bottom: 10px; }
+.composer-toolbar { margin-top: 0; }
+:host([data-bot-mode="true"]) .composer-model-tools > :not(.composer-send-btn),
+:host([data-bot-mode="true"]) .composer-primary-tools > div:has(.mova-approval-trigger),
+:host([data-bot-mode="true"]) .morph-menu-compact,
+:host([data-bot-mode="true"]) .mova-approval-trigger { display: none !important; }
+[data-message-composer-surface] textarea { min-height: 46px !important; }
+[data-message-composer-content], [data-message-composer-surface] textarea { padding-top: 3px; }
+/* The composer mirrors its placeholder in a separate visual layer. */
+[data-message-composer-surface] .relative:has(> textarea:placeholder-shown) > [data-message-composer-content] > .text-gray-400 { visibility: hidden; }
+
+[data-message-composer-surface]:focus-within {
+  border-color: #5a5a5a;
+  box-shadow: 0 10px 30px #0006;
+}
+
+.composer-send-btn--idle {
+  background: #3e3e3e;
+  color: #a6a6a6;
+}
+
+/* Trigger buttons share the send button's idle fill, with no outline. */
+.mova-model-trigger,
+.mova-approval-trigger {
+  background-color: #3e3e3e;
+  box-shadow: none;
+}
+
+.mova-model-trigger:hover,
+.mova-approval-trigger:hover {
+  background-color: #494949;
+}
+
+/* Model rows highlight with text only; hover uses the selected text color. */
+.mova-panel-view .ui-hover-highlight { display: none; }
+.mova-model-item { margin: 0; }
+.mova-panel-view .mova-model-item:hover {
+  background-color: transparent;
+  color: var(--theme-fg, #efefee);
+}
+
+/* 模型菜单的厂商分组标题（DeepSeek / ChatGPT / Gemini …）。
+   它是 app.js 插进 shadow DOM 的纯装饰节点，不参与点击与键盘导航。 */
+.mova-model-group {
+  margin: 8px 0 2px;
+  padding: 0 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--theme-text-secondary, #a6a6a6);
+  user-select: none;
+  pointer-events: none;
+}
+.mova-model-group:first-of-type { margin-top: 2px; }
+
+.composer-send-btn:focus-visible,
+.composer-toolbar button:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+
+.mova-usage-trigger {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  transition: background-color 150ms ease;
+}
+
+.mova-usage-trigger:hover,
+.mova-usage-close:hover,
+.mova-usage-context-toggle:hover { background-color: var(--theme-hover); }
+
+.mova-usage-trigger svg { width: 16px; height: 16px; }
+
+.mova-usage-shell {
+  width: min(364px, calc(100vw - 76px));
+  max-height: calc(100dvh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.mova-usage {
+  --usage-track: #3e3e3e;
+  --usage-blue: #3795f5;
+  position: relative;
+  padding: 12px 14px 14px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--theme-fg);
+}
+
+.mova-usage button:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+
+.mova-usage-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 7px;
+}
+
+.mova-usage-heading h2 { flex: 1 1 auto; min-width: 0; font-size: 13px; font-weight: 600; margin-right: 0; }
+.mova-usage-heading > span { font-size: 11px; color: var(--theme-text-secondary); }
+
+.mova-usage-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  margin-left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  color: var(--theme-text-secondary);
+}
+
+.mova-usage-context-toggle {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 4px;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.mova-usage-context-toggle svg { transition: transform 180ms ease; }
+.mova-usage-context-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.mova-usage-summary, .mova-usage-secondary { color: var(--theme-text-secondary); }
+.mova-usage-summary strong { color: var(--theme-fg); }
+
+.mova-usage-track {
+  display: flex;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--usage-track);
+}
+
+.mova-usage-context-toggle + .mova-usage-track { margin-top: 4px; }
+.mova-usage-segment { flex-shrink: 0; border-right: 1px solid var(--theme-elevated); }
+.mova-quota-used { border-radius: inherit; background: var(--usage-blue); }
+
+.mova-usage-details {
+  display: grid;
+  gap: 5px;
+  margin: 11px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mova-usage-details[hidden] { display: none; }
+.mova-usage-details:not([hidden]) { animation: mova-usage-details-in 220ms ease-out both; }
+
+@keyframes mova-usage-details-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mova-usage-details li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto 40px;
+  align-items: center;
+  gap: 7px;
+}
+
+.mova-usage-details li strong { text-align: right; }
+.mova-usage-dot { width: 7px; height: 7px; border-radius: 2px; background: #585858; }
+
+.mova-usage-quotas {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--theme-border);
+}
+
+.mova-usage-quotas h3 { font-weight: 500; color: var(--theme-text-secondary); }
+.mova-quota { display: grid; gap: 4px; }
+.mova-quota-caption, .mova-quota-meta { display: flex; justify-content: space-between; gap: 6px; }
+.mova-quota-caption > span { white-space: nowrap; }
+.mova-quota-meta { color: var(--theme-text-secondary); font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mova-usage-trigger, .mova-usage-context-toggle svg { transition: none; }
+  .mova-usage-details:not([hidden]) { animation: none; }
+}
+
+.mova-usage-root { position: relative; display: inline-flex; align-items: center; }
+
+.mova-usage-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 30;
+  border: 1px solid var(--theme-border, #434343);
+  border-radius: 14px;
+  background: var(--theme-elevated, #2e2e2e);
+  box-shadow: 0 18px 44px #0008;
+}
+
+/* Model & reasoning popover rows */
+.mova-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--theme-fg, #efefee);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.mova-row-button { cursor: pointer; transition: color 140ms ease; }
+.mova-row-button:hover { background: transparent; }
+.mova-row-button:hover .mova-row-value { color: var(--theme-accent, #94aee9); }
+
+.mova-row-label { color: var(--theme-text-secondary, #a6a6a6); font-weight: 500; }
+.mova-row-back { display: inline-flex; align-items: center; gap: 5px; }
+
+.mova-row-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: var(--theme-fg, #efefee);
+  font-weight: 500;
+}
+
+.mova-row-chevron { color: var(--theme-text-secondary, #a6a6a6); flex: none; }
+
+.mova-row-divider { height: 1px; margin: 6px 10px; background: var(--theme-border, #434343); opacity: .55; }
+
+.mova-slider-wrap { padding: 2px 12px 4px; }
+
+.mova-model-item { border-radius: 8px; }
+.mova-model-empty { padding: 6px 10px 8px; font-size: 12px; color: var(--theme-text-secondary, #a6a6a6); }
+
+/* One labelled stop per level the active model declares. */
+.reasoning-effort-stops { margin-top: 2px; font-size: 10.5px; }
+.reasoning-effort { margin-top: 0; }
+
+.mova-panel-view { animation: mova-panel-in 200ms cubic-bezier(.22, .9, .26, 1) both; }
+
+@keyframes mova-panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mova-panel-view { animation: none; }
+}
+
+/* Usage popover shares the model popover's morph shell: same bottom, grows up-left. */
+.mova-usage-menu {
+  width: 364px;
+  max-width: calc(100vw - 32px);
+}
+
+.mova-usage-menu .mova-usage { width: 100%; }
+
+/* ---- 审批菜单 ---------------------------------------------------------- */
+/* vendor 用浅色 utility 画底，深色主题下会变成浅底叠浅字，这里统一改成深色面板 */
+.morph-menu-content { background-color: #2e2e2e !important; }
+.morph-menu-content [class*="bg-"]:not([class*="bg-transparent"]):not(.ui-hover-highlight) {
+  background-color: transparent !important;
+}
+
+/* 选中项的滑动底块：静止状态下也标出当前权限 */
+.morph-menu-content .ui-hover-highlight { background-color: #343434 !important; }
+
+[data-menu-item]:hover,
+[data-menu-item][data-highlighted],
+[data-menu-item][data-selected],
+[data-menu-item][data-active="true"],
+[data-menu-item][aria-selected="true"] { background-color: #3a3a3a !important; }
+
+/* 普通行：悬停/高亮只提亮文字，副标题与图标同步变亮 */
+[data-menu-item]:not([data-menu-item="full"]):hover,
+[data-menu-item]:not([data-menu-item="full"])[data-highlighted] { color: #f2f2f2 !important; }
+[data-menu-item]:not([data-menu-item="full"]):hover [class*="text-[#8c8c8c]"],
+[data-menu-item]:not([data-menu-item="full"])[data-highlighted] [class*="text-[#8c8c8c]"],
+[data-menu-item]:not([data-menu-item="full"])[data-selected] [class*="text-[#8c8c8c]"] { color: #b9b9b9 !important; }
+[data-menu-item]:not([data-menu-item="full"]):hover svg,
+[data-menu-item]:not([data-menu-item="full"])[data-highlighted] svg,
+[data-menu-item]:not([data-menu-item="full"])[data-selected] svg { color: #d0d0d0 !important; }
+
+/* 「完全访问权限」是危险项：选中或悬停时整行转橙，未交互时与其他行一致。
+   橙色不吃上面的提亮规则，避免被刷成白色。 */
+[data-menu-item="full"][class*="text-[#e25507]"],
+[data-menu-item="full"]:hover,
+[data-menu-item="full"][data-highlighted],
+[data-menu-item="full"][data-selected],
+[data-menu-item="full"][aria-selected="true"] { color: var(--mova-approval-warn) !important; }
+
+[data-menu-item="full"]:hover svg,
+[data-menu-item="full"][data-highlighted] svg,
+[data-menu-item="full"][data-selected] svg,
+[data-menu-item="full"] [class*="text-[#e25507]"]:not([class*="text-[#e25507]/80"]) {
+  color: var(--mova-approval-warn) !important;
+}
+
+/* 副标题：选中时是 vendor 的 80% 橙，悬停未选中时也转暖 */
+[data-menu-item="full"] [class*="text-[#e25507]/80"],
+[data-menu-item="full"]:hover [class*="text-[#8c8c8c]"] { color: var(--mova-approval-warn-dim) !important; }
+
+[data-menu-item="full"]:hover,
+[data-menu-item="full"][data-highlighted],
+[data-menu-item="full"][data-selected],
+[data-menu-item="full"][aria-selected="true"] { background-color: #3b2e25 !important; }
+
+/* 上下文用量环已移到对话页右上角「⋯」的 Token 用量卡片，输入栏不再显示。 */
+.composer-model-tools > :first-child { display: none; }
+
+/* 对话区变窄：收起「请求批准」，只留加号、模型和发送。 */
+:host(.mova-composer-no-approval) .composer-primary-tools > div.min-w-0.max-w-full { display: none; }
+:host(.mova-composer-edge) .mova-model-trigger {
+  max-width: none;
+  width: max-content;
+  white-space: nowrap;
+  padding-inline: 12px 7px;
+}
+:host(.mova-composer-edge) .mova-model-trigger > svg { flex-shrink: 0; }
+:host(.mova-composer-edge) .mova-model-trigger > span + span { display: none; }
+:host(.mova-composer-edge) .mova-usage-trigger { display: none; }
+.composer-at-menu { display: none !important; }

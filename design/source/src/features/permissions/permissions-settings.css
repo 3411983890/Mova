@@ -1,0 +1,108 @@
+/* 权限页：沿用设置页卡片与开关，只补文件夹授权行、工具清单和注意事项。 */
+.permissions-page { width: 100%; }
+.permissions-page code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #262626;
+  color: #cfcfcf;
+  font: 11.5px/1.5 ui-monospace, Consolas, monospace;
+}
+
+.permissions-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.permissions-tools li {
+  padding: 2px 9px;
+  border: 1px solid #363636;
+  border-radius: 999px;
+  background: #232323;
+  color: var(--mova-settings-text-description);
+  font-size: 11.5px;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+.permissions-caution {
+  margin: 9px 0 0;
+  padding: 7px 10px;
+  border-left: 2px solid #8a6a3c;
+  border-radius: 0 6px 6px 0;
+  background: #241f17;
+  color: #d8bd94;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+.permissions-caution.is-exec { border-left-color: #8a4a44; background: #241a19; color: #e2b0aa; }
+
+.permissions-message {
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #1f2620;
+  color: #a6d3b3;
+  font-size: 12px;
+}
+.permissions-message.error { background: #2a1f1e; color: #e2b0aa; }
+
+.permissions-root {
+  align-items: flex-start;
+  gap: 24px;
+}
+.permissions-path {
+  margin: 3px 0 0;
+  overflow: hidden;
+  color: var(--mova-settings-text-description);
+  font: 11.5px/1.5 ui-monospace, Consolas, monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.permissions-summary {
+  margin: 4px 0 0;
+  color: #8f8f8f;
+  font-size: 11.5px;
+}
+
+.permissions-controls {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 8px;
+  width: min(340px, 52%);
+}
+
+.permissions-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+.permissions-toggle > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+.permissions-toggle strong { color: var(--mova-settings-text-row); font-size: 12.5px; font-weight: 500; }
+.permissions-toggle small { color: var(--mova-settings-text-description); font-size: 11.5px; line-height: 1.5; }
+.permissions-toggle-sub { border-top: 1px dashed #2f2f2f; padding-top: 9px; }
+.permissions-toggle-sub strong { color: #cfcfcf; font-weight: 400; }
+
+.permissions-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid #2a2a2a;
+}
+
+@media (max-width: 860px) {
+  .permissions-root { flex-direction: column; gap: 12px; }
+  .permissions-controls { width: 100%; }
+}

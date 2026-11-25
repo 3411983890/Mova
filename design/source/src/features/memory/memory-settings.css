@@ -1,0 +1,320 @@
+/* 记忆与存储 —— 全部使用 --mova-settings-* token，见 Mova设置页设计规范.md */
+
+.memory-settings { display: flex; flex-direction: column; gap: var(--mova-settings-page-gap); color: var(--mova-settings-text-body); }
+
+/* ── 顶部状态条 ─────────────────────────────────────────────────────── */
+.memory-banner {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--mova-settings-warning-line);
+  border-radius: var(--mova-settings-radius-toolbar);
+  background: var(--mova-settings-warning-surface);
+  color: var(--mova-settings-warning-text);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.memory-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--mova-settings-error-line);
+  border-radius: var(--mova-settings-radius-toolbar);
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-error-text);
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.memory-notice { margin: 0; min-height: 0; color: var(--mova-settings-text-accent); font-size: 12px; line-height: 1.6; }
+.memory-notice:empty { display: none; }
+.memory-muted { margin: 0; color: var(--mova-settings-text-description); font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
+
+/* ── 工具栏（搜索 + 范围 + 主操作） ─────────────────────────────────── */
+.memory-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.memory-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+  height: var(--mova-settings-toolbar-height);
+  padding: 0 12px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: var(--mova-settings-radius-toolbar);
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-meta);
+}
+.memory-search svg { width: 15px; height: 15px; flex: none; }
+.memory-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--mova-settings-text-section);
+  font-size: 12.5px;
+  outline: none;
+}
+.memory-toolbar .settings-select,
+.memory-toolbar .settings-button { height: var(--mova-settings-toolbar-height); padding: 0 12px; border-radius: var(--mova-settings-radius-toolbar); }
+.memory-toolbar .memory-toolbar-scope { display: flex; align-items: center; gap: 8px; color: var(--mova-settings-text-description); font-size: 12px; }
+
+/* ── 记忆条目列表 ───────────────────────────────────────────────────── */
+.memory-list { display: flex; flex-direction: column; }
+/* 行内「更多」菜单需要溢出卡片，行本身没有背景，不需要裁剪 */
+.settings-card.memory-list { overflow: visible; }
+.memory-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+}
+.memory-item + .memory-item { border-top: 1px solid var(--mova-settings-line); }
+.memory-item-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  max-width: var(--mova-settings-text-max);
+  text-align: left;
+}
+.memory-item-title {
+  overflow: hidden;
+  color: var(--mova-settings-text-title);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.memory-item-main:hover .memory-item-title { color: var(--mova-settings-text-strong); }
+.memory-item-main:not(button) { cursor: default; }
+.memory-item-main:not(button):hover .memory-item-title { color: var(--mova-settings-text-title); }
+.memory-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mova-settings-text-meta);
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.memory-item-actions { display: flex; align-items: center; gap: 4px; flex: none; }
+.memory-project {
+  flex: none;
+  padding: 0 7px;
+  border-radius: var(--mova-settings-radius-pill);
+  background: var(--mova-settings-surface-raised);
+  color: var(--mova-settings-text-item);
+  font-size: 10.5px;
+  line-height: 1.7;
+}
+
+.memory-icon-button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--mova-settings-radius-control);
+  color: var(--mova-settings-text-description);
+  font-size: 15px;
+}
+.memory-icon-button:hover { background: var(--mova-settings-hover-control); color: var(--mova-settings-text-item); }
+.memory-icon-button svg { width: 15px; height: 15px; }
+.memory-icon-button[aria-pressed="true"] { color: var(--mova-settings-text-accent); }
+
+.memory-status {
+  flex: none;
+  padding: 1px 7px;
+  border: 1px solid transparent;
+  border-radius: var(--mova-settings-radius-pill);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.memory-status[data-state="active"] { border-color: var(--mova-settings-accent-line); background: var(--mova-settings-accent-surface); color: var(--mova-settings-text-accent); }
+.memory-status[data-state="disabled"] { border-color: var(--mova-settings-line-control); color: var(--mova-settings-text-meta); }
+.memory-status[data-state="superseded"] { border-color: var(--mova-settings-line); color: var(--mova-settings-text-dim); }
+
+/* 行内「更多」菜单 */
+.memory-menu-wrap { position: relative; flex: none; }
+.memory-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 6;
+  min-width: 132px;
+  padding: 6px;
+  border: 1px solid var(--mova-settings-line-dashed);
+  border-radius: var(--mova-settings-radius-toolbar);
+  background: var(--mova-settings-surface-raised);
+  box-shadow: var(--mova-settings-shadow-menu);
+}
+.memory-menu[data-flip="true"] { top: auto; bottom: calc(100% + 6px); }
+.memory-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: var(--mova-settings-radius-control);
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+  text-align: left;
+}
+.memory-menu button:hover { background: var(--mova-settings-hover-row); }
+.memory-menu button[data-tone="danger"] { color: var(--mova-settings-danger); }
+.memory-menu button[data-tone="danger"]:hover { background: var(--mova-settings-danger-surface); }
+
+/* ── 空状态 ─────────────────────────────────────────────────────────── */
+.memory-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 16px;
+  border: 1px dashed var(--mova-settings-line-dashed);
+  border-radius: var(--mova-settings-radius-card);
+  color: var(--mova-settings-text-meta);
+  font-size: 12.5px;
+  text-align: center;
+}
+.memory-empty p { margin: 0; }
+
+/* ── 表单（输入框 / 数字框 / 计数） ─────────────────────────────────── */
+.memory-form { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.memory-form > label,
+.memory-field-label { color: var(--mova-settings-text-description); font-size: 12px; }
+.memory-settings input:not([type="checkbox"]),
+.memory-settings textarea {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-title);
+  font: inherit;
+  font-size: 12.5px;
+}
+.memory-settings input:not([type="checkbox"]):focus,
+.memory-settings textarea:focus { border-color: var(--mova-settings-line-focus); }
+.memory-settings textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 76px; line-height: 1.6; }
+.memory-settings input[type="checkbox"] { accent-color: var(--mova-settings-accent-control); }
+.memory-number { width: 88px; text-align: right; font-variant-numeric: tabular-nums; }
+.memory-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.memory-field-inline { display: inline-flex; align-items: center; gap: 8px; color: var(--mova-settings-text-item); font-size: 12px; }
+.memory-count { color: var(--mova-settings-text-meta); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.memory-link {
+  margin-left: 8px;
+  color: var(--mova-settings-text-link);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.memory-path {
+  display: block;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--mova-settings-surface-raised);
+  color: var(--mova-settings-text-item);
+  font: 11px/1.5 ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+/* ── 对话框（新增 / 详情 / 危险确认） ───────────────────────────────── */
+.settings-dialog {
+  width: min(460px, calc(100vw - 40px));
+  max-height: calc(100dvh - 40px);
+  padding: 0;
+  border: 1px solid var(--mova-settings-line-frame);
+  border-radius: var(--mova-settings-radius-dialog);
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-body);
+  box-shadow: var(--mova-settings-shadow-dialog);
+  overflow: hidden;
+}
+.settings-dialog[data-size="wide"] { width: min(560px, calc(100vw - 40px)); }
+.settings-dialog::backdrop { background: var(--mova-settings-overlay); }
+.settings-dialog[open] { animation: settings-dialog-in var(--mova-settings-duration) var(--mova-settings-ease) both; }
+@keyframes settings-dialog-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.settings-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 0;
+}
+.settings-dialog-head h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--mova-settings-text-strong); }
+.settings-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 20px 20px;
+  overflow-y: auto;
+  max-height: min(58vh, 460px);
+}
+.settings-dialog-body > p { margin: 0; color: var(--mova-settings-text-description); font-size: 12.5px; line-height: 1.7; }
+.settings-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 20px 20px;
+}
+.settings-dialog-actions .settings-button { height: 30px; padding: 0 14px; }
+.settings-dialog-actions .settings-button.danger-solid { border-color: var(--mova-settings-danger); background: var(--mova-settings-danger); color: var(--mova-settings-danger-surface); font-weight: 500; }
+.settings-dialog-actions .settings-button.danger-solid:hover { background: var(--mova-settings-danger-hover); border-color: var(--mova-settings-danger-hover); color: var(--mova-settings-danger-surface); }
+.settings-dialog-actions .settings-button.danger-solid:disabled { border-color: var(--mova-settings-line-control); background: var(--mova-settings-surface-nested); color: var(--mova-settings-text-meta); opacity: 1; }
+.memory-form-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+.memory-detail-text {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface-sunken);
+  color: var(--mova-settings-text-title);
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.memory-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 12px;
+}
+.memory-detail-grid div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.memory-detail-grid dt { color: var(--mova-settings-text-meta); }
+.memory-detail-grid dd { margin: 0; color: var(--mova-settings-text-body); overflow-wrap: anywhere; }
+.memory-confirm-field { display: flex; flex-direction: column; gap: 6px; }
+.memory-confirm-field > span { color: var(--mova-settings-text-description); font-size: 12px; }
+.memory-confirm-word { color: var(--mova-settings-text-accent); font-weight: 500; }
+
+.memory-limitations { color: var(--mova-settings-text-meta); }
+
+.memory-settings :is(button, input, textarea, select):focus-visible { outline: 2px solid var(--mova-settings-focus); outline-offset: 3px; }
+.memory-settings :is(button, input, textarea, select):disabled { opacity: .45; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .memory-item { flex-wrap: wrap; gap: 10px; }
+  .memory-item-main { max-width: 100%; }
+  .memory-toolbar { align-items: stretch; }
+  .memory-toolbar .settings-select,
+  .memory-toolbar .settings-button { width: 100%; justify-content: center; }
+  .memory-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .memory-error { align-items: flex-start; flex-direction: column; }
+}

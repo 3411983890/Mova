@@ -1,0 +1,145 @@
+/* 服务与索引设置页（服务版）：全部使用 --mova-settings-* token。 */
+
+.service-settings { gap: var(--mova-settings-page-gap); }
+
+/* ── 状态徽章 ───────────────────────────────────────────────────────── */
+.memory-pill {
+  flex: none;
+  max-width: 46%;
+  padding: 1px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--mova-settings-radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.memory-pill[data-tone="ok"] { border-color: var(--mova-settings-accent-line); background: var(--mova-settings-accent-surface); color: var(--mova-settings-text-accent); }
+.memory-pill[data-tone="warn"] { border-color: var(--mova-settings-warning-line); background: var(--mova-settings-warning-surface); color: var(--mova-settings-warning-text); }
+.memory-pill[data-tone="error"] { border-color: var(--mova-settings-error-line); background: var(--mova-settings-danger-surface); color: var(--mova-settings-error-text); }
+.memory-pill[data-tone="muted"] { border-color: var(--mova-settings-line-control); color: var(--mova-settings-text-meta); }
+.memory-pill[data-tone="unknown"] { border-style: dashed; border-color: var(--mova-settings-line-dashed); color: var(--mova-settings-text-dim); }
+
+.memory-stat-value { flex: none; color: var(--mova-settings-text-title); font-size: 13px; font-variant-numeric: tabular-nums; }
+.memory-stat-value[data-tone="error"] { color: var(--mova-settings-error-text); }
+.memory-warn-text { color: var(--mova-settings-warning-text) !important; }
+
+/* ── 统计网格 ───────────────────────────────────────────────────────── */
+.memory-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--mova-settings-line);
+  border-bottom: 1px solid var(--mova-settings-line);
+}
+.memory-stats > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: var(--mova-settings-surface);
+}
+.memory-stats dt { color: var(--mova-settings-text-meta); font-size: 12px; }
+.memory-stats dd { margin: 0; color: var(--mova-settings-text-title); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* ── 配额进度条 ─────────────────────────────────────────────────────── */
+.memory-quota { padding: 12px 18px 14px; }
+.memory-quota-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  color: var(--mova-settings-text-description);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.memory-quota-head [data-tone="warn"] { color: var(--mova-settings-warning-text); }
+.memory-quota-head [data-tone="error"] { color: var(--mova-settings-error-text); }
+.memory-quota-bar {
+  height: 6px;
+  border-radius: var(--mova-settings-radius-pill);
+  background: var(--mova-settings-meter-track);
+  overflow: hidden;
+}
+.memory-quota-bar span { display: block; height: 100%; border-radius: inherit; background: var(--mova-settings-accent); }
+.memory-quota-bar[data-tone="warn"] span { background: var(--mova-settings-warning-line); }
+.memory-quota-bar[data-tone="error"] span { background: var(--mova-settings-danger); }
+
+/* ── 权重滑块 ───────────────────────────────────────────────────────── */
+.settings-weight { padding: 14px 18px 16px; border-top: 1px solid var(--mova-settings-line); }
+.settings-weight-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.settings-weight-head strong { color: var(--mova-settings-text-title); font-size: 13px; font-weight: 500; }
+.memory-weight-value { color: var(--mova-settings-text-description); font-size: 12px; font-variant-numeric: tabular-nums; }
+.settings-weight-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--mova-settings-text-meta);
+  font-size: 11.5px;
+}
+.memory-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 10px 0 0;
+  background: transparent;
+  cursor: pointer;
+}
+.memory-range::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: var(--mova-settings-meter-track); }
+.memory-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--mova-settings-accent);
+  box-shadow: 0 0 0 3px var(--mova-settings-accent-glow);
+}
+.memory-range::-moz-range-track { height: 4px; border-radius: 999px; background: var(--mova-settings-meter-track); }
+.memory-range::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: var(--mova-settings-accent); }
+.memory-range:disabled { opacity: .45; cursor: not-allowed; }
+.memory-range:focus-visible { outline: 2px solid var(--mova-settings-focus); outline-offset: 4px; }
+
+/* ── 整行单选 ───────────────────────────────────────────────────────── */
+.settings-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 18px;
+  text-align: left;
+}
+.settings-choice + .settings-choice { border-top: 1px solid var(--mova-settings-line); }
+.settings-choice:hover { background: var(--mova-settings-hover-row); }
+.settings-choice-dot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: 50%;
+  background: transparent;
+}
+.settings-choice-dot[data-checked="true"] {
+  border-color: var(--mova-settings-accent);
+  background: var(--mova-settings-accent);
+  box-shadow: inset 0 0 0 3px var(--mova-settings-surface);
+}
+.settings-choice-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.settings-choice-text strong { color: var(--mova-settings-text-title); font-size: 13px; font-weight: 500; }
+.settings-choice-text span { color: var(--mova-settings-text-description); font-size: 12.5px; line-height: 1.55; }
+
+.service-settings code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; }
+
+@media (max-width: 720px) {
+  .memory-stats { grid-template-columns: minmax(0, 1fr); }
+}

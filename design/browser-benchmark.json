@@ -1,0 +1,319 @@
+{
+  "generatedAt": "2026-11-11T11:31:34.345Z",
+  "environment": {
+    "electron": "45.2.3",
+    "chrome": "156.0.8078.80"
+  },
+  "summary": {
+    "tasks": 25,
+    "passed": 25,
+    "successRate": 100,
+    "calls": 81,
+    "chars": 15761,
+    "approxTokens": 3940,
+    "p50TaskMs": 300,
+    "actCalls": 11,
+    "p50ActMs": 287
+  },
+  "results": [
+    {
+      "name": "read-article",
+      "ok": true,
+      "ms": 130,
+      "calls": 2,
+      "chars": 1249,
+      "detail": {
+        "chars": 987
+      }
+    },
+    {
+      "name": "snapshot-controls",
+      "ok": true,
+      "ms": 26,
+      "calls": 2,
+      "chars": 493,
+      "detail": {
+        "chars": 296,
+        "mode": "full"
+      }
+    },
+    {
+      "name": "click-and-expect",
+      "ok": true,
+      "ms": 300,
+      "calls": 2,
+      "chars": 248,
+      "detail": {
+        "diff": false
+      }
+    },
+    {
+      "name": "site-search",
+      "ok": true,
+      "ms": 594,
+      "calls": 4,
+      "chars": 702,
+      "detail": {
+        "chars": 18
+      }
+    },
+    {
+      "name": "table-pagination",
+      "ok": true,
+      "ms": 296,
+      "calls": 3,
+      "chars": 443,
+      "detail": {
+        "chars": 42
+      }
+    },
+    {
+      "name": "js-batch",
+      "ok": true,
+      "ms": 587,
+      "calls": 1,
+      "chars": 37,
+      "detail": {
+        "text": "Gamma"
+      }
+    },
+    {
+      "name": "batch-form",
+      "ok": true,
+      "ms": 863,
+      "calls": 2,
+      "chars": 596,
+      "detail": {
+        "steps": 3,
+        "learned": "sk_21dc876f"
+      }
+    },
+    {
+      "name": "dialog-auto-accept",
+      "ok": true,
+      "ms": 318,
+      "calls": 2,
+      "chars": 371,
+      "detail": {
+        "dialog": {
+          "type": "alert",
+          "message": "benchmark alert",
+          "defaultPrompt": "",
+          "url": "http://127.0.0.1:60567/dialog",
+          "handled": "accepted"
+        }
+      }
+    },
+    {
+      "name": "login-fill",
+      "ok": true,
+      "ms": 242,
+      "calls": 3,
+      "chars": 530,
+      "detail": {
+        "username": "a***a",
+        "submitted": true
+      }
+    },
+    {
+      "name": "download",
+      "ok": true,
+      "ms": 523,
+      "calls": 2,
+      "chars": 400,
+      "detail": {
+        "bytes": 22,
+        "filename": "report.csv"
+      }
+    },
+    {
+      "name": "upload",
+      "ok": true,
+      "ms": 50,
+      "calls": 3,
+      "chars": 498,
+      "detail": {
+        "files": [
+          "report.txt"
+        ]
+      }
+    },
+    {
+      "name": "upload-chooser",
+      "ok": true,
+      "ms": 166,
+      "calls": 3,
+      "chars": 672,
+      "detail": {
+        "files": [
+          "chooser.txt"
+        ],
+        "via": "chooser"
+      }
+    },
+    {
+      "name": "iframe",
+      "ok": true,
+      "ms": 457,
+      "calls": 3,
+      "chars": 673,
+      "detail": {
+        "ref": "f1:e65"
+      }
+    },
+    {
+      "name": "iframe-cross-origin",
+      "ok": true,
+      "ms": 935,
+      "calls": 4,
+      "chars": 1020,
+      "detail": {
+        "ref": "f1:e6q"
+      }
+    },
+    {
+      "name": "dual-account",
+      "ok": true,
+      "ms": 535,
+      "calls": 9,
+      "chars": 1180,
+      "detail": {
+        "shared": "alice",
+        "isolated": "bob"
+      }
+    },
+    {
+      "name": "background-space",
+      "ok": true,
+      "ms": 158,
+      "calls": 9,
+      "chars": 1543,
+      "detail": {
+        "background": "tab-3",
+        "active": "tab-1"
+      }
+    },
+    {
+      "name": "confirm-dismiss",
+      "ok": true,
+      "ms": 302,
+      "calls": 3,
+      "chars": 538,
+      "detail": {
+        "dialog": {
+          "type": "confirm",
+          "message": "Continue?",
+          "defaultPrompt": "",
+          "url": "http://127.0.0.1:60567/confirm",
+          "handled": "dismissed"
+        }
+      }
+    },
+    {
+      "name": "confirm-accept",
+      "ok": true,
+      "ms": 291,
+      "calls": 4,
+      "chars": 566,
+      "detail": {
+        "dialog": {
+          "type": "confirm",
+          "message": "Continue?",
+          "defaultPrompt": "",
+          "url": "http://127.0.0.1:60567/confirm",
+          "handled": "accepted"
+        }
+      }
+    },
+    {
+      "name": "smart-wait",
+      "ok": true,
+      "ms": 763,
+      "calls": 2,
+      "chars": 140,
+      "detail": {
+        "ms": 747
+      }
+    },
+    {
+      "name": "snapshot-diff",
+      "ok": true,
+      "ms": 314,
+      "calls": 4,
+      "chars": 732,
+      "detail": {
+        "mode": "diff",
+        "chars": 131
+      }
+    },
+    {
+      "name": "tabs",
+      "ok": true,
+      "ms": 139,
+      "calls": 5,
+      "chars": 844,
+      "detail": {
+        "tabs": 4,
+        "second": "tab-4"
+      }
+    },
+    {
+      "name": "skill-replay",
+      "ok": true,
+      "ms": 1169,
+      "calls": 3,
+      "chars": 960,
+      "detail": {
+        "id": "sk_f0e86007",
+        "steps": 2
+      }
+    },
+    {
+      "name": "site-card",
+      "ok": true,
+      "ms": 23,
+      "calls": 3,
+      "chars": 1039,
+      "detail": {
+        "landmarks": {
+          "search": {
+            "role": "textbox",
+            "name": "Search",
+            "ref": "[ref=ea9]"
+          },
+          "list": {
+            "role": "table",
+            "name": "Orders",
+            "ref": "[ref=ead]"
+          },
+          "primaryAction": {
+            "role": "button",
+            "name": "Export",
+            "ref": "[ref=eac]"
+          }
+        }
+      }
+    },
+    {
+      "name": "screenshot",
+      "ok": true,
+      "ms": 52,
+      "calls": 2,
+      "chars": 243,
+      "detail": {
+        "bytes": 8000,
+        "width": 0
+      }
+    },
+    {
+      "name": "handoff",
+      "ok": true,
+      "ms": 107,
+      "calls": 1,
+      "chars": 44,
+      "detail": {
+        "id": "h1"
+      }
+    }
+  ]
+}

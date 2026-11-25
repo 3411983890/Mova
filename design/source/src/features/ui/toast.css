@@ -1,0 +1,56 @@
+/* 右下角提示：与设置页同一套 token。 */
+.mova-toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+  max-width: min(360px, calc(100vw - 40px));
+}
+
+.mova-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--mova-settings-line-frame, #2f2f2f);
+  border-radius: var(--mova-settings-radius-control, 8px);
+  background: var(--mova-settings-surface-nested, #212121);
+  box-shadow: 0 12px 28px #0008;
+  color: var(--mova-settings-text-body, #e2e2e2);
+  font-size: 12.5px;
+  line-height: 1.55;
+  pointer-events: auto;
+  animation: mova-toast-in 180ms cubic-bezier(.22, .9, .26, 1) both;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.mova-toast[data-tone="ok"] { border-color: var(--mova-settings-accent-line, #2d4c74); background: var(--mova-settings-accent-surface, #1e2c3d); color: var(--mova-settings-text-accent, #8fbcf5); }
+.mova-toast[data-tone="error"] { border-color: var(--mova-settings-error-line, #74443e); background: var(--mova-settings-danger-surface, #2c2322); color: var(--mova-settings-error-text, #f0b9b2); }
+.mova-toast[data-leaving="true"] { opacity: 0; transform: translateY(6px); }
+
+.mova-toast-text { min-width: 0; overflow-wrap: anywhere; }
+.mova-toast-close {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  color: inherit;
+  opacity: .65;
+  font-size: 14px;
+  line-height: 1;
+}
+.mova-toast-close:hover { opacity: 1; background: #ffffff14; }
+
+@keyframes mova-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mova-toast { animation: none; transition: none; }
+}

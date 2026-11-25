@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>Mova · 正在操作（左下角小球 + 气泡）</title>
+<style>
+  /* ── 颜色取自 Mova 设计规范（§3） ─────────────────────────────── */
+  :root{
+    --mova-text:#d5d6d5;
+    --mova-text-strong:#f2f4f2;
+    --mova-text-muted:#828783;
+    --mova-accent-info:#3795f5;
+    --ease-card:cubic-bezier(.2,.85,.25,1);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",Arial,sans-serif;
+    background:#0f1213;color:var(--mova-text);overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ── 假桌面 ──────────────────────────────────────────────────── */
+  .desk{
+    position:fixed;inset:0;
+    background:
+      radial-gradient(1100px 640px at 74% 12%, rgba(140,166,160,.10), transparent 60%),
+      radial-gradient(900px 560px at 10% 92%, rgba(55,149,245,.09), transparent 62%),
+      linear-gradient(158deg,#15181a 0%,#101314 58%,#0d1011 100%);
+  }
+  .desk::after{
+    content:"";position:absolute;inset:0;opacity:.28;
+    background-image:radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .appwin{
+    position:absolute;left:220px;top:140px;width:1060px;height:500px;
+    border-radius:12px;overflow:hidden;background:#f7f8fa;color:#1d2330;
+    box-shadow:0 40px 120px rgba(0,0,0,.62);
+  }
+  .tb{height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;
+      background:linear-gradient(#1f6f43,#166534);color:#eafff3;font-size:12.5px}
+  .tb .dots{display:flex;gap:6px}
+  .tb .dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.35);display:block}
+  .tb .name{font-weight:600;letter-spacing:.2px}
+  .tb .name span{opacity:.75;font-weight:400}
+  .rb{height:86px;display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #e3e8ef}
+  .rb .grp{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 12px;border-radius:8px;font-size:10.5px;color:#5b6675}
+  .rb .ico{width:34px;height:28px;border-radius:6px;background:#eef2f7;border:1px solid #dde4ec;display:grid;place-items:center;font-size:13px}
+  .rb .grp.hot{background:#e8f2ff;border:1px solid #b9d9ff}
+  .rb .grp.hot .ico{background:#d7e9ff;border-color:#a9cfff}
+  .rb .sep{width:1px;height:52px;background:#e6ebf1;margin:0 6px}
+  .fx{height:30px;display:flex;align-items:center;gap:8px;padding:0 12px;background:#fff;border-bottom:1px solid #e3e8ef;font-size:11.5px;color:#5b6675}
+  .fx b{font-weight:600;color:#2a3444}
+  .fx .box{flex:1;height:20px;border:1px solid #e0e6ee;border-radius:4px;background:#fbfcfe}
+  .sheet{position:relative;height:calc(100% - 38px - 86px - 30px - 26px);background:#fff;overflow:hidden}
+  table{border-collapse:collapse;width:100%;font-size:11.5px;color:#2a3444}
+  th,td{border:1px solid #e6ebf1;padding:5px 9px;text-align:right;white-space:nowrap}
+  th{background:#f4f6f9;color:#63707f;font-weight:600;text-align:center}
+  td.t{text-align:left}
+  tr:nth-child(3) td,tr:nth-child(7) td{background:#eaf4ff}
+  .tabs{height:26px;display:flex;align-items:flex-end;gap:2px;padding:0 10px;background:#f4f6f9;border-top:1px solid #e3e8ef;font-size:11px}
+  .tabs i{display:block;padding:3px 12px;border-radius:6px 6px 0 0;background:#e9eef5;color:#63707f;font-style:normal}
+  .tabs i.on{background:#fff;color:#1d2330;font-weight:600;box-shadow:0 -1px 0 #cfd8e3 inset}
+
+  /* 目标控件描边 */
+  .target{
+    position:absolute;border-radius:6px;
+    border:2px solid rgba(55,149,245,.85);
+    box-shadow:0 0 0 4px rgba(55,149,245,.16),0 0 22px rgba(55,149,245,.45);
+    animation:tap 2.6s ease-out infinite;
+  }
+  @keyframes tap{0%,100%{opacity:.95}50%{opacity:.55}}
+
+  /* ── 屏幕边缘呼吸光：方形、外浓内淡、慢慢一闪一闪 ─────────────── */
+  .edge{position:fixed;inset:0;pointer-events:none;z-index:60}
+  .edge i{
+    position:absolute;display:block;
+    animation:breathe 5.4s ease-in-out infinite;
+    will-change:opacity;
+  }
+  .edge .t,.edge .b{left:0;right:0;height:min(18vh,168px)}
+  .edge .l,.edge .r{top:0;bottom:0;width:min(14vw,196px)}
+  .edge .t{top:0;background:linear-gradient(to bottom,
+      rgba(120,198,255,.34) 0%,rgba(88,176,255,.15) 30%,rgba(55,149,245,0) 100%)}
+  .edge .b{bottom:0;background:linear-gradient(to top,
+      rgba(120,198,255,.34) 0%,rgba(88,176,255,.15) 30%,rgba(55,149,245,0) 100%)}
+  .edge .l{left:0;background:linear-gradient(to right,
+      rgba(120,198,255,.30) 0%,rgba(88,176,255,.13) 32%,rgba(55,149,245,0) 100%)}
+  .edge .r{right:0;background:linear-gradient(to left,
+      rgba(120,198,255,.30) 0%,rgba(88,176,255,.13) 32%,rgba(55,149,245,0) 100%)}
+  @keyframes breathe{0%,100%{opacity:.34}50%{opacity:1}}
+
+  /* ── 左下角：小球（=聊天头像）+ 气泡列 ─────────────────────────
+     .bot-ball / .bot-message-avatar / .bot-bubble / .bot-bubble-content
+     全部照抄 design/styles.css 的 .bot-* 规则（去掉 .bot-sender 名字标签），
+     只把 .bot-bubble 的 max-width 百分比换成视口单位（浮层没有参照宽度）。 */
+  .hud{
+    position:fixed;left:24px;bottom:22px;z-index:70;
+    display:flex;align-items:flex-end;gap:12px;
+    animation:enter .26s var(--ease-card) both;
+  }
+  @keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* 源：.bot-message-avatar { width:36px; height:36px; margin-top:15px } */
+  .bot-message-avatar{
+    width:44px;height:44px;               /* 源里聊天头像 36px、侧栏小球 61px，浮层取中间值 */
+    margin-bottom:6px;                     /* 源里是 margin-top:15px（对齐正文首行），浮层锚底边 */
+    flex:none;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.45));
+  }
+  /* 源：.bot-ball { display:block; flex:none; overflow:visible } + .bot-ball > svg */
+  .bot-ball{display:block;flex:none;overflow:visible;width:100%;height:100%}
+  .bot-ball > svg{display:block;width:100%;height:100%;overflow:visible}
+
+  /* 气泡列：新气泡追加在底部（贴着小球），旧的被顶上去，2s 后渐隐 */
+  .feed{
+    display:flex;flex-direction:column;align-items:flex-start;gap:12px;
+    width:max-content;max-width:min(80vw,420px);padding-bottom:2px;
+  }
+  .row{
+    display:grid;grid-template-rows:1fr;overflow:hidden;
+    transition:grid-template-rows .34s var(--ease-card),opacity .5s ease,transform .34s var(--ease-card);
+  }
+  /* 淡出：整条往上收、缩到 0 高；不提前降透明度，避免看起来像“半透明底板” */
+  .row.gone{grid-template-rows:0fr;opacity:0;transform:translateY(-6px)}
+
+  /* 源：.bot-bubble { display:flex; flex-direction:column; align-items:flex-start;
+     width:fit-content; max-width:min(80%,570px); min-width:0 }（浮层里把 % 换成 vw） */
+  .bot-bubble{
+    display:flex;flex-direction:column;align-items:flex-start;
+    width:fit-content;max-width:min(80vw,570px);min-width:0;
+  }
+
+  /* 源：.bot-bubble-content { max-width:100%; min-width:0; padding:10px 14px;
+     border:1px solid #353535; border-radius:8px 18px 18px 18px; background:#282828;
+     color:#efefef; font-size:14px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere }
+     唯一改动：小圆角从左上角挪到左下角（球在气泡左下，尾巴要指着球）。 */
+  .bot-bubble-content{
+    max-width:100%;min-width:0;padding:10px 14px;
+    border:1px solid #353535;border-radius:18px 18px 18px 8px;
+    background:#282828;color:#efefef;
+    font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;
+    max-height:calc(1.6em * 2 + 20px);overflow:hidden;   /* 浮层里最多 2 行，避免遮内容 */
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .edge i{animation:none;opacity:.6}
+    .target{animation:none;opacity:.85}
+    .hud{animation:none}
+    .row{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="desk"></div>
+
+  <div class="appwin">
+    <div class="tb">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <div class="name">2026销售.xlsx <span>— Excel</span></div>
+    </div>
+    <div class="rb">
+      <div class="grp"><div class="ico">📋</div>粘贴</div>
+      <div class="grp"><div class="ico">✂️</div>剪切</div>
+      <div class="sep"></div>
+      <div class="grp"><div class="ico">🔤</div>字体</div>
+      <div class="grp"><div class="ico">▦</div>对齐</div>
+      <div class="sep"></div>
+      <div class="grp hot"><div class="ico">⊞</div>数据透视表</div>
+      <div class="grp"><div class="ico">📈</div>图表</div>
+      <div class="grp"><div class="ico">Σ</div>求和</div>
+      <div class="sep"></div>
+      <div class="grp"><div class="ico">🔍</div>筛选</div>
+      <div class="grp"><div class="ico">🔒</div>保护</div>
+    </div>
+    <div class="fx"><b>fx</b><div class="box"></div></div>
+    <div class="sheet">
+      <table>
+        <tr><th></th><th>A 商品</th><th>B 区域</th><th>C 数量</th><th>D 单价</th><th>E 金额</th></tr>
+        <tr><td class="t">1</td><td class="t">笔记本</td><td class="t">华东</td><td>128</td><td>6,499</td><td>831,872</td></tr>
+        <tr><td class="t">2</td><td class="t">显示器</td><td class="t">华北</td><td>96</td><td>1,899</td><td>182,304</td></tr>
+        <tr><td class="t">3</td><td class="t">键盘</td><td class="t">华南</td><td>412</td><td>329</td><td>135,548</td></tr>
+        <tr><td class="t">4</td><td class="t">鼠标</td><td class="t">华东</td><td>508</td><td>199</td><td>101,092</td></tr>
+        <tr><td class="t">5</td><td class="t">耳机</td><td class="t">西南</td><td>233</td><td>459</td><td>106,947</td></tr>
+        <tr><td class="t">6</td><td class="t">摄像头</td><td class="t">华北</td><td>87</td><td>399</td><td>34,713</td></tr>
+        <tr><td class="t">7</td><td class="t">扩展坞</td><td class="t">华南</td><td>151</td><td>569</td><td>85,919</td></tr>
+        <tr><td class="t">8</td><td class="t">音箱</td><td class="t">华东</td><td>64</td><td>899</td><td>57,536</td></tr>
+        <tr><td class="t">9</td><td class="t">路由器</td><td class="t">华北</td><td>39</td><td>1,299</td><td>50,661</td></tr>
+        <tr><td class="t">10</td><td class="t">移动硬盘</td><td class="t">华南</td><td>112</td><td>749</td><td>83,888</td></tr>
+      </table>
+    </div>
+    <div class="tabs"><i class="on">6月</i><i>7月</i><i>8月</i><i>汇总</i></div>
+    <div class="target" id="target"></div>
+  </div>
+
+  <!-- 屏幕边缘呼吸光 -->
+  <div class="edge" aria-hidden="true">
+    <i class="t" data-delay="0"></i>
+    <i class="b" data-delay="0"></i>
+    <i class="l" data-delay="0"></i>
+    <i class="r" data-delay="0"></i>
+  </div>
+
+  <!-- 左下角：小球（聊天头像位）+ 气泡列 -->
+  <div class="hud" role="status" aria-live="polite" aria-label="Mova 正在操作">
+    <span class="bot-message-avatar" aria-hidden="true"><span class="bot-ball" id="ball"></span></span>
+    <div class="feed" id="feed"></div>
+  </div>
+
+  <script src="./../vendor/emotion-ball/js/rings.js"></script>
+  <script src="./../vendor/emotion-ball/js/emotions.js"></script>
+  <script src="./../vendor/emotion-ball/js/ball.js"></script>
+  <script src="./../vendor/emotion-ball/js/engine.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── 小球：仓库自带引擎，32 = 处理中 ───────────────────────────── */
+  const ball = window.EmotionBall.create(document.getElementById('ball'), {
+    emotion: '32', shape: 'blob', eyeScale: 1.65, lite: true, idle: false, autostart: !reduced,
+  });
+  if (q.get('emotion')) ball.setEmotion(q.get('emotion'));
+
+  /* ── 气泡：结构照抄聊天窗的 .bot-message 里的 .bot-bubble ───────── */
+  const feed = document.getElementById('feed');
+  const HOLD_MS = 2000;
+  const GAP_MS = 2400;
+  const EASE = 'cubic-bezier(.2,.85,.25,1)';
+
+  function push(text) {
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    // 只留气泡本体：.bot-bubble > .bot-bubble-content（照抄 source，不带 sender 标签）
+    const bubble = document.createElement('div');
+    bubble.className = 'bot-bubble';
+    bubble.dataset.align = 'start';
+    const content = document.createElement('div');
+    content.className = 'bot-bubble-content';
+    content.textContent = text;
+    bubble.appendChild(content);
+    row.appendChild(bubble);
+
+    // FLIP：记录旧气泡位置，插入新气泡后把位移补回来再动画到 0
+    const before = [...feed.children].map(el => el.getBoundingClientRect().top);
+    feed.appendChild(row);
+
+    if (!reduced) {
+      row.animate(
+        [{ opacity: 0, transform: 'translateY(10px) scale(.985)' }, { opacity: 1, transform: 'none' }],
+        { duration: 260, easing: EASE }
+      );
+      [...feed.children].slice(0, -1).forEach((el, i) => {
+        const dy = (before[i] ?? 0) - el.getBoundingClientRect().top;
+        if (Math.abs(dy) > 0.5) {
+          el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }],
+            { duration: 300, easing: EASE });
+        }
+      });
+    }
+
+    // 更早的气泡：2s 后开始渐隐（向上收），0.55s 后移除
+    [...feed.children].slice(0, -1).forEach(prev => {
+      if (prev.dataset.retiring) return;
+      prev.dataset.retiring = '1';
+      prev.classList.add('old');
+      setTimeout(() => {
+        prev.classList.add('gone');
+        setTimeout(() => prev.remove(), 580);
+      }, HOLD_MS);
+    });
+
+    ball.handleAIMessage({ emotionId: '32', tips: text });
+  }
+
+  const lines = [
+    'Mova 正在操作你的电脑',
+    '正在打开文件「2026销售.xlsx」',
+    '正在点击「数据透视表」',
+    '正在等待 Excel 响应…',
+    '正在输入文件名「2026销售-透视.xlsx」',
+    '正在保存到桌面',
+  ];
+
+  // ?freeze=2 → 只回放 2 条并定格（便于截图评审）
+  const freeze = q.get('freeze');
+  if (freeze !== null) {
+    const n = Math.max(1, parseInt(freeze, 10) || 1);
+    lines.slice(0, n).forEach(t => push(t));
+  } else {
+    let i = 0;
+    push(lines[0]);
+    setTimeout(function tick() {
+      i = (i + 1) % lines.length;
+      push(lines[i]);
+      setTimeout(tick, GAP_MS);
+    }, GAP_MS);
+  }
+
+  /* ── 呼吸光：?at= 定格相位 ─────────────────────────────────────── */
+  const at = q.get('at');
+  if (at !== null) {
+    const t = parseFloat(at) || 0;
+    document.querySelectorAll('[data-delay]').forEach(el => {
+      el.style.animationDelay = (parseFloat(el.dataset.delay) - t) + 's';
+      el.style.animationPlayState = 'paused';
+    });
+  }
+
+  /* 目标描边跟随被操作的控件 */
+  const hot = document.querySelector('.rb .grp.hot .ico');
+  const appwin = document.querySelector('.appwin');
+  const a = appwin.getBoundingClientRect(), b = hot.getBoundingClientRect();
+  const tg = document.getElementById('target');
+  tg.style.left = (b.left - a.left - 3) + 'px';
+  tg.style.top = (b.top - a.top - 3) + 'px';
+  tg.style.width = (b.width + 6) + 'px';
+  tg.style.height = (b.height + 6) + 'px';
+</script>
+</body>
+</html>

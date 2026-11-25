@@ -1,0 +1,143 @@
+/*
+ * 设置页 · 网络与线路 —— 线路健康状态那一行。
+ *
+ * 只在 `vpn-settings.css` 之后引入（同一 feature，同一前缀），不新增全局类。
+ * 全部颜色/圆角/间距走既有 token：`--mova-settings-*`。这里**不写任何颜色字面值**，
+ * 上次自造绿/琥珀被设计审查指出违反「强调色只有蓝色」，这次直接复用状态 token。
+ */
+
+/* 一个池 = 上行（名称 + 端口 + 操作）+ 下行（健康状态）。 */
+.vpn-pool-block { border-bottom: 1px solid var(--mova-settings-line); }
+.vpn-pool-block:last-child { border-bottom: 0; }
+
+.vpn-health {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 var(--mova-settings-row-pad-inline) 12px;
+}
+
+/* 健康行第一行：左边节点信息、右边「立即检查」。
+   节点名可以省略号截断，按钮永远不缩、永远贴右（`flex: 0 0 auto`），
+   否则窄面板里按钮会被挤到下一行，又变回「按钮和它检查的东西分家」。 */
+.vpn-health-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.vpn-health-row .vpn-health-main { flex: 1 1 auto; }
+
+.vpn-health-check {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.vpn-health-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--mova-settings-text-meta);
+}
+
+/* 状态点：颜色只表达「延迟档位」，形状不变，避免用颜色当唯一信息。 */
+.vpn-health-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mova-settings-text-dim);
+}
+
+.vpn-health[data-tone="ok"] .vpn-health-dot { background: var(--mova-settings-status-ok); }
+.vpn-health[data-tone="warn"] .vpn-health-dot { background: var(--mova-settings-warning-text); }
+.vpn-health[data-tone="bad"] .vpn-health-dot { background: var(--mova-settings-danger); }
+.vpn-health[data-tone="untested"] .vpn-health-dot {
+  background: transparent;
+  border: 1px dashed var(--mova-settings-line-control);
+}
+
+.vpn-health-node {
+  min-width: 0;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+}
+
+.vpn-health-tag {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: var(--mova-settings-radius-pill, 999px);
+  background: var(--mova-settings-badge-surface);
+  color: var(--mova-settings-text-meta);
+  font-size: 10.5px;
+}
+
+.vpn-health-delay {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  font-size: 11.5px;
+  color: var(--mova-settings-text-meta);
+}
+
+.vpn-health[data-tone="ok"] .vpn-health-delay { color: var(--mova-settings-status-ok); }
+.vpn-health[data-tone="warn"] .vpn-health-delay { color: var(--mova-settings-warning-text); }
+.vpn-health[data-tone="bad"] .vpn-health-delay { color: var(--mova-settings-danger); }
+
+.vpn-health-checked { flex: 0 0 auto; color: var(--mova-settings-text-dim); font-size: 11.5px; }
+
+.vpn-health-note {
+  margin: 0;
+  color: var(--mova-settings-text-meta);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* 跨地区切换是危险动作（账号风控），必须与「同地区切换」明显不同。 */
+.vpn-health-note[data-cross-region="true"] { color: var(--mova-settings-error-text); }
+
+.vpn-health-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.vpn-health-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mova-settings-text-note);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.vpn-health-toggle input { margin: 0; cursor: pointer; }
+.vpn-health-toggle input:disabled { cursor: not-allowed; }
+
+/* 说明单独占一行：和按钮/开关挤在一行时，窄面板会挤成两三行碎块（实测截图就是这样）。 */
+.vpn-health-hint {
+  flex: 1 1 100%;
+  min-width: 0;
+  color: var(--mova-settings-text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* 窄窗口：节点名与检查时间各自换行，不要互相挤压；实在放不下时按钮整体换到下一行。 */
+@media (max-width: 620px) {
+  .vpn-health-row { flex-wrap: wrap; }
+  .vpn-health-main { gap: 6px; }
+  .vpn-health-node { max-width: 100%; }
+}

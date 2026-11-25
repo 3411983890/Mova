@@ -1,0 +1,21 @@
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const setValue = (element, value, eventName = 'change') => {
+  const proto = element.tagName === 'SELECT' ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
+  Object.getOwnPropertyDescriptor(proto, 'value').set.call(element, value);
+  element.dispatchEvent(new Event(eventName, { bubbles: true }));
+};
+document.querySelector('#settings-button').click();
+document.querySelector('[data-settings-item="memory"]').click();
+await sleep(350);
+const page = document.querySelector('#settings-page-memory');
+const scope = page.querySelector('select[id$="-search-scope"]');
+if (!scope) throw new Error('Search scope selector missing');
+setValue(scope, 'all');
+const search = page.querySelector('input[type="search"]');
+setValue(search, 'PostgreSQL', 'input');
+page.querySelector('.memory-search button[type="submit"]').click();
+await sleep(600);
+const results = [...page.querySelectorAll('.memory-entry')].map(entry => entry.textContent);
+const hasProjectMemory = results.some(text => text.includes('QA 项目使用本地 JSON'));
+const hasProjectLabel = results.some(text => text.includes('项目 QA预览'));
+return { results: results.length, hasProjectMemory, hasProjectLabel, scope: scope.value };

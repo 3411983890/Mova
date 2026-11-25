@@ -1,0 +1,824 @@
+/* ── 设置页 · CLI 模型 ──────────────────────────────────────────────────
+   只引用 --mova-settings-* / --content-column token，不重定义 :root。
+   通用骨架（.settings-page / .settings-section / .settings-card / .settings-row /
+   .settings-switch / .settings-select / .settings-button / .settings-add）来自
+   styles.css，这里只补本页特有的部分；类名统一 cm- 前缀，避免与通用类冲突。
+   视觉基准：cli-models-settings.html
+   ─────────────────────────────────────────────────────────────────── */
+
+/* 宿主 #settings-page-cli-models 本身就是 .settings-page（内容列 + 内边距 + 30px 间距）。
+   这里再套一层内容列会把 718px 缩成 670px，所以嵌套时让宿主承担栅格。 */
+.settings-page > .cm-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.cm-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mova-settings-page-gap);
+}
+
+/* ── 账号块 ─────────────────────────────────────────────────────────── */
+.cm-account + .cm-account { border-top: 1px solid var(--mova-settings-line); }
+
+/* 当前账号只加一层极淡的渐变，不改变底色阶梯（§4.1）。 */
+.cm-account.is-current { background: linear-gradient(180deg, var(--mova-settings-accent-glow), transparent 60%); }
+
+.cm-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline) 6px;
+}
+
+.cm-account-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: var(--mova-settings-text-max);
+}
+
+.cm-account-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--mova-settings-text-title);
+}
+
+.cm-account-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-account-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--mova-settings-text-meta);
+}
+
+.cm-account-meta .cm-sep {
+  flex: none;
+  width: 1px;
+  height: 9px;
+  background: var(--mova-settings-line-control);
+}
+
+/* 「…」必须贴右：卡片是 flex 行，margin-left:auto 让它吃过剩余空间。 */
+.cm-account-actions {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── 圆点 / 徽章 / 胶囊 ─────────────────────────────────────────────── */
+.cm-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mova-settings-dot-off);
+}
+
+.cm-dot.is-on { background: var(--mova-settings-accent); box-shadow: 0 0 0 3px var(--mova-settings-accent-glow); }
+.cm-dot.is-warn { background: var(--mova-settings-warning-line); }
+.cm-dot.is-danger { background: var(--mova-settings-danger); }
+/* 未检测：虚线空心点，和「已连接」的实心蓝一眼能分开。 */
+.cm-dot.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px var(--mova-settings-line-dashed); }
+.cm-dot.is-pending { background: var(--mova-settings-warning-line); animation: cm-dot-pulse 1.6s var(--mova-settings-ease) infinite; }
+
+@keyframes cm-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+.cm-badge {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: var(--mova-settings-radius-pill);
+  background: var(--mova-settings-badge-surface);
+  color: var(--mova-settings-text-accent);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.cm-pill {
+  flex: none;
+  max-width: 46%;
+  padding: 1px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--mova-settings-radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cm-pill[data-tone="ok"] {
+  border-color: var(--mova-settings-accent-line);
+  background: var(--mova-settings-accent-surface);
+  color: var(--mova-settings-text-accent);
+}
+
+.cm-pill[data-tone="warn"] {
+  border-color: var(--mova-settings-warning-line);
+  background: var(--mova-settings-warning-surface);
+  color: var(--mova-settings-warning-text);
+}
+
+.cm-pill[data-tone="error"] {
+  border-color: var(--mova-settings-error-line);
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-error-text);
+}
+
+.cm-pill[data-tone="muted"] {
+  border-color: var(--mova-settings-line-control);
+  color: var(--mova-settings-text-meta);
+}
+
+.cm-pill[data-tone="unknown"] {
+  border-style: dashed;
+  border-color: var(--mova-settings-line-dashed);
+  color: var(--mova-settings-text-dim);
+}
+
+/* ── 额度（6.16 配额条语义，6px pill） ──────────────────────────────── */
+.cm-quota {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 var(--mova-settings-row-pad-inline) 14px;
+}
+
+.cm-quota-window { display: flex; flex-direction: column; gap: 6px; }
+
+.cm-quota-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--mova-settings-text-description);
+}
+
+.cm-quota-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-quota-value {
+  flex: none;
+  color: var(--mova-settings-text-item);
+  font-variant-numeric: tabular-nums;
+}
+
+.cm-quota-reset {
+  flex: none;
+  color: var(--mova-settings-text-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.cm-track {
+  height: 6px;
+  border-radius: var(--mova-settings-radius-pill);
+  background: var(--mova-settings-meter-track);
+  overflow: hidden;
+}
+
+.cm-track > span {
+  display: block;
+  height: 100%;
+  min-width: 2%;
+  border-radius: var(--mova-settings-radius-pill);
+  background: var(--mova-settings-accent);
+  transition: width 420ms var(--mova-settings-ease);
+}
+
+.cm-track[data-tone="warn"] > span { background: var(--mova-settings-warning-line); }
+.cm-track[data-tone="danger"] > span { background: var(--mova-settings-danger); }
+
+.cm-quota-empty {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0;
+  max-width: var(--mova-settings-text-max);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-note);
+}
+
+.cm-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mova-settings-text-link);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cm-link:hover { text-decoration: underline; }
+.cm-link:disabled { color: var(--mova-settings-text-dim); cursor: not-allowed; text-decoration: none; }
+
+/* ── 图标按钮 / 弹层菜单 ────────────────────────────────────────────── */
+.cm-icon-button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--mova-settings-radius-control);
+  background: transparent;
+  color: var(--mova-settings-text-description);
+  font-size: 15px;
+  cursor: pointer;
+  transition:
+    background var(--mova-settings-duration) var(--mova-settings-ease),
+    color var(--mova-settings-duration) var(--mova-settings-ease);
+}
+
+.cm-icon-button:hover,
+.cm-icon-button[aria-expanded="true"] {
+  background: var(--mova-settings-hover-control);
+  color: var(--mova-settings-text-title);
+}
+
+.cm-icon {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* position: fixed —— 卡片是 overflow:hidden，absolute 菜单会被裁掉。
+   层级：设置面板 `.settings-view` 是 `position:absolute; z-index:70`，它自己就是一个层叠上下文，
+   所以走 body portal 的菜单必须 **高于 70** 才看得见。以前写 40，结果菜单被额度条整块盖住——
+   用户点「⋯」看不到「退出登录」，实测 elementFromPoint 命中的是 .cm-quota。 */
+.cm-popup {
+  position: fixed;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 168px;
+  max-width: 260px;
+  padding: 6px;
+  border: 1px solid var(--mova-settings-line-dashed);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface-raised);
+  box-shadow: var(--mova-settings-shadow-menu);
+}
+
+.cm-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: var(--mova-settings-radius-control);
+  background: transparent;
+  color: var(--mova-settings-text-body);
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cm-menu-item:hover { background: var(--mova-settings-hover-control); }
+.cm-menu-item .cm-icon { font-size: 13px; color: var(--mova-settings-text-note); }
+.cm-menu-item:disabled { color: var(--mova-settings-text-dim); cursor: not-allowed; }
+.cm-menu-item.is-danger { color: var(--mova-settings-danger); }
+.cm-menu-item.is-danger:hover { background: var(--mova-settings-danger-surface); }
+.cm-menu-item.is-danger .cm-icon { color: inherit; }
+
+.cm-menu-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-menu-check { margin-left: auto; color: var(--mova-settings-accent); font-size: 12px; }
+
+.cm-select .cm-select-value {
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 空态（虚线卡片） ───────────────────────────────────────────────── */
+.cm-empty-card {
+  border-style: dashed;
+  border-color: var(--mova-settings-line-dashed);
+  background: var(--mova-settings-surface-sunken);
+}
+
+.cm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 18px var(--mova-settings-row-pad-inline);
+}
+
+.cm-empty-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mova-settings-text-title);
+}
+
+.cm-empty-note {
+  margin: 0 0 2px;
+  max-width: var(--mova-settings-text-max);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-description);
+  text-wrap: pretty;
+}
+
+/* ── 登录面板（展开式，成功后自动收起） ─────────────────────────────── */
+.cm-login-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+  border-bottom: 1px solid var(--mova-settings-line);
+  background: var(--mova-settings-surface-editing);
+  animation: cm-form-in var(--mova-settings-duration) var(--mova-settings-ease);
+}
+
+@keyframes cm-form-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.cm-login-state { display: flex; align-items: flex-start; gap: 10px; }
+.cm-login-state .cm-dot { margin-top: 6px; }
+
+.cm-login-state strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--mova-settings-text-body);
+}
+
+.cm-login-state p {
+  margin: 3px 0 0;
+  max-width: 560px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-description);
+}
+
+/* 状态字靠左、按钮靠右 */
+.cm-login-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.cm-login-status {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-meta);
+}
+
+.cm-login-status[data-tone="ok"] { color: var(--mova-settings-status-ok); }
+.cm-login-status[data-tone="error"] { color: var(--mova-settings-danger); }
+
+/* ── 右对齐说明 / 合规横幅 / 错误条 ─────────────────────────────────── */
+.cm-note-right {
+  flex: none;
+  max-width: min(260px, 42%);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--mova-settings-text-note);
+  text-align: right;
+}
+
+.cm-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--mova-settings-warning-line);
+  border-radius: var(--mova-settings-radius-toolbar);
+  background: var(--mova-settings-warning-surface);
+  color: var(--mova-settings-warning-text);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.cm-banner .cm-icon { font-size: 15px; margin-top: 1px; }
+.cm-banner strong { display: block; margin-bottom: 2px; font-size: 12.5px; font-weight: 600; }
+.cm-banner p { margin: 0; opacity: .92; }
+
+.cm-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--mova-settings-error-line);
+  border-radius: var(--mova-settings-radius-card);
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-error-text);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.cm-alert > span { flex: 1; min-width: 0; }
+
+.cm-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── 对话框（6.13 危险确认-单条） ───────────────────────────────────── */
+dialog.cm-dialog {
+  width: 420px;
+  max-width: calc(100vw - 48px);
+  padding: 0;
+  border: 1px solid var(--mova-settings-line-frame);
+  border-radius: var(--mova-settings-radius-dialog);
+  background: var(--mova-settings-surface-raised);
+  color: var(--mova-settings-text-body);
+  box-shadow: var(--mova-settings-shadow-dialog);
+}
+
+dialog.cm-dialog::backdrop { background: var(--mova-settings-overlay); }
+
+.cm-dialog-body { padding: 20px 20px 4px; }
+
+.cm-dialog-body h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mova-settings-text-strong);
+}
+
+.cm-dialog-body p {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--mova-settings-text-description);
+}
+
+.cm-dialog-subject {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface-sunken);
+  font-size: 12px;
+  color: var(--mova-settings-text-item);
+  overflow-wrap: anywhere;
+}
+
+/* 提交失败的行内原因（CmDialog 的 error prop）。页首横幅会被 ::backdrop 遮住，
+   所以失败原因必须长在弹窗本体里，并且用 error-text 让它一眼可辨。 */
+.cm-dialog-error {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--mova-settings-error-line);
+  border-left-width: 3px;
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-error-text);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.cm-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px 18px;
+}
+
+/* 危险确认用实底红：和行内那个红字透明底的「删除」拉开层级，
+   否则确认按钮看起来和触发它的按钮一模一样，确认就没有分量。 */
+.cm-dialog-foot .settings-button.danger-solid {
+  border-color: var(--mova-settings-danger);
+  background: var(--mova-settings-danger);
+  color: var(--mova-settings-danger-surface);
+  font-weight: 500;
+}
+.cm-dialog-foot .settings-button.danger-solid:hover {
+  border-color: var(--mova-settings-danger-hover);
+  background: var(--mova-settings-danger-hover);
+  color: var(--mova-settings-danger-surface);
+}
+.cm-dialog-foot .settings-button.danger-solid:disabled {
+  border-color: var(--mova-settings-line-control);
+  background: var(--mova-settings-surface-nested);
+  color: var(--mova-settings-text-meta);
+  cursor: not-allowed;
+}
+
+/* ── toast（右下角，3 秒） ──────────────────────────────────────────── */
+.cm-toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 40px));
+}
+
+.cm-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--mova-settings-line-frame);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface-nested);
+  box-shadow: var(--mova-settings-shadow-menu);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-body);
+  animation: cm-toast-in 180ms var(--mova-settings-ease);
+}
+
+@keyframes cm-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.cm-toast[data-tone="ok"] {
+  border-color: var(--mova-settings-accent-line);
+  background: var(--mova-settings-accent-surface);
+  color: var(--mova-settings-text-accent);
+}
+
+.cm-toast[data-tone="error"] {
+  border-color: var(--mova-settings-error-line);
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-error-text);
+}
+
+.cm-toast-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
+.cm-toast-close {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .7;
+}
+
+.cm-toast-close:hover { opacity: 1; }
+
+/* ── 响应式 / 降低动效 ─────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .cm-quota-reset { display: none; }
+  .cm-account-row { align-items: flex-start; }
+  .cm-select .cm-select-value { max-width: 150px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-login-panel,
+  .cm-toast,
+  .cm-dot.is-pending { animation: none; }
+  .cm-track > span { transition: none; }
+}
+
+/* ── CLI 安装指引（Gemini 卡片状态行 + 安装弹窗） ──────────────────────
+   状态行常驻在卡片里（首屏就能看到 CLI 装没装），弹窗只在用户主动点击后才出现。
+   提示词块必须可选中、可滚动：它是要被复制出去的东西，max-height 也会挡住 560px 弹窗。 */
+.cm-install-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px var(--mova-settings-row-pad-inline);
+  border-bottom: 1px solid var(--mova-settings-line);
+  font-size: 12.5px;
+}
+
+.cm-install-row-text {
+  color: var(--mova-settings-text-item);
+  font-variant-numeric: tabular-nums;
+}
+
+.cm-install-row[data-state="ready"] .cm-install-row-text { color: var(--mova-settings-text-accent); }
+.cm-install-row[data-state="outdated"] .cm-install-row-text { color: var(--mova-settings-warning-text); }
+.cm-install-row[data-state="missing"] .cm-install-row-text { color: var(--mova-settings-danger); }
+.cm-install-row[data-state="unknown"] .cm-install-row-text { color: var(--mova-settings-text-meta); }
+.cm-install-row[data-state="checking"] .cm-install-row-text { color: var(--mova-settings-text-note); }
+
+.cm-install-row .cm-link { margin-left: auto; flex: none; }
+
+dialog.cm-install-dialog {
+  width: min(560px, calc(100vw - 48px));
+  max-width: calc(100vw - 48px);
+  padding: 0;
+  border: 1px solid var(--mova-settings-line-frame);
+  border-radius: var(--mova-settings-radius-dialog);
+  background: var(--mova-settings-surface-raised);
+  color: var(--mova-settings-text-body);
+  box-shadow: var(--mova-settings-shadow-dialog);
+}
+
+dialog.cm-install-dialog::backdrop { background: var(--mova-settings-overlay); }
+
+.cm-install-body { padding: 20px 20px 4px; }
+
+.cm-install-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mova-settings-text-strong);
+}
+
+.cm-install-title:focus-visible {
+  outline: 2px solid var(--mova-settings-line-focus);
+  outline-offset: 3px;
+}
+
+.cm-install-desc {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--mova-settings-text-description);
+  text-wrap: pretty;
+}
+
+.cm-install-required {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--mova-settings-warning-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cm-install-prompt {
+  margin: 12px 0 0;
+  /* 多给 60px：粉词要能被扫一眼确认「它到底会让 Agent 干什么」，全藏起来用户就只能盲点复制。 */
+  max-height: 260px;
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: 8px;
+  background: var(--mova-settings-surface-sunken);
+  color: var(--mova-settings-text-item);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+.cm-install-prompt:focus-visible {
+  outline: 2px solid var(--mova-settings-line-focus);
+  outline-offset: 2px;
+}
+
+.cm-install-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-note);
+}
+
+.cm-install-hint[data-tone="warn"] { color: var(--mova-settings-warning-text); }
+.cm-install-hint[data-tone="ok"] { color: var(--mova-settings-text-accent); }
+
+.cm-install-status {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cm-install-status[data-tone="ok"] { color: var(--mova-settings-text-accent); }
+.cm-install-status[data-tone="error"] { color: var(--mova-settings-error-text); }
+
+.cm-install-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 20px 18px;
+}
+
+.cm-install-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.cm-install-text { flex: none; }
+
+/* ── 登录面板里的「手动完成」兜底 ────────────────────────────────────────
+   存在的理由：浏览器可能根本到不了 127.0.0.1（系统代理转发回环 / VPN 接管路由 /
+   防火墙拦随机端口）。这时用户只能靠粘贴地址栏那条回调链接完成登录。 */
+.cm-login-manual {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cm-login-manual-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface-sunken);
+}
+
+.cm-login-manual-body p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--mova-settings-text-description);
+  text-wrap: pretty;
+}
+
+.cm-login-manual-body code {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--mova-settings-surface-nested);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+}
+
+.cm-login-manual-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cm-install-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--mova-settings-control-height);
+  padding: 0 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-body);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+}
+
+.cm-install-input:focus {
+  outline: none;
+  border-color: var(--mova-settings-line-focus);
+}
+
+@media (max-width: 720px) {
+  .cm-install-prompt { max-height: 160px; }
+  .cm-install-foot { flex-direction: column; align-items: stretch; }
+  .cm-install-buttons { margin-left: 0; justify-content: flex-end; }
+  .cm-login-manual-row { flex-direction: column; align-items: stretch; }
+}

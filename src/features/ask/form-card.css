@@ -1,0 +1,796 @@
+/* 表单卡（紧凑版）：对话页底部接管输入栏，把 JSON Schema 渲染成 6 列网格的填写卡。
+   视觉对齐 schema-form-card.html（已审查通过）；类名统一 fc- 前缀，避免与 ask-* 互相覆盖。
+   只放样式：编辑 / 提交中 / 已提交 / 降级四种形态由 form-card.jsx 挂 class 与 aria 决定。 */
+
+.fc-card,
+.fc-summary {
+  /* 卡片底色与描边不在 --mova-settings-* 的色阶里（设计稿给的就是 #1d1d1d / #343434），
+     只在这里落一次字面值；其余颜色一律取全局 token，组件内不再出现裸色值。 */
+  --fc-bg: #1d1d1d;
+  --fc-line: #343434;
+  --fc-shadow: 0 10px 26px #00000040;
+  --fc-ink: var(--mova-settings-text-body);
+  --fc-ink-strong: var(--mova-settings-text-title);
+  --fc-ink-2: var(--mova-settings-text-description);
+  --fc-ink-3: var(--mova-settings-text-meta);
+  --fc-ink-4: var(--mova-settings-text-group);
+  --fc-ink-item: var(--mova-settings-text-item);
+  --fc-field-bg: var(--mova-settings-surface);
+  --fc-field-line: var(--mova-settings-line-control);
+  --fc-field-sunken: var(--mova-settings-surface-editing);
+  --fc-line-soft: var(--mova-settings-line);
+  --fc-accent: var(--mova-settings-accent);
+  --fc-accent-strong: var(--mova-settings-accent-strong);
+  --fc-accent-hover: var(--mova-settings-accent-strong-hover);
+  --fc-accent-surface: var(--mova-settings-accent-surface);
+  --fc-accent-line: var(--mova-settings-accent-line);
+  --fc-accent-ink: var(--mova-settings-text-accent);
+  --fc-focus: var(--mova-settings-focus);
+  --fc-danger: var(--mova-settings-danger);
+  --fc-danger-surface: var(--mova-settings-danger-surface);
+  --fc-danger-line: var(--mova-settings-error-line);
+  --fc-danger-ink: var(--mova-settings-error-text);
+  --fc-warn-surface: var(--mova-settings-warning-surface);
+  --fc-warn-line: var(--mova-settings-warning-line);
+  --fc-warn-ink: var(--mova-settings-warning-text);
+  --fc-radius: var(--mova-settings-radius-card);
+  --fc-radius-field: var(--mova-settings-radius-control);
+  --fc-radius-pill: var(--mova-settings-radius-pill);
+  --fc-dur: var(--mova-settings-duration);
+  --fc-ease: var(--mova-settings-ease);
+}
+
+.fc-icon {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fc-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.fc-spacer { flex: 1 1 auto; min-width: 0; }
+
+/* ── 卡片 ─────────────────────────────────────────────────────── */
+.fc-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0 auto 8px;
+  padding: 10px 12px 10px 14px;
+  border: 1px solid var(--fc-line);
+  border-radius: var(--fc-radius);
+  background: var(--fc-bg);
+  color: var(--fc-ink);
+  font-size: 12.5px;
+  line-height: 1.6;
+  box-shadow: var(--fc-shadow);
+  animation: fc-card-in var(--fc-dur) var(--fc-ease) both;
+}
+
+@keyframes fc-card-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+
+.fc-card::before {
+  content: "";
+  position: absolute;
+  inset: 9px auto 9px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--fc-accent);
+}
+
+.fc-card.is-degraded::before { background: var(--fc-warn-line); }
+
+/* ── 头部：徽标 + 题干 + 说明同一行 ─────────────────────────────── */
+.fc-head {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.fc-badge {
+  flex: none;
+  padding: 0 7px;
+  border: 1px solid var(--fc-accent-line);
+  border-radius: var(--fc-radius-pill);
+  color: var(--fc-accent-ink);
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+.fc-question {
+  margin: 0;
+  min-width: 0;
+  color: var(--fc-ink-strong);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.fc-detail {
+  flex: none;
+  margin: 0;
+  max-width: 52ch;
+  color: var(--fc-ink-3);
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* ── 字段区：窗口矮时只让字段区滚动，底部「跳过 / 提交」始终可见 ──── */
+.fc-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-inline-size: 0;
+  flex: 1 1 auto;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+  max-height: min(56vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--fc-field-line) transparent;
+}
+
+/* fieldset 的 disabled 会连子控件一起禁用，提交中不必逐个传 props */
+.fc-body[disabled] { opacity: .6; }
+
+.fc-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px 12px;
+  align-items: start;
+  width: 100%;
+}
+
+.fc-span-2 { grid-column: span 2; }
+.fc-span-3 { grid-column: span 3; }
+.fc-span-4 { grid-column: span 4; }
+.fc-span-6 { grid-column: span 6; min-width: 0; }
+
+.fc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fc-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* 标量字段：标签与控件同排；超长省略，控件独占剩余宽度 */
+.fc-label {
+  flex: none;
+  min-width: 66px;
+  max-width: 108px;
+  color: var(--fc-ink-2);
+  font-size: 11.5px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-label .fc-req { margin-left: 1px; color: var(--fc-danger); }
+
+/* 块级字段：标签独占一行，不参与省略 */
+.fc-field.is-block > .fc-label,
+.fc-field.is-block > .fc-block-title .fc-label,
+.fc-field .fc-block-title .fc-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  font-weight: 500;
+  color: var(--fc-ink-item);
+}
+
+.fc-block-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--fc-ink-item);
+  line-height: 1.5;
+}
+
+.fc-block-title .fc-count {
+  flex: none;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--fc-ink-3);
+}
+
+.fc-desc {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--fc-ink-3);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.fc-note {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  color: var(--fc-ink-3);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.fc-error {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--fc-danger);
+  overflow-wrap: anywhere;
+}
+
+.fc-error:empty { display: none; }
+
+/* ── 控件 ─────────────────────────────────────────────────────── */
+.fc-input,
+.fc-textarea,
+.fc-select {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--fc-field-line);
+  border-radius: var(--fc-radius-field);
+  background: var(--fc-field-bg);
+  color: var(--fc-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: border-color var(--fc-dur) var(--fc-ease);
+}
+
+.fc-input::placeholder,
+.fc-textarea::placeholder { color: var(--mova-settings-text-dim); }
+
+.fc-input:focus,
+.fc-textarea:focus,
+.fc-select:focus { outline: none; border-color: var(--mova-settings-line-focus); }
+
+.fc-input[aria-invalid="true"],
+.fc-textarea[aria-invalid="true"],
+.fc-select[aria-invalid="true"],
+.fc-switch[aria-invalid="true"] { border-color: var(--fc-danger-line); }
+
+.fc-textarea {
+  height: auto;
+  min-height: 54px;
+  max-height: 112px;
+  padding: 6px 9px;
+  resize: vertical;
+}
+
+.fc-control {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 6px;
+  min-width: 0;
+}
+
+/* 块级字段必须撑满整行：flex 子项默认不拉宽 */
+.fc-field.is-block > .fc-control { display: block; width: 100%; }
+.fc-field.is-block > .fc-control > .fc-grid { margin-top: 2px; }
+
+.fc-control .fc-input { flex: 1 1 auto; }
+.fc-control input[type="number"] { max-width: 110px; }
+.fc-unit { flex: none; font-size: 11px; color: var(--fc-ink-3); }
+
+/* 分段（枚举 ≤ 4）：容器 2px 内衬，段按钮 4px 10px */
+.fc-segment {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  max-width: 100%;
+  border: 1px solid var(--fc-field-line);
+  border-radius: var(--fc-radius-field);
+  background: var(--fc-field-bg);
+}
+
+.fc-segment-item {
+  position: relative;
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--mova-settings-text-item);
+  font-size: 11.5px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background var(--fc-dur) var(--fc-ease), color var(--fc-dur) var(--fc-ease);
+}
+
+.fc-segment-item:hover { background: var(--mova-settings-hover-block); color: var(--fc-ink); }
+
+.fc-segment-item[data-selected] {
+  background: var(--fc-accent-surface);
+  color: var(--fc-accent-ink);
+  box-shadow: inset 0 0 0 1px var(--fc-accent-line);
+}
+
+.fc-segment-item:focus-within { outline: 2px solid var(--fc-focus); outline-offset: 1px; }
+
+.fc-segment-text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 下拉（枚举 ≥ 5）：原生 select + CSS 三角，键盘与读屏行为不重造 */
+.fc-select-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fc-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 24px;
+  cursor: pointer;
+}
+
+.fc-select-wrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  margin-top: -4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  color: var(--fc-ink-3);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+/* 开关 38×22 */
+.fc-switch {
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--fc-radius-pill);
+  background: var(--mova-settings-switch-track);
+  cursor: pointer;
+  transition: background var(--fc-dur) var(--fc-ease);
+}
+
+.fc-switch > span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--mova-settings-switch-knob);
+  transition: transform var(--fc-dur) var(--fc-ease), background var(--fc-dur) var(--fc-ease);
+}
+
+.fc-switch[aria-checked="true"] { background: var(--mova-settings-switch-track-on); }
+.fc-switch[aria-checked="true"] > span { transform: translateX(16px); background: var(--mova-settings-switch-knob-on); }
+
+.fc-switch-text { font-size: 11.5px; color: var(--fc-ink-3); }
+
+/* 「使用默认值」：只出现在必填且为空的字段上 */
+.fc-default {
+  flex: none;
+  min-height: 22px;
+  padding: 0 7px;
+  border: 1px dashed var(--mova-settings-line-dashed);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fc-accent-ink);
+  font: inherit;
+  font-size: 10.5px;
+  line-height: 1.6;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--fc-dur) var(--fc-ease), border-color var(--fc-dur) var(--fc-ease);
+}
+
+.fc-default:hover {
+  border-color: var(--fc-accent-line);
+  background: var(--fc-accent-surface);
+}
+
+/* ── 胶囊列表 / 键值对 / 数组 ──────────────────────────────────── */
+.fc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.fc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 1px 7px;
+  border: 1px solid var(--fc-field-line);
+  border-radius: var(--fc-radius-pill);
+  background: var(--fc-field-sunken);
+  font-size: 11px;
+  color: var(--fc-ink);
+  line-height: 1.7;
+}
+
+.fc-chip-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.fc-chip button {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fc-ink-3);
+  cursor: pointer;
+}
+
+.fc-chip button:not(:disabled):hover { color: var(--fc-danger); }
+.fc-chip .fc-icon { width: 10px; height: 10px; }
+
+.fc-chip-input { flex: 0 1 160px; max-width: 160px; height: 24px; font-size: 11px; }
+
+.fc-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.fc-kv-row {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) 24px;
+  gap: 6px;
+  align-items: center;
+}
+
+.fc-kv-del {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fc-ink-3);
+  cursor: pointer;
+}
+
+.fc-kv-del:not(:disabled):hover { background: var(--mova-settings-hover-control); color: var(--fc-danger); }
+
+.fc-array {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.fc-array-item {
+  padding: 6px 9px 8px;
+  border: 1px solid var(--fc-line-soft);
+  border-radius: 9px;
+  background: var(--fc-field-sunken);
+}
+
+.fc-array-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 10.5px;
+  color: var(--fc-ink-3);
+}
+
+.fc-array-item .fc-grid { gap: 7px 10px; }
+
+.fc-add {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px dashed var(--mova-settings-line-dashed);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fc-ink-item);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background var(--fc-dur) var(--fc-ease), border-color var(--fc-dur) var(--fc-ease);
+}
+
+.fc-add:hover { background: var(--mova-settings-hover-row); border-color: var(--mova-settings-line-help); }
+.fc-add:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── 横幅 / 降级 ──────────────────────────────────────────────── */
+.fc-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.fc-banner .fc-icon { margin-top: 2px; }
+.fc-banner.is-error { border: 1px solid var(--fc-danger-line); background: var(--fc-danger-surface); color: var(--fc-danger-ink); }
+.fc-banner.is-warn { border: 1px solid var(--fc-warn-line); background: var(--fc-warn-surface); color: var(--fc-warn-ink); }
+
+/* 字段内的「不支持」提示不该再吃一层 margin */
+.fc-field .fc-banner { margin-top: 0; }
+
+.fc-schema {
+  margin-top: 8px;
+  border: 1px solid var(--fc-line-soft);
+  border-radius: 7px;
+  background: var(--fc-field-sunken);
+  overflow: hidden;
+}
+
+.fc-schema > summary {
+  padding: 6px 9px;
+  color: var(--fc-ink-2);
+  font-size: 11.5px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.fc-schema > summary::-webkit-details-marker { display: none; }
+
+.fc-schema > pre {
+  margin: 0;
+  padding: 0 10px 10px;
+  max-height: 180px;
+  overflow: auto;
+  color: var(--fc-ink-3);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ── 底部：hint 左，「跳过 / 提交」右 ─────────────────────────── */
+.fc-foot {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.fc-hint {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--fc-ink-4);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.fc-hint.is-warn { color: var(--fc-warn-ink); }
+
+.fc-hint-text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fc-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--fc-field-line);
+  border-radius: 7px;
+  background: var(--mova-settings-hover-block);
+  color: var(--fc-ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background var(--fc-dur) var(--fc-ease),
+    border-color var(--fc-dur) var(--fc-ease), color var(--fc-dur) var(--fc-ease);
+}
+
+.fc-btn:hover { border-color: var(--mova-settings-line-help); background: var(--mova-settings-badge-surface); }
+
+.fc-btn-primary {
+  border-color: var(--fc-accent-strong);
+  background: var(--fc-accent-strong);
+  color: var(--mova-settings-text-inverse);
+}
+
+.fc-btn-primary:hover { border-color: var(--fc-accent-hover); background: var(--fc-accent-hover); }
+
+.fc-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--fc-ink-2);
+}
+
+.fc-btn-ghost:not(:disabled):hover { border-color: transparent; background: var(--mova-settings-hover-control); color: var(--fc-ink); }
+
+.fc-btn:disabled,
+.fc-btn-primary:disabled {
+  border-color: var(--fc-field-line);
+  background: var(--fc-field-sunken);
+  color: var(--fc-ink-3);
+  cursor: not-allowed;
+}
+
+.fc-btn:focus-visible,
+.fc-add:focus-visible,
+.fc-default:focus-visible,
+.fc-switch:focus-visible,
+.fc-kv-del:focus-visible,
+.fc-chip button:focus-visible {
+  outline: 2px solid var(--fc-focus);
+  outline-offset: 2px;
+}
+
+/* 提交中：所有可交互控件由 fieldset[disabled] 兜住，这里只补视觉 */
+.fc-card[aria-busy="true"] .fc-segment-item,
+.fc-card[aria-busy="true"] .fc-add,
+.fc-card[aria-busy="true"] .fc-switch,
+.fc-card[aria-busy="true"] .fc-kv-del { opacity: .55; cursor: not-allowed; }
+
+.fc-spinner {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 1.5px solid var(--mova-settings-text-inverse);
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: .7;
+  animation: fc-spin 720ms linear infinite;
+}
+
+@keyframes fc-spin { to { transform: rotate(360deg); } }
+
+/* ── 提交后摘要 ───────────────────────────────────────────────── */
+.fc-summary {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 auto 8px;
+  padding: 9px 12px 9px 14px;
+  border: 1px solid var(--fc-line);
+  border-radius: var(--fc-radius);
+  background: var(--fc-bg);
+  color: var(--fc-ink-2);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.fc-summary::before {
+  content: "";
+  position: absolute;
+  inset: 9px auto 9px 0;
+  width: 3px;
+  border-radius: var(--fc-radius-pill);
+  background: var(--mova-settings-line-focus);
+}
+
+.fc-summary strong { color: var(--fc-ink); font-weight: 500; }
+
+.fc-summary-text {
+  min-width: 0;
+  max-width: 46ch;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--fc-ink-3);
+}
+
+.fc-summary-grow { flex: 1 1 auto; }
+
+.fc-summary-json {
+  flex: 1 1 100%;
+  margin: 2px 0 0;
+  padding: 8px 10px;
+  max-height: 200px;
+  overflow: auto;
+  border: 1px solid var(--fc-line-soft);
+  border-radius: 7px;
+  background: var(--fc-field-sunken);
+  color: var(--fc-ink-3);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ── 窄窗口：网格降 2 列，块级字段独占整行 ─────────────────────── */
+@media (max-width: 720px) {
+  .fc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fc-span-2,
+  .fc-span-3,
+  .fc-span-4 { grid-column: span 1; }
+  .fc-span-6 { grid-column: span 2; }
+  .fc-label { flex: 0 1 auto; min-width: 0; max-width: 40%; }
+}
+
+@media (max-height: 560px) {
+  .fc-body { max-height: 42vh; }
+  .fc-detail {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-card { animation: none; }
+  .fc-spinner { animation-duration: 2s; }
+  .fc-input,
+  .fc-textarea,
+  .fc-select,
+  .fc-segment-item,
+  .fc-switch,
+  .fc-switch > span,
+  .fc-btn,
+  .fc-add,
+  .fc-default { transition: none; }
+}

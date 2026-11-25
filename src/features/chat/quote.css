@@ -1,0 +1,175 @@
+/* 引用 chip 与选区浮层（方案 §2.8 / §3.8 / §3.12 / §5）。
+   token 取自设计规范：表面 #212121/#2b2b2b、文字 #d6d6d6/#f3f3f3/#868686、
+   边框 #2f2f2f/#393939、状态 hover #2d2d2d、focus #5b9bf0、overlay-hover #ffffff12。
+   尺寸单位是 px（与 .composer-area 一致）。 */
+
+:root {
+  --quote-surface: #212121;
+  --quote-chip-bg: #2b2b2b;
+  --quote-chip-hover: #333333;
+  --quote-border: #393939;
+  --quote-chip-line: #3f3f3f;
+  --quote-text: #d6d6d6;
+  --quote-chip-text: #c9c9c9;
+  --quote-strong: #f3f3f3;
+  --quote-muted: #868686;
+  --quote-quote-text: #a8a8a8;
+  --quote-quote-source: #7f7f7f;
+  --quote-hover: #2d2d2d;
+  --quote-overlay-hover: #ffffff12;
+  --quote-focus: #5b9bf0;
+  --quote-ease: cubic-bezier(.22, .9, .26, 1);
+}
+
+/* ── chip 行：插在 .composer-area 内 #composer 之前 ───────────────── */
+
+.quote-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  margin: 0 2px 6px;
+  padding: 0 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.quote-chip-row::-webkit-scrollbar { display: none; }
+.quote-chip-row[hidden] { display: none; }
+/* CodeMova 上下文条（composer-context）自带 -8px 下边距，插在它下面时补回来。 */
+.composer-context:not([hidden]) + .quote-chip-row { margin-top: 12px; }
+
+.quote-chip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  max-width: 240px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--quote-chip-line);
+  border-radius: 999px;
+  background: var(--quote-chip-bg);
+  color: var(--quote-chip-text);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 150ms var(--quote-ease),
+    opacity 120ms var(--quote-ease),
+    transform 120ms var(--quote-ease);
+}
+.quote-chip:hover { background: var(--quote-chip-hover); }
+.quote-chip.is-leaving { opacity: 0; transform: scale(.96); }
+.quote-chip:focus-visible { outline: 2px solid var(--quote-focus); outline-offset: 2px; }
+
+.quote-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--quote-muted);
+}
+
+.quote-chip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quote-chip-close {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 999px;
+  color: var(--quote-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+.quote-chip-close:hover { background: var(--quote-overlay-hover); color: #ffffff; }
+.quote-chip-close:focus-visible { outline: 2px solid var(--quote-focus); outline-offset: 1px; }
+
+/* ── 选区浮层（聊天区，position: fixed 挂 body；z-index 60 高于输入区 20） ── */
+
+.quote-popover {
+  position: fixed;
+  z-index: 60;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--quote-border);
+  border-radius: 8px;
+  background: var(--quote-surface);
+  box-shadow: 0 12px 28px #0005;
+  color: var(--quote-strong);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  appearance: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 160ms var(--quote-ease), transform 160ms var(--quote-ease), background-color 150ms var(--quote-ease);
+}
+.quote-popover.is-open { opacity: 1; transform: none; }
+.quote-popover[hidden] { display: none; }
+.quote-popover:hover { background: var(--quote-hover); color: #ffffff; }
+.quote-popover:focus-visible { outline: 2px solid var(--quote-focus); outline-offset: 2px; }
+
+/* ── 用户气泡里的引用块（chat-transcript.tsx 的 UserMessageText） ─── */
+
+.user-quote {
+  display: block;
+  margin: 0 0 8px;
+  padding-left: 8px;
+  border-left: 2px solid var(--quote-chip-line);
+  color: var(--quote-quote-text);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: normal;
+}
+.user-quote:last-child { margin-bottom: 0; }
+
+.user-quote-source {
+  display: block;
+  color: var(--quote-quote-source);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* 文件引用：点击在右侧面板打开（chat-transcript.tsx 的 UserMessageText） */
+.user-quote-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--quote-quote-source);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.user-quote-link:hover { color: #cfe3ff; text-decoration-color: #5b9bf0; }
+.user-quote-link:focus-visible { outline: 2px solid #5b9bf0; outline-offset: 2px; border-radius: 4px; }
+
+.user-quote-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* ── 动效降级 ─────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .quote-chip,
+  .quote-chip-close,
+  .quote-popover,
+  .quote-popover { transform: none; }
+  .quote-chip.is-leaving { transform: none; }
+}

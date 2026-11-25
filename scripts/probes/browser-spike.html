@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Browser Spike Embedder</title>
+  <style>
+    html, body { margin: 0; background: #fff; font: 14px system-ui, sans-serif; }
+    webview { width: 900px; height: 600px; border: 0; }
+    #none { display: none; }
+    #off { position: absolute; left: -12000px; top: 0; }
+  </style>
+</head>
+<body>
+  <webview id="main" src="__MAIN__"></webview>
+  <webview id="off" src="__OFF__"></webview>
+  <webview id="none" src="__NONE__"></webview>
+</body>
+</html>

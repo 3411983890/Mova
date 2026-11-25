@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Mova Design · 对话与画板协作的本地界面原型">
+  <title>旅行应用设计 · Mova Design</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./canvas.css">
+  <link rel="stylesheet" href="./canvas-openpencil.css">
+<style id="screen-styles">
+.device-status{display:flex;align-items:center;justify-content:space-between;padding:19px 27px 13px;font-size:12px;font-weight:600;height:48px}.device-status>span:last-child{display:flex;gap:6px;align-items:center}.device-status svg{width:14px;height:14px;stroke-width:2}.battery{height:8px;width:18px;border:1px solid currentColor;border-radius:2px;position:relative}.battery:before{content:"";position:absolute;inset:1px 3px 1px 1px;background:currentColor;border-radius:.5px}.battery:after{content:"";position:absolute;right:-3px;top:2px;height:3px;width:1px;background:currentColor}.app-top{display:flex;justify-content:space-between;align-items:center;padding:10px 27px 14px}.qiyo-logo{font-family:Georgia,"Songti SC","SimSun",serif;font-size:26px;font-weight:600;letter-spacing:1px}.qiyo-logo small{font-family:"Segoe UI",sans-serif;font-size:10px;font-weight:400;letter-spacing:2.7px;margin-left:9px;vertical-align:middle}.app-top svg{width:20px;height:20px}.screen-greeting{padding:1px 27px 0;font-size:12px;color:#71786c}.screen-title{padding:8px 27px 21px;font-size:32px;font-family:Georgia,"Songti SC","SimSun",serif;font-weight:400;line-height:1.45;letter-spacing:1.5px;color:#2d3d32}.screen-search{display:flex;align-items:center;gap:9px;border:1px solid #dfdfd5;border-radius:8px;padding:12px 13px;margin:0 27px;color:#7c8277;font-size:12px}.screen-search svg{width:16px;height:16px}.screen-search>svg:last-child{margin-left:auto}.screen-categories{display:flex;gap:24px;padding:22px 27px 17px;font-size:12px;color:#818477}.screen-categories .active{color:var(--accent);font-weight:600;position:relative}.screen-categories .active:after{content:"";position:absolute;height:2px;width:16px;background:var(--accent);bottom:-8px;left:calc(50% - 8px)}.destination-card{margin:9px 27px 0;border-radius:10px;overflow:hidden;position:relative;height:242px;background:#a2b09c}.scenic-art{width:100%;height:100%;display:block;stroke:none;fill:initial;object-fit:cover}.destination-card>.scenic-art{height:100%;position:absolute;inset:0}.destination-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,#182d27a6)}.card-badge{position:absolute;left:17px;top:17px;border-radius:50px;border:1px solid #ffffff50;color:white;background:#ffffff1c;font-size:10px;padding:6px 11px}.card-heart{position:absolute;right:15px;top:16px;color:white;border-radius:50%;width:30px;height:30px;background:#ffffff24;display:grid;place-items:center}.card-heart svg{height:15px;width:15px}.destination-copy{position:absolute;bottom:22px;left:20px;color:white}.destination-copy small{font-size:10px;letter-spacing:3px;opacity:.8}.destination-copy h4{font-family:"SimSun",serif;font-size:26px;font-weight:400;margin:6px 0 8px;letter-spacing:2px}.destination-copy p{display:flex;gap:5px;align-items:center;font-size:10px;opacity:.9}.destination-copy svg{width:11px;height:11px}.card-next{position:absolute;bottom:24px;right:19px;height:33px;width:33px;border-radius:50%;border:1px solid #ffffff60;display:grid;place-items:center;color:white}.card-next svg{width:16px;height:16px}.section-row{display:flex;justify-content:space-between;align-items:center;padding:18px 27px 11px;font-size:15px;font-family:"SimSun",serif}.section-row small{font-size:10px;font-family:"Segoe UI",sans-serif;color:#7e8478}.mini-destinations{display:flex;gap:12px;margin:0 27px;height:78px}.mini-destination{width:50%;position:relative;border-radius:7px;overflow:hidden}.mini-destination span{position:absolute;bottom:11px;left:12px;color:white;font-size:13px}.mini-destination:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,#20362855)}.mini-destination span{z-index:1}.screen-bottom{position:absolute;left:0;bottom:0;width:100%;height:72px;background:#f8f6f0f5;border-top:1px solid #e0e1d7;display:flex;align-items:flex-start;padding-top:14px;justify-content:space-around}.screen-bottom>span{display:flex;flex-direction:column;gap:5px;align-items:center;font-size:9px;color:#8b8d80;width:44px}.screen-bottom svg{height:20px;width:20px}.screen-bottom .active{color:var(--accent)}.home-indicator{position:absolute;bottom:7px;left:calc(50% - 46px);height:4px;width:92px;border-radius:4px;background:#27342d}
+.detail-hero{height:395px;position:relative}.detail-hero .scenic-art{position:absolute;inset:0}.detail-hero .device-status,.detail-nav{position:relative;z-index:1;color:#f6f7ed}.detail-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(#1e3c3b35,transparent 35%,#223e3833);pointer-events:none}.detail-nav{display:flex;justify-content:space-between;padding:9px 24px}.detail-nav span{width:33px;height:33px;border-radius:50%;background:#ffffff30;display:grid;place-items:center;backdrop-filter:blur(6px)}.detail-nav svg{width:17px;height:17px}.image-pagination{position:absolute;bottom:26px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:1}.image-pagination i{width:5px;height:5px;background:#ffffff80;border-radius:50%}.image-pagination i:first-child{width:17px;background:white}.detail-body{position:relative;border-radius:23px 23px 0 0;background:#f5f3ed;margin-top:-16px;padding:24px 27px;z-index:2}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--accent)}.detail-heading{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.detail-heading h3{font-family:"SimSun",serif;font-size:28px;font-weight:400;letter-spacing:2px}.rating{font-size:11px;color:#796d4d}.location{display:flex;align-items:center;gap:4px;font-size:11px;color:#7f8478;margin-top:10px}.location svg{height:13px;width:13px}.trip-stats{display:flex;justify-content:space-between;margin:22px 0 18px;border-top:1px solid #dcded2;border-bottom:1px solid #dcded2;padding:15px 0}.trip-stats>span{display:flex;flex-direction:column;gap:6px;font-size:12px}.trip-stats small{font-size:10px;color:#7c8377}.detail-description{font-size:12px;line-height:1.9;color:#747c70}.detail-book{position:absolute;bottom:0;left:0;right:0;padding:16px 27px 26px;background:#f8f6f0;border-top:1px solid #e2e2d6;display:flex;justify-content:space-between;align-items:center;z-index:3}.detail-price{font-size:22px;color:#344b3e;font-family:Georgia,serif}.detail-price small{font-size:10px;font-family:"Segoe UI",sans-serif;color:#7e8579;margin-left:4px}.book-button{border-radius:8px;background:var(--accent);color:#f9f7ef;padding:12px 20px;font-size:12px;display:flex;align-items:center;gap:15px}.book-button svg{width:14px;height:14px}.saved-title{padding:11px 27px 9px;font-size:31px;font-weight:400;letter-spacing:2px;font-family:"SimSun",serif}.saved-subtitle{padding:0 27px;font-size:11px;line-height:1.8;color:#7e8578}.saved-tabs{display:flex;gap:21px;border-bottom:1px solid #dedfd5;margin:25px 27px 20px;padding-bottom:12px;font-size:12px;color:#83887b}.saved-tabs .active{color:var(--accent);position:relative}.saved-tabs .active:after{content:"";position:absolute;bottom:-13px;height:2px;left:0;width:100%;background:var(--accent)}.saved-card{display:flex;gap:14px;margin:0 27px 16px;padding-bottom:16px;border-bottom:1px solid #dfe1d6}.saved-card-art{width:120px;height:132px;overflow:hidden;border-radius:8px;flex:none}.saved-card-info{display:flex;flex-direction:column;justify-content:center;gap:9px;flex:1}.saved-card-info small{font-size:9px;letter-spacing:1px;color:#7f8779}.saved-card-info h4{font-family:"SimSun",serif;font-weight:400;font-size:19px;margin:0;letter-spacing:1px}.saved-card-info p{font-size:10px;color:#7d8578}.saved-card-info>span{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--accent)}.saved-card-info svg{width:13px;height:13px;fill:var(--accent);stroke:var(--accent)}.saved-quote{border:1px dashed #cfd3c4;border-radius:8px;margin:25px 27px 0;text-align:center;padding:21px 10px;font-size:12px;color:#7d8676;line-height:1.9}.saved-quote svg{width:18px;height:18px;margin-bottom:8px;color:#7c8b73}
+</style>
+</head>
+<body>
+  <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7M7 12h14"/></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7M17 12H3"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol><symbol id="i-album" viewBox="0 0 24 24"><rect x="5" y="5" width="16" height="16" rx="2"/><path d="M17 2H3v15m5-1 4-4 3 3 2-2 4 4"/></symbol><symbol id="i-pen" viewBox="0 0 24 24"><path d="m3 3 16 5 2 13-13-2Zm0 0 10 10"/><circle cx="14" cy="14" r="2"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7V3m0 4h-4M4 17v4m0-4h4M20 7a8 8 0 0 0-14-2M4 17a8 8 0 0 0 14 2"/></symbol>
+      <symbol id="i-inspect" viewBox="0 0 24 24"><path d="m8 8 11 5-5 2-2 5ZM4 3l1 3M2 9l3 1M10 2l1 3M17 4l-2 2"/></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+      <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
+      <symbol id="i-house" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a9 9 0 0 1-13 8L3 21l1.5-5A9 9 0 1 1 21 11.5Z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></symbol>
+      <symbol id="i-frame" viewBox="0 0 24 24"><path d="M7 3v18M17 3v18M3 7h18M3 17h18"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m21 15-5-5-9 11M3 16l4-4 4 5"/></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r=".8"/><circle cx="12" cy="12" r=".8"/><circle cx="19" cy="12" r=".8"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><rect x="8" y="4" width="4" height="6" rx="1"/><rect x="14" y="14" width="4" height="6" rx="1"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 10 6-10 6L2 9Zm-9 11 9 5 9-5M3 18l9 5 9-5"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M8 4 3 9l5 5M3 9h11a6 6 0 0 1 0 12"/></symbol>
+      <symbol id="i-redo" viewBox="0 0 24 24"><path d="m16 4 5 5-5 5M21 9H10a6 6 0 0 0 0 12"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+      <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V3m-4 4 4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6M14 3l-4 18"/></symbol>
+      <symbol id="i-pointer" viewBox="0 0 24 24"><path d="m5 3 15 9-8 2-4 7Z"/></symbol>
+      <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V6a2 2 0 0 1 4 0v6-8a2 2 0 0 1 4 0v8-6a2 2 0 0 1 4 0v9c0 5-3 7-7 7-3 0-5-2-7-5l-3-4a2 2 0 0 1 3-3l2 2"/></symbol>
+      <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6V3h16v3M12 3v18M8 21h8"/></symbol>
+      <symbol id="i-rect" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></symbol>
+      <symbol id="i-comment" viewBox="0 0 24 24"><path d="M21 15a3 3 0 0 1-3 3H9l-6 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Z"/><path d="M7 8h10M7 12h6"/></symbol>
+      <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="7" y="7" width="10" height="10" rx="1"/></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5Z"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 20V4m-6 6 6-6 6 6"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M19 10c0 6-7 11-7 11S5 16 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.5 4.5a5 5 0 0 0-7 0L12 6l-1.5-1.5a5 5 0 0 0-7 7L12 20l8.5-8.5a5 5 0 0 0 0-7Z"/></symbol>
+      <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 8-2 6-6 2 2-6Z"/></symbol>
+      <symbol id="i-signal" viewBox="0 0 24 24"><path d="M3 16v4M8 12v8M13 8v12M18 4v16"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+      <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#ccd7cd"/><stop offset="1" stop-color="#f0e9d7"/></linearGradient>
+      <linearGradient id="water" x2="0" y2="1"><stop stop-color="#709c99"/><stop offset="1" stop-color="#a5b5a7"/></linearGradient>
+      <symbol id="landscape" viewBox="0 0 640 800">
+        <path fill="url(#sky)" d="M0 0h640v800H0z"/>
+        <circle cx="477" cy="155" r="58" fill="#f5ead1" opacity=".75"/>
+        <path fill="#b2beb0" d="M0 363 90 231l70 65 69-144 108 194 88-141 115 134 100-74v329H0Z"/>
+        <path fill="#859c8e" d="m0 430 114-98 78 72 124-99 152 121 172-88v290H0Z"/>
+        <path fill="url(#water)" d="M0 468h640v332H0z"/>
+        <path fill="#3c6557" d="M0 288c72 52 115 117 143 223 8 30 48 45 86 70C158 587 80 581 0 623Z"/>
+        <path fill="#244d43" d="M0 413c58 27 104 100 127 166C74 603 42 639 0 659Z"/>
+        <path fill="#d6cfb1" d="M640 510c-73 23-159 98-189 133-41 46-65 73-164 157h353Z"/>
+        <path fill="#4c7160" d="M640 501c-55 41-109 93-126 119-29 44-41 52-59 79 53-18 134-45 185-29Z"/>
+        <path fill="#2d5547" d="M640 590c-51 38-87 101-121 140l121-21Z"/>
+        <g fill="none" stroke="#e7e8cf" stroke-width="2" opacity=".35"><path d="M210 612h94m-134 38h183m-160 54h228m-183 57h141"/></g>
+        <path d="m340 587 25 4-17 5-31-4Z" fill="#ece1c2"/><path d="m339 562 3 27" stroke="#344d43" stroke-width="3"/>
+      </symbol>
+      <symbol id="mountains" viewBox="0 0 640 800">
+        <path fill="#dadcd1" d="M0 0h640v800H0z"/><circle cx="160" cy="166" r="65" fill="#eee9d8"/>
+        <path d="m-60 540 257-379 147 231L488 98l220 420v282H0Z" fill="#a6b5a4"/>
+        <path d="m197 161-57 84 61-24 28 28-9-52Zm291-63-58 119 56-31 35 24Z" fill="#e5e5d9"/>
+        <path d="m-50 677 223-304 173 226 115-205 242 303v103H0Z" fill="#688779"/>
+        <path d="M0 800V625l143 106 134-138 118 106 151-156 94 67v190Z" fill="#345a4b"/>
+        <path d="M293 800c109-69 52-108 116-153 36-26 46-59 44-100-28 48-64 63-85 90-50 64 14 95-137 163Z" fill="#cfc8a9"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="window-shell">
+    <header class="titlebar">
+      <div class="title-actions">
+        <a class="icon-button" href="./index.html" aria-label="返回 Mova" title="返回 Mova"><svg><use href="#i-arrow-left"/></svg></a>
+        <button class="icon-button" id="toggle-chat" aria-label="收起对话" title="展开或收起对话" aria-expanded="true"><svg><use href="#i-panel"/></svg></button>
+        <span class="titlebar-divider"></span><span class="app-name">Mova</span><span class="titlebar-section">Design</span>
+      </div>
+      <span class="prototype-label">交互原型</span>
+      <a class="back-to-mova" href="./index.html">返回工作区 <svg><use href="#i-arrow-right"/></svg></a>
+    </header>
+
+    <div class="workspace">
+      <nav class="activity-rail" aria-label="主导航">
+        <div class="rail-group">
+          <a class="rail-button" href="./index.html" aria-label="主页" title="主页"><svg><use href="#i-house"/></svg></a>
+          <button class="rail-button" id="rail-chat" aria-label="对话" title="展开或收起对话"><svg><use href="#i-chat"/></svg></button>
+          <button class="rail-button selected" id="rail-canvas" aria-label="画板" aria-current="page" title="画板"><svg><use href="#i-frame"/></svg></button>
+          <button class="rail-button" id="rail-assets" aria-label="导入图片" title="导入图片"><svg><use href="#i-image"/></svg></button>
+          <div class="rail-divider"></div>
+          <button class="rail-button" id="rail-layers" aria-label="图层" title="图层"><svg><use href="#i-layers"/></svg></button>
+        </div>
+        <div class="rail-group"><button class="rail-button" id="shortcut-help" aria-label="键盘快捷键" title="键盘快捷键"><svg><use href="#i-settings"/></svg></button><div class="mova-orb" title="Mova · 待机" role="img" aria-label="Mova 小球"></div></div>
+      </nav>
+
+      <main class="content-frame" id="content-frame">
+        <section class="conversation-panel" aria-label="设计对话">
+          <header class="conversation-header"><div><h1>旅行应用设计</h1><span>DesignMova <span class="small-dot">·</span> 本地示例</span></div><button class="icon-button" id="new-direction" aria-label="新建探索方向" title="新建探索方向"><svg><use href="#i-plus"/></svg></button></header>
+          <div class="conversation-scroll" id="conversation-scroll" role="log" aria-label="对话记录" aria-live="polite">
+            <div class="chat-date">今天</div>
+            <div class="user-message">设计一个有呼吸感的旅行 App。自然、安静，包含目的地发现、旅行详情和收藏页。</div>
+            <div class="assistant-message">
+              <div class="assistant-label"><span class="assistant-mark"><svg><use href="#i-spark"/></svg></span><span>Mova</span></div>
+              <details class="process"><summary><svg><use href="#i-check"/></svg> 已完成 3 个画板 <svg class="tiny-chevron"><use href="#i-chevron"/></svg></summary><p>梳理页面结构 → 统一色彩与字体 → 排列画板</p></details>
+              <p>让风景成为主角。</p><p>以暖白和森林绿建立安静的视觉语言，保留充足留白，搭配更有温度的衬线标题。</p>
+              <div class="result-list">
+                <button data-select-board="discover"><span class="result-thumb thumb-one"></span><span>发现目的地<small>浏览灵感，开启下一次出发</small></span><svg><use href="#i-arrow-right"/></svg></button>
+                <button data-select-board="detail"><span class="result-thumb thumb-two"></span><span>旅行详情<small>了解风景，也了解旅程</small></span><svg><use href="#i-arrow-right"/></svg></button>
+                <button data-select-board="saved"><span class="result-thumb thumb-three"></span><span>我的收藏<small>为想去的地方留个位置</small></span><svg><use href="#i-arrow-right"/></svg></button>
+              </div>
+              <p class="assistant-footnote">选中画板继续描述，也可以直接编辑。</p>
+              <div class="suggestions"><button data-prompt="把主题色改为蓝色">试试蓝色主题</button><button data-prompt="新增一个旅行页面">再加一个页面 <svg><use href="#i-plus"/></svg></button></div>
+            </div>
+          </div>
+          <div class="composer-area">
+            <button class="selection-context" id="selection-context"><svg><use href="#i-frame"/></svg><span id="context-name">发现目的地</span><span class="context-close" id="clear-selection" role="button" tabindex="0" aria-label="清除选区">×</span></button>
+            <form class="composer" id="prompt-form">
+              <label class="sr-only" for="prompt">描述你想调整的设计</label><textarea id="prompt" rows="3" placeholder="描述想法，让设计继续生长…"></textarea>
+              <div class="composer-bottom"><button class="icon-button" type="button" id="attach-image" title="添加参考图片" aria-label="添加参考图片"><svg><use href="#i-plus"/></svg></button><span class="model-label"><svg><use href="#i-spark"/></svg> 设计演示</span><button class="send-button" type="submit" aria-label="应用描述"><svg><use href="#i-send"/></svg></button></div>
+            </form><div class="composer-note">本地交互演示 <span>·</span> 未连接 AI 模型</div>
+          </div>
+        </section>
+        <div class="split-resizer" id="split-resizer" role="separator" tabindex="0" aria-label="调整对话宽度" aria-orientation="vertical" aria-valuemin="280" aria-valuemax="520" aria-valuenow="344"></div>
+
+        <section class="design-panel" aria-label="设计画板">
+          <header class="canvas-toolbar">
+            <div class="browser-nav-group" role="group" aria-label="画板导航"><button class="browser-icon-button" id="undo" aria-label="撤销" title="撤销 Ctrl+Z" disabled><svg><use href="#i-arrow-left"/></svg></button><button class="browser-icon-button" id="redo" aria-label="重做" title="重做 Ctrl+Shift+Z" disabled><svg><use href="#i-arrow-right"/></svg></button><button class="browser-icon-button" id="canvas-refresh" aria-label="图册" title="Pages / Layers" aria-expanded="false"><svg><use href="#i-album"/></svg></button><button class="browser-icon-button" id="canvas-inspect" aria-label="选取画板查看属性" title="选取画板查看属性" aria-pressed="false"><svg><use href="#i-inspect"/></svg></button></div>
+            <button class="document-address" id="document-title" title="重命名设计"><svg><use href="#i-frame"/></svg><span id="document-name">栖游 · 旅行应用</span><span class="saved-state" id="saved-state">已保存</span></button>
+            <button class="icon-button small" id="play-toggle" aria-label="播放" title="播放原型" aria-pressed="false"><svg><use href="#i-play"/></svg></button>
+            <button class="icon-button small" id="export-open" aria-label="导出" title="导出设计"><svg><use href="#i-export"/></svg></button>
+          </header>
+
+<aside class="op-sidebar op-left" id="layers-panel" hidden aria-label="Pages and Layers"><section class="op-pages"><header><strong>Pages</strong><button class="icon-button small" id="add-page" aria-label="新增页面"><svg><use href="#i-plus"/></svg></button></header><div id="pages-list"></div></section><section class="op-layers"><header><strong>Layers</strong><button class="icon-button small" id="add-board" aria-label="新增画板"><svg><use href="#i-plus"/></svg></button></header><div id="layers-list"></div></section></aside>
+<aside class="op-sidebar op-right" id="inspector" hidden aria-label="选中对象属性"><div id="inspector-content"></div></aside>
+          <div class="canvas-viewport" id="canvas-viewport" tabindex="0" aria-label="无限画布，按住空格拖动，Ctrl 加滚轮缩放">
+            <div class="canvas-world" id="canvas-world"><div class="collection-heading"><div><span class="collection-kicker">QIYO / TRAVEL EXPERIENCE</span><h2>让下一站，自然发生。</h2></div><span class="collection-meta">移动端设计 <span>·</span> 390 × 780</span></div><div class="artboards" id="artboards"></div><div class="design-tokens"><span class="token-label">设计语言</span><button class="swatch" style="--swatch:#365a4d" data-accent="#365a4d" aria-label="森林绿主题" title="森林绿"></button><button class="swatch" style="--swatch:#526b85" data-accent="#526b85" aria-label="雾蓝主题" title="雾蓝"></button><button class="swatch" style="--swatch:#9a694b" data-accent="#9a694b" aria-label="陶土主题" title="陶土"></button><span class="token-divider"></span><span>暖白留白</span><span class="token-divider"></span><span class="serif-token">Aa</span><span>衬线标题</span><span class="token-divider"></span><span>8 px 间距</span></div></div>
+
+            
+            
+
+            <div class="drawing-toolbar op-toolbar" role="toolbar" aria-label="画布工具"><button class="tool active" data-tool="select" aria-label="选择工具" aria-pressed="true" title="选择 V"><svg><use href="#i-pointer"/></svg></button><div class="op-tool-group"><button class="tool" data-tool="frame" aria-label="添加画板" title="画板 F"><svg><use href="#i-frame"/></svg></button><button class="op-dropdown" data-tool-menu="frames" aria-label="画板预设">⌄</button></div><div class="op-tool-group"><button class="tool" data-tool="rect" aria-label="添加形状" aria-pressed="false" title="矩形 R"><svg><use href="#i-rect"/></svg></button><button class="op-dropdown" data-tool-menu="shapes" aria-label="形状工具">⌄</button></div><button class="tool" data-tool="pen" aria-label="钢笔工具" aria-pressed="false" title="钢笔 P"><svg><use href="#i-pen"/></svg></button><button class="tool" data-tool="text" aria-label="添加文字" aria-pressed="false" title="文字 T"><svg><use href="#i-text"/></svg></button></div><div class="op-tool-menu floating-panel" id="op-tool-menu" hidden></div>
+            <div class="canvas-hint" id="canvas-hint">双击文字编辑 <span>·</span> 空格拖动画布</div>
+            <div class="op-play-stage" id="op-play-stage" hidden></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+  <dialog id="preview-dialog" class="preview-dialog"><header><div><svg><use href="#i-play"/></svg><span>交互预览</span><small>栖游 · 移动端</small></div><button class="icon-button" data-close-dialog aria-label="关闭预览"><svg><use href="#i-close"/></svg></button></header><div class="preview-stage" id="preview-stage"></div><footer><button id="preview-prev" class="icon-button" aria-label="上一页"><svg><use href="#i-arrow-left"/></svg></button><span id="preview-page-name">发现目的地</span><button id="preview-next" class="icon-button" aria-label="下一页"><svg><use href="#i-arrow-right"/></svg></button></footer></dialog>
+  <dialog id="export-dialog" class="export-dialog"><header><div><h2>带走你的设计</h2><p>将当前画板保存为可继续使用的文件。</p></div><button class="icon-button" data-close-dialog aria-label="关闭导出"><svg><use href="#i-close"/></svg></button></header><div class="export-options"><button data-export="html"><svg><use href="#i-code"/></svg><span>HTML 页面<small>离线可打开的设计展示</small></span><svg><use href="#i-arrow-right"/></svg></button><button data-export="json"><svg><use href="#i-frame"/></svg><span>设计文件<small>包含画板、样式和编辑内容的 JSON</small></span><svg><use href="#i-arrow-right"/></svg></button></div><p class="export-note">当前为前端原型，导出不包含 AI 或业务服务。</p></dialog>
+  <dialog id="rename-dialog" class="small-dialog"><form id="rename-form"><h2>重命名设计</h2><label for="rename-input">设计名称</label><input id="rename-input" maxlength="60" required><div class="dialog-actions"><button type="button" data-close-dialog>取消</button><button class="primary-button" type="submit">保存</button></div></form></dialog>
+  <dialog id="help-dialog" class="small-dialog"><header><h2>让创作顺手一点</h2><button class="icon-button" data-close-dialog aria-label="关闭快捷键"><svg><use href="#i-close"/></svg></button></header><dl class="shortcuts"><dt>选择 / 平移</dt><dd><kbd>V</kbd> / <kbd>H</kbd></dd><dt>拖动画布</dt><dd><kbd>空格</kbd> + 拖动</dd><dt>文字 / 形状 / 批注</dt><dd><kbd>T</kbd> / <kbd>R</kbd> / <kbd>C</kbd></dd><dt>适应画布</dt><dd><kbd>Shift</kbd> + <kbd>1</kbd></dd><dt>撤销 / 重做</dt><dd><kbd>Ctrl Z</kbd> / <kbd>Ctrl Shift Z</kbd></dd><dt>删除选中对象</dt><dd><kbd>Delete</kbd></dd></dl></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script src="./canvas-morph.js"></script>
+  <script src="./canvas.js"></script>
+</body>
+</html>

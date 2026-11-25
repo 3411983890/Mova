@@ -1,0 +1,313 @@
+/* 电脑操作设置页（设置 → 集成 → 电脑操作）。
+   只补设置规范没有提供的局部件：行、卡片、开关、选择行、折叠区全部复用
+   .settings-section / .settings-card / .settings-row / .settings-switch /
+   .settings-choice / .settings-button，颜色与尺寸一律取 --mova-settings-* token。 */
+
+.desktop-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mova-settings-page-gap);
+  color: var(--mova-settings-text-body);
+}
+
+/* ── 状态卡 ─────────────────────────────────────────────────────────── */
+.desktop-settings-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mova-settings-row-gap);
+  padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline);
+}
+
+.desktop-settings-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+}
+
+.desktop-settings-status-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.desktop-settings-status-item dt {
+  flex: none;
+  width: 64px;
+  color: var(--mova-settings-text-description);
+  font-size: 12px;
+}
+
+.desktop-settings-status-item dd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.desktop-settings-status-item dd span { min-width: 0; overflow-wrap: anywhere; }
+
+/* 6px 状态点：只做小面积着色，不整块铺色。 */
+.desktop-settings-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mova-settings-dot-off);
+}
+.desktop-settings-dot[data-state="ok"] { background: var(--mova-settings-status-ok); }
+.desktop-settings-dot[data-state="busy"] { background: var(--mova-settings-accent); }
+.desktop-settings-dot[data-state="error"] { background: var(--mova-settings-danger); }
+
+.desktop-settings-status-action {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.desktop-settings-stop {
+  height: 30px;
+  padding: 0 12px;
+  gap: 6px;
+  border-color: var(--mova-settings-error-line);
+  color: var(--mova-settings-danger);
+  font-weight: 500;
+}
+.desktop-settings-stop:not(:disabled):hover {
+  border-color: var(--mova-settings-danger);
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-danger-hover);
+}
+.desktop-settings-stop:disabled {
+  border-color: var(--mova-settings-line-control);
+  color: var(--mova-settings-text-dim);
+}
+.desktop-settings-stop i { font-size: 12px; }
+
+/* ── 权限级别：整行单选，沿用 .settings-choice ─────────────────────── */
+.desktop-settings-tier-head { padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline); }
+.desktop-settings-tiers { display: flex; flex-direction: column; }
+.desktop-settings-tiers .settings-choice[aria-checked="true"] { background: var(--mova-settings-accent-surface); }
+.desktop-settings-tiers .settings-choice:disabled { cursor: not-allowed; }
+.desktop-settings-tiers .settings-choice:disabled strong { color: var(--mova-settings-text-description); }
+
+/* ── 分区标题行（标题 + 右侧说明） ─────────────────────────────────── */
+.desktop-settings-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.desktop-settings-section-head > .settings-section-note { flex: none; max-width: 46%; text-align: right; }
+
+/* ── 应用规则 ───────────────────────────────────────────────────────── */
+.desktop-settings-apps { display: flex; flex-direction: column; }
+.desktop-settings-apps > [data-slot="apps"] > .memory-empty { margin: 14px 18px; }
+
+.desktop-settings-app {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+}
+.desktop-settings-app + .desktop-settings-app { border-top: 1px solid var(--mova-settings-line); }
+
+.desktop-settings-app-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.desktop-settings-app-main strong {
+  color: var(--mova-settings-text-title);
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.desktop-settings-app-main small { color: var(--mova-settings-text-meta); font-size: 11.5px; overflow-wrap: anywhere; }
+
+.desktop-settings-app .settings-button { flex: none; height: 26px; padding: 0 10px; }
+
+/* 三段式规则选择：视觉上是一组互斥按钮，不是三个独立按钮。 */
+.desktop-settings-segment {
+  display: inline-flex;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: var(--mova-settings-radius-control);
+  background: var(--mova-settings-surface);
+}
+.desktop-settings-segment button {
+  padding: 4px 10px;
+  color: var(--mova-settings-text-description);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.desktop-settings-segment button + button { border-left: 1px solid var(--mova-settings-line-control); }
+.desktop-settings-segment button:not(:disabled):hover {
+  background: var(--mova-settings-hover-control);
+  color: var(--mova-settings-text-item);
+}
+.desktop-settings-segment button[aria-pressed="true"] {
+  background: var(--mova-settings-accent-surface);
+  color: var(--mova-settings-text-accent);
+}
+.desktop-settings-segment button[aria-pressed="true"][data-rule="deny"] {
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-danger);
+}
+.desktop-settings-segment button:disabled { color: var(--mova-settings-text-dim); }
+.desktop-settings-segment button:focus-visible { outline-offset: -2px; }
+
+.desktop-settings-apps .settings-add { border-top: 1px solid var(--mova-settings-line); }
+
+.desktop-settings-app-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--mova-settings-line);
+}
+.desktop-settings-app-form[hidden] { display: none; }
+
+/* ── 表单控件（沿用浏览器设置页的度量） ────────────────────────────── */
+.desktop-settings-input,
+.desktop-settings-number,
+.desktop-settings-textarea {
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: var(--mova-settings-radius-control);
+  outline: none;
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+}
+.desktop-settings-input,
+.desktop-settings-number { height: var(--mova-settings-control-height); }
+.desktop-settings-input { flex: 1 1 auto; }
+.desktop-settings-input-narrow { flex: none; width: 220px; max-width: 100%; }
+.desktop-settings-number {
+  width: 96px;
+  flex: none;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.desktop-settings-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.desktop-settings-input:focus,
+.desktop-settings-number:focus,
+.desktop-settings-textarea:focus { border-color: var(--mova-settings-line-focus); }
+.desktop-settings-input::placeholder,
+.desktop-settings-textarea::placeholder { color: var(--mova-settings-text-dim); }
+
+/* 需要整行铺开的行（多行文本域）。 */
+.desktop-settings .desktop-settings-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.desktop-settings .desktop-settings-row-stack > .settings-row-text { max-width: none; }
+
+/* ── 技能列表 ───────────────────────────────────────────────────────── */
+.desktop-settings-skills { display: flex; flex-direction: column; }
+.desktop-settings-skills > .memory-empty { margin: 14px 18px; }
+
+.desktop-settings-skill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+}
+.desktop-settings-skill + .desktop-settings-skill { border-top: 1px solid var(--mova-settings-line); }
+.desktop-settings-skill-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.desktop-settings-skill-main strong {
+  color: var(--mova-settings-text-title);
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.desktop-settings-skill-main small { color: var(--mova-settings-text-meta); font-size: 11.5px; overflow-wrap: anywhere; }
+.desktop-settings-skill .settings-button { flex: none; height: 26px; padding: 0 10px; }
+
+/* ── 高级：默认折叠，展开节奏与普通分区一致 ────────────────────────── */
+.desktop-settings .settings-advanced { display: block; }
+
+.desktop-settings-summary {
+  cursor: pointer;
+  color: var(--mova-settings-text-section);
+  font-size: 13.5px;
+  font-weight: 600;
+  list-style: none;
+}
+.desktop-settings-summary::-webkit-details-marker { display: none; }
+.desktop-settings-summary::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  vertical-align: 2px;
+  transition: transform var(--mova-settings-duration) var(--mova-settings-ease);
+}
+.desktop-settings .settings-advanced[open] > .desktop-settings-summary::before { transform: rotate(45deg); }
+.desktop-settings .settings-advanced > .settings-card { margin-top: 10px; }
+.desktop-settings .settings-advanced > .memory-muted { margin: 8px 0 0; }
+
+/* 审计日志：路径与操作同一行，路径允许换行而不是被省略到看不见文件名。 */
+.desktop-settings-audit { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.desktop-settings-audit .settings-button { flex: none; }
+.desktop-settings-path {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ── 危险区：最后一段，视觉最弱 ─────────────────────────────────────── */
+.desktop-settings-danger .settings-section-title {
+  color: var(--mova-settings-text-group);
+  font-weight: 500;
+}
+
+/* ── 窄窗口：状态卡改为纵向，规则行允许换行 ────────────────────────── */
+@media (max-width: 720px) {
+  .desktop-settings-status { align-items: stretch; flex-direction: column; }
+  .desktop-settings-status-action { justify-content: flex-start; }
+  .desktop-settings-app { flex-wrap: wrap; }
+  .desktop-settings-app-main { flex-basis: 100%; }
+  .desktop-settings-app .settings-button { margin-left: auto; }
+  .desktop-settings-app-form { flex-wrap: wrap; }
+  .desktop-settings-audit { align-items: flex-start; flex-direction: column; }
+  .desktop-settings-input-narrow { width: 100%; }
+  .desktop-settings-status-item dt { width: 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-settings-summary::before { transition: none; }
+}

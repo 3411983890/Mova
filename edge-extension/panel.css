@@ -1,0 +1,58 @@
+.mova-edge {
+  --content-column: calc(100% - 24px);
+  color-scheme: dark;
+}
+.mova-edge .window-shell { border: 0; border-radius: 0; }
+.mova-edge .titlebar,
+.mova-edge .activity-rail,
+.mova-edge .project-sidebar,
+.mova-edge .sidebar-divider,
+.mova-edge .panel-button,
+.mova-edge #chat-header,
+.mova-edge #chat-fade,
+.mova-edge #welcome-project { display: none !important; }
+.mova-edge .workspace,
+.mova-edge .content-frame { min-width: 0; }
+.mova-edge .content-frame { margin: 0; border: 0; border-radius: 0; }
+.mova-edge .main-panel { --content-column: calc(100% - 24px); }
+.mova-edge .conversation { padding-top: 12px; }
+.mova-edge .composer-area { margin-bottom: 10px; }
+.mova-edge .welcome h1 { font-size: 22px; }
+.mova-edge .edge-top {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 48px;
+  padding: 5px 10px;
+  background: var(--canvas);
+}
+.edge-top #edge-avatar { margin-right: auto; margin-top: 6px; transform: translateY(3px); }
+.edge-top .companion, .edge-top #emotion-ball { width: 43px; height: 43px; }
+.edge-top button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; font-size: 17px; }
+.edge-top button:hover, .mova-edge:has(#edge-page[aria-pressed="true"]) #edge-page-menu-toggle { background: #ffffff15; }
+#edge-page-status { color: var(--muted); font-size: 11px; text-align: right; max-width: 65%; overflow-wrap: anywhere; }
+#edge-page-menu, #edge-chat-menu, #edge-pair-dialog, #edge-access-dialog {
+  color: var(--text);
+  background: #252525;
+  border: 1px solid #414141;
+  border-radius: 12px;
+  box-shadow: 0 12px 36px #0007;
+}
+#edge-chat-menu { position: fixed; inset: 59px 10px auto auto; margin: 0; padding: 5px; width: min(280px, calc(100vw - 20px)); }
+#edge-page-menu { position: fixed; inset: 59px 49px auto auto; margin: 0; padding: 5px; width: min(190px, calc(100vw - 59px)); }
+#edge-chats { max-height: min(55vh, 440px); overflow-y: auto; }
+#edge-page-menu button, #edge-chat-menu button { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#edge-page-menu button:hover, #edge-chat-menu button:hover, #edge-chat-menu button[aria-current] { background: #ffffff12; }
+#edge-new-chat { font-weight: 600; }
+#edge-pair-dialog, #edge-access-dialog { width: min(340px, calc(100vw - 24px)); padding: 18px; }
+#edge-pair-dialog::backdrop, #edge-access-dialog::backdrop { background: #0008; }
+#edge-pair-form { display: grid; gap: 10px; }
+#edge-pair-form h2, #edge-pair-form p { margin: 0; }
+#edge-pair-form p { color: var(--muted); font-size: 12px; }
+#edge-code { width: 100%; padding: 8px; border: 1px solid #555; border-radius: 7px; color: inherit; background: #202020; }
+#edge-pair-form button, #edge-access-dialog button { padding: 7px 12px; background: #3b4d68; border-radius: 7px; }
+.edge-pair-actions { display: flex; justify-content: flex-end; gap: 8px; }
+#edge-pair-cancel, #edge-access-dialog #edge-access-cancel { background: #ffffff12; }
+#edge-access-dialog h2 { margin: 0 0 6px; font-size: 16px; }
+#edge-access-dialog p { margin: 0 0 14px; color: var(--muted); font-size: 12px; }

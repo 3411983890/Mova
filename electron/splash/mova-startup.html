@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mova</title>
+  <style>
+    :root {
+      --bg-color: #0D0D0D;
+      --fg-color: #F1EEE9;
+      --ease-apple-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-apple-in-out: cubic-bezier(0.45, 0, 0.15, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "PingFang SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ==================== 主舞台 (#0D0D0D 纯色背景) ==================== */
+    .viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-color);
+      overflow: hidden;
+    }
+
+    /* ==================== 中心画布：整体缩小一半 (scale 0.5) ==================== */
+    .mova-stage-scaler {
+      transform: scale(0.5);
+      transform-origin: center center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 640px) {
+      .mova-stage-scaler {
+        transform: scale(0.38);
+      }
+    }
+
+    .mova-stage {
+      position: relative;
+      width: 760px;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+    }
+
+    /* ==================== M _ v a 纯色矢量字标层 (#F1EEE9) ==================== */
+    .wordmark-svg {
+      position: absolute;
+      inset: 0;
+      width: 760px;
+      height: 260px;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* 字标线条勾勒层（纯色 #F1EEE9） */
+    .letter-stroke {
+      fill: none;
+      stroke: var(--fg-color);
+      stroke-width: 2.4px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 680;
+      stroke-dashoffset: 680;
+      opacity: 0;
+    }
+
+    /* 字标纯色填充层 (#F1EEE9，无金属渐变) */
+    .letter-fill {
+      fill: var(--fg-color);
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center center;
+      transform: translateY(3px) scale(0.985);
+      transition:
+        opacity 0.85s var(--ease-apple-out),
+        transform 1.05s var(--ease-apple-out);
+    }
+
+    /* Stage 3: 触发 M, v, a 描边勾勒与纯色渐显 */
+    .viewport.stage-wordmark .letter-stroke {
+      animation: letterTraceStroke 1.25s var(--ease-apple-in-out) forwards;
+    }
+
+    .viewport.stage-wordmark .letter-m.letter-stroke { animation-delay: 0.04s; }
+    .viewport.stage-wordmark .letter-v.letter-stroke { animation-delay: 0.12s; }
+    .viewport.stage-wordmark .letter-a.letter-stroke { animation-delay: 0.20s; }
+
+    .viewport.stage-wordmark .letter-fill {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .viewport.stage-wordmark .letter-m.letter-fill { transition-delay: 0.26s; }
+    .viewport.stage-wordmark .letter-v.letter-fill { transition-delay: 0.34s; }
+    .viewport.stage-wordmark .letter-a.letter-fill { transition-delay: 0.42s; }
+
+    @keyframes letterTraceStroke {
+      0% {
+        stroke-dashoffset: 680;
+        opacity: 0;
+      }
+      12% {
+        opacity: 0.9;
+      }
+      72% {
+        stroke-dashoffset: 0;
+        opacity: 0.85;
+      }
+      100% {
+        stroke-dashoffset: 0;
+        opacity: 0;
+      }
+    }
+
+    /* Stage 4: 整体极轻柔的呼吸浮动 */
+    .viewport.stage-loop .mova-stage {
+      animation: stageFloatBreathe 5.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes stageFloatBreathe {
+      0% {
+        transform: translateY(1.5px);
+      }
+      100% {
+        transform: translateY(-2.5px);
+      }
+    }
+
+    /* ==================== Emotion Ball ("o" 核心容器) ==================== */
+    .ball-anchor {
+      position: absolute;
+      left: 274px; /* 334 - 60 */
+      top: 86px;   /* 146 - 60 */
+      width: 120px;
+      height: 120px;
+      z-index: 5;
+      transform-origin: center center;
+      /* 初始态：居中在舞台正中央 (dx = 46px, dy = -14px)，放大 1.95 倍 */
+      transform: translate3d(46px, -14px, 0) scale(1.95);
+      transition: transform 1.22s cubic-bezier(0.18, 1, 0.26, 1);
+      cursor: pointer;
+      will-change: transform;
+    }
+
+    /* Stage 3+: 小球丝滑归位成为 Mova 中的 "o" */
+    .viewport.stage-wordmark .ball-anchor {
+      transform: translate3d(0px, 0px, 0) scale(1);
+    }
+
+    .ball-mount {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Stage 0: Emotion Ball 自身的线条勾勒与纯色球体显影 */
+    .ball-mount .eb-head-fill {
+      opacity: 0;
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .ball-mount .eb-body-group > path:not(.eb-head-fill):not(.eb-trace-line) {
+      opacity: 0;
+      transition: opacity 0.65s ease;
+    }
+
+    .ball-mount .eb-trace-line {
+      stroke-dasharray: 740;
+      stroke-dashoffset: 740;
+      opacity: 0;
+    }
+
+    /* 触发球体轮廓勾勒 */
+    .viewport.stage-trace .ball-mount .eb-trace-line {
+      animation: ballRingTraceLine 1.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* 球体 #F1EEE9 纯色与双眼显影 */
+    .viewport.stage-fill .ball-mount .eb-head-fill {
+      opacity: 1;
+    }
+    .viewport.stage-fill .ball-mount .eb-body-group > path:not(.eb-head-fill):not(.eb-trace-line) {
+      opacity: 1;
+    }
+
+    @keyframes ballRingTraceLine {
+      0% {
+        stroke-dashoffset: 740;
+        opacity: 0;
+      }
+      12% {
+        opacity: 1;
+      }
+      72% {
+        stroke-dashoffset: 0;
+        opacity: 0.9;
+      }
+      100% {
+        stroke-dashoffset: 0;
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="viewport" id="viewport">
+    <div class="mova-stage-scaler">
+      <!-- Mova 核心舞台 -->
+      <div class="mova-stage" id="movaStage">
+        <!-- M _ v a 纯色几何字标 (#F1EEE9) -->
+        <svg class="wordmark-svg" viewBox="0 0 760 260" aria-label="Mova">
+          <defs>
+            <!-- M, v, a 精确几何字形定义 -->
+            <path
+              id="glyph-M"
+              pathLength="680"
+              d="M 122 196 L 122 75 Q 122 64 133 64 L 143 64 Q 151 64 155 72 L 188 135 L 221 72 Q 225 64 233 64 L 243 64 Q 254 64 254 75 L 254 196 L 231 196 L 231 106 L 196 172 Q 192 179 188 179 Q 184 179 180 172 L 145 106 L 145 196 Z"
+            />
+            <path
+              id="glyph-v"
+              pathLength="680"
+              d="M 410 96 L 434 96 L 459 166 L 484 96 L 508 96 L 471 190 Q 468 197 459 197 Q 450 197 447 190 Z"
+            />
+            <path
+              id="glyph-a"
+              pathLength="680"
+              fill-rule="evenodd"
+              d="M 611 96 L 634 96 L 634 196 L 611 196 L 611 183 A 50 52 0 1 1 611 109 Z M 579 118 A 28 28 0 1 0 579 174 A 28 28 0 1 0 579 118 Z"
+            />
+          </defs>
+
+          <!-- 1. 纯色实体渐显层 (#F1EEE9) -->
+          <use href="#glyph-M" class="letter-fill letter-m" />
+          <use href="#glyph-v" class="letter-fill letter-v" />
+          <use href="#glyph-a" class="letter-fill letter-a" />
+
+          <!-- 2. 启动瞬间的纯色描边层 (#F1EEE9) -->
+          <use href="#glyph-M" class="letter-stroke letter-m" />
+          <use href="#glyph-v" class="letter-stroke letter-v" />
+          <use href="#glyph-a" class="letter-stroke letter-a" />
+        </svg>
+
+        <!-- Emotion Ball 容器：最初居中，苏醒后缩入成为 Mova 的 "o" -->
+        <div class="ball-anchor" id="ballAnchor">
+          <div class="ball-mount" id="ballMount"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== 内嵌 NX_emotion-ball 原生引擎 ==================== -->
+  
+  
+  
+  
+
+  <!-- ==================== Mova 启动唤醒叙事与自然表情编排 ==================== -->
+  
+  <script src="mova-startup.js"></script>
+</body>
+</html>

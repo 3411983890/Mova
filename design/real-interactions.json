@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-11-11T11:40:25.187Z",
+  "environment": {
+    "electron": "45.2.3",
+    "chrome": "156.0.8078.80"
+  },
+  "summary": {
+    "tasks": 4,
+    "passed": 3,
+    "successRate": 75
+  },
+  "results": [
+    {
+      "name": "selenium-link-click",
+      "ok": true,
+      "ms": 1679,
+      "detail": {
+        "ref": "e91",
+        "url": "https://www.selenium.dev/selenium/web/index.html",
+        "title": "Index of Available Pages"
+      }
+    },
+    {
+      "name": "selenium-form",
+      "ok": true,
+      "ms": 2131,
+      "detail": {
+        "steps": 4,
+        "url": "https://www.selenium.dev/selenium/web/submitted-form.html?my-text=Mova&my-password=&my-textarea=real-site+smoke&my-readonly=Readonly+input&my-select=2&my-datalist=&my-file=&my-check=on&my-radio=on&my-colors=%23563d7c&my-date=&my-range=5&my-hidden="
+      }
+    },
+    {
+      "name": "selenium-login",
+      "ok": true,
+      "ms": 572,
+      "detail": {
+        "dialog": "You have successfully logged in."
+      }
+    },
+    {
+      "name": "practice-login",
+      "ok": false,
+      "ms": 30013,
+      "error": "navigation-timeout: timeout: navigation-timeout"
+    }
+  ]
+}

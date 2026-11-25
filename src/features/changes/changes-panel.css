@@ -1,0 +1,222 @@
+/* "改动历史": a modal over the permissions page, one folder at a time. */
+.changes-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(8, 10, 9, 0.62);
+}
+
+.changes-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(1040px, 100%);
+  max-height: min(760px, calc(100dvh - 48px));
+  min-height: 0;
+  border: 1px solid #353d39;
+  border-radius: 16px;
+  background: #161a18;
+  color: #dfe3e0;
+  box-shadow: 0 24px 80px #000a;
+  outline: none;
+}
+
+.changes-panel .changes-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid #262d2a;
+}
+.changes-panel .changes-head-text { min-width: 0; flex: 1 1 auto; }
+.changes-panel .changes-title { margin: 0; font-size: 15px; font-weight: 600; color: #eef1ee; }
+.changes-panel .changes-subtitle {
+  margin: 4px 0 0;
+  color: #8e958f;
+  font: 11.5px/1.5 ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+.changes-panel .changes-close {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #343d39;
+  border-radius: 8px;
+  background: #1c211f;
+  color: #b9c1bb;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.changes-panel .changes-close:hover { border-color: #4c5a53; color: #eef1ee; }
+
+.changes-panel .changes-body {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.changes-panel .changes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 12px;
+  border-right: 1px solid #262d2a;
+  background: #121614;
+}
+.changes-panel .changes-count {
+  margin: 0;
+  color: #8e958f;
+  font-size: 11.5px;
+}
+.changes-panel .changes-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.changes-panel .changes-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid #2b322f;
+  border-radius: 9px;
+  background: #1a1f1d;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.changes-panel .changes-item:hover { border-color: #3c5148; background: #1e2623; }
+.changes-panel .changes-item.is-selected { border-color: #4d7a63; background: #1d2a24; }
+.changes-panel .changes-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.changes-panel .changes-item-time { flex: none; color: #8e958f; font-size: 11px; }
+.changes-panel .changes-item-path {
+  color: #dfe3e0;
+  font: 11.5px/1.5 ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.changes-panel .changes-item-bytes { color: #8e958f; font-size: 11px; }
+
+/* Kind pill. Colours mirror the approval badge tones, not a new palette. */
+.changes-panel .changes-kind,
+.changes-detail .changes-kind {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid #4a4234;
+  border-radius: 999px;
+  color: #d8c19a;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.changes-panel .changes-kind.is-delete,
+.changes-panel .changes-kind.is-move,
+.changes-detail .changes-kind.is-delete,
+.changes-detail .changes-kind.is-move { border-color: #8b4a44; color: #f0b9b2; }
+.changes-panel .changes-kind.is-create,
+.changes-panel .changes-kind.is-undo,
+.changes-detail .changes-kind.is-create,
+.changes-detail .changes-kind.is-undo { border-color: #2f5b44; color: #8fd6b0; }
+.changes-panel .changes-kind.is-unknown,
+.changes-detail .changes-kind.is-unknown { border-color: #4a4a52; color: #c2c2cc; }
+
+.changes-panel .changes-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.changes-panel .changes-detail-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.changes-panel .changes-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.changes-panel .changes-detail-path {
+  min-width: 0;
+  color: #eef1ee;
+  font: 12px/1.5 ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+.changes-panel .changes-detail-meta {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  color: #8e958f;
+  font-size: 11.5px;
+}
+.changes-panel .changes-reveal { flex: none; }
+.changes-panel .changes-detail-stat { margin: 0; }
+
+.changes-panel .changes-note {
+  margin: 0;
+  color: #9aa09b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.changes-panel .changes-error {
+  margin: 0;
+  padding: 8px 11px;
+  border: 1px solid #74443e;
+  border-radius: 8px;
+  background: #2c2322;
+  color: #f0b9b2;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* The diff reuses the approval bar's rows and palette; only that component's
+   outer box (border, padding, width, font) is reset for the detail pane. */
+.changes-panel .approval-bar.changes-diff {
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.changes-panel .approval-bar.changes-diff .approval-diff {
+  max-height: 420px;
+  border: 1px solid #262d2a;
+  border-radius: 9px;
+}
+
+@media (max-width: 860px) {
+  .changes-panel .changes-body { grid-template-columns: 1fr; }
+  .changes-panel .changes-list {
+    max-height: 40%;
+    border-right: 0;
+    border-bottom: 1px solid #262d2a;
+  }
+}

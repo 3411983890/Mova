@@ -1,0 +1,69 @@
+.cloud-connections-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mova-settings-page-gap);
+  container-type: inline-size;
+}
+
+.cloud-connections-settings .settings-button {
+  min-height: 28px;
+}
+
+.cloud-connections-settings .settings-button:focus-visible,
+.cloud-connections-settings input:focus-visible {
+  outline: 2px solid var(--mova-settings-focus);
+  outline-offset: 3px;
+}
+
+.cloud-connections-settings .settings-button:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+.cloud-row-controls,
+.cloud-check-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cloud-row-controls {
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cloud-expanded {
+  border-top: 1px solid var(--mova-settings-line);
+  background: var(--mova-settings-surface-nested);
+}
+
+.cloud-expanded[hidden] { display: none; }
+.cloud-expanded + .settings-row { border-top: 1px solid var(--mova-settings-line); }
+.cloud-expanded .model-form-actions { flex-wrap: wrap; }
+.cloud-remove { margin-inline-start: auto; }
+
+.cloud-guide-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-inline-start: 18px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--mova-settings-text-body);
+}
+
+.cloud-check-line { justify-content: space-between; flex-wrap: wrap; }
+.cloud-state { font-size: 12px; color: var(--mova-settings-text-description); }
+.cloud-task-result { color: var(--mova-settings-text-description); font-size: 12.5px; }
+.cloud-task-result pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 0; }
+
+@container (max-width: 430px) {
+  .cloud-connections-settings .settings-row { flex-wrap: wrap; gap: 12px; }
+  .cloud-connections-settings .settings-row-text { flex-basis: 100%; max-width: none; }
+  .cloud-row-controls { justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud-expanded { animation: none; }
+}

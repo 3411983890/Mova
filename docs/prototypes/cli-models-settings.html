@@ -1,0 +1,1390 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>设置 · CLI 模型 — Mova</title>
+<style>
+  /* ── tokens（与 Mova设置页设计规范 4.6 一致） ───────────────────────── */
+  :root {
+    --u: 1px;
+    --titlebar-height: 38px;
+    --rail-width: 72px;
+
+    --content-column: min(718px, calc(100% - 48px));
+    --mova-settings-column: var(--content-column);
+    --mova-settings-nav-width: 248px;
+    --mova-settings-text-max: 66%;
+    --mova-settings-page-gap: 30px;
+    --mova-settings-row-gap: 24px;
+    --mova-settings-row-pad-block: 14px;
+    --mova-settings-row-pad-inline: 18px;
+
+    --mova-settings-canvas: #181818;
+    --mova-settings-surface: #161616;
+    --mova-settings-surface-sunken: #131313;
+    --mova-settings-surface-nested: #212121;
+    --mova-settings-surface-raised: #1f1f1f;
+    --mova-settings-surface-editing: #1a1a1a;
+    --mova-settings-hover-row: #232323;
+    --mova-settings-hover-block: #242424;
+    --mova-settings-hover-control: #2c2c2c;
+    --mova-settings-selected: #2f2f2f;
+    --mova-settings-meter-track: #2e2e2e;
+    --mova-settings-switch-track: #3e3e3e;
+    --mova-settings-switch-on: #2f7cf6;
+    --mova-settings-switch-knob: #e2e2e2;
+    --mova-settings-switch-knob-on: #ffffff;
+    --mova-settings-badge-surface: #303030;
+    --mova-settings-dot-off: #444444;
+
+    --mova-settings-line: #2a2a2a;
+    --mova-settings-line-frame: #2f2f2f;
+    --mova-settings-line-control: #313131;
+    --mova-settings-line-dashed: #323232;
+    --mova-settings-line-help: #525252;
+    --mova-settings-line-focus: #3b6ea8;
+
+    --mova-settings-text-strong: #f5f5f5;
+    --mova-settings-text-title: #f0f0f0;
+    --mova-settings-text-section: #e8e8e8;
+    --mova-settings-text-body: #e2e2e2;
+    --mova-settings-text-item: #cccccc;
+    --mova-settings-text-description: #9e9e9e;
+    --mova-settings-text-note: #949494;
+    --mova-settings-text-meta: #939393;
+    --mova-settings-text-group: #909090;
+    --mova-settings-text-dim: #727272;
+    --mova-settings-text-inverse: #ffffff;
+    --mova-settings-text-link: #8fb8f2;
+    --mova-settings-text-accent: #8fbcf5;
+
+    --mova-settings-accent: #3795f5;
+    --mova-settings-accent-strong: #2f6bd8;
+    --mova-settings-accent-hover: #3a7ae8;
+    --mova-settings-accent-control: #2f7cf6;
+    --mova-settings-accent-surface: #1e2c3d;
+    --mova-settings-accent-line: #2d4c74;
+    --mova-settings-accent-glow: rgba(55, 149, 245, .12);
+    --mova-settings-focus: #5b9bf0;
+
+    --mova-settings-danger: #e0928c;
+    --mova-settings-danger-hover: #f19b94;
+    --mova-settings-danger-surface: #2c2322;
+    --mova-settings-warning-surface: #28251e;
+    --mova-settings-warning-line: #6b5232;
+    --mova-settings-warning-text: #e5cc9e;
+    --mova-settings-error-line: #74443e;
+    --mova-settings-error-text: #f0b9b2;
+    --mova-settings-status-ok: #7fb6f5;
+
+    --mova-settings-radius-card: 12px;
+    --mova-settings-radius-nested: 14px;
+    --mova-settings-radius-control: 8px;
+    --mova-settings-radius-toolbar: 10px;
+    --mova-settings-radius-pill: 999px;
+    --mova-settings-radius-dialog: 16px;
+    --mova-settings-control-height: 32px;
+    --mova-settings-toolbar-height: 36px;
+    --mova-settings-meter-height: 4px;
+
+    --mova-settings-overlay: #0008;
+    --mova-settings-shadow-dialog: 0 24px 60px #000a;
+    --mova-settings-shadow-menu: 0 16px 36px #0008;
+    --mova-settings-duration: 180ms;
+    --mova-settings-ease: cubic-bezier(.22, .9, .26, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #0e0d0e;
+    color: var(--mova-settings-text-body);
+    font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body { display: flex; align-items: center; justify-content: center; }
+
+  .icon { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* ── 窗口外壳（仅原型用） ─────────────────────────────────────────── */
+  .window-shell {
+    width: 1440px; height: 900px;
+    display: flex; flex-direction: column;
+    background: var(--mova-settings-canvas);
+    border: 1px solid var(--mova-settings-line-frame);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .titlebar {
+    height: var(--titlebar-height); flex: none;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 14px;
+    background: var(--mova-settings-surface);
+    border-bottom: 1px solid var(--mova-settings-line);
+    color: var(--mova-settings-text-dim);
+    font-size: 11.5px;
+    -webkit-app-region: drag;
+  }
+  .titlebar .traffic { display: flex; gap: 7px; }
+  .titlebar .traffic i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a3a; display: block; }
+  .titlebar .doc-title { margin-left: 10px; letter-spacing: .1px; }
+
+  .app-body { flex: 1; display: flex; min-height: 0; }
+
+  .activity-rail {
+    width: var(--rail-width); flex: none;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 0;
+    border-right: 1px solid var(--mova-settings-line);
+    background: var(--mova-settings-surface);
+  }
+  .activity-rail .rail-btn {
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border: 0; border-radius: 10px; background: transparent;
+    color: var(--mova-settings-text-dim); font-size: 17px; cursor: default;
+  }
+  .activity-rail .rail-btn.is-active { background: var(--mova-settings-selected); color: var(--mova-settings-text-strong); }
+
+  /* ── 设置视图骨架（2.1 / 2.2 / 2.3） ──────────────────────────────── */
+  .settings-view {
+    flex: 1; display: flex; min-width: 0;
+    background: var(--mova-settings-canvas);
+    border: 1px solid var(--mova-settings-line-frame);
+    border-radius: 24px 24px 12px 24px;
+    margin: 8px 10px 10px 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .settings-nav {
+    width: var(--mova-settings-nav-width); flex: none;
+    padding: 12px 8px 18px;
+    background: var(--mova-settings-surface);
+    border-right: 1px solid var(--mova-settings-line-frame);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .settings-nav::-webkit-scrollbar { display: none; }
+
+  .settings-nav-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 10px 10px;
+  }
+  .settings-nav-head .nav-title {
+    font-size: 17px; font-weight: 600; color: var(--mova-settings-text-strong); line-height: 1.4;
+  }
+  .settings-nav-head .nav-search {
+    width: 26px; height: 26px; display: grid; place-items: center;
+    border: 1px solid transparent; border-radius: 7px;
+    background: transparent; color: var(--mova-settings-text-note);
+    font-size: 14px; cursor: pointer;
+    transition: background var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .settings-nav-head .nav-search:hover { background: var(--mova-settings-hover-control); color: var(--mova-settings-text-strong); }
+
+  .nav-search-field {
+    display: none; margin: 0 8px 10px;
+  }
+  .nav-search-field.is-open { display: block; }
+  .nav-search-field input {
+    width: 100%; height: var(--mova-settings-control-height);
+    padding: 0 10px;
+    border: 1px solid var(--mova-settings-line); border-radius: var(--mova-settings-radius-control);
+    background: var(--mova-settings-surface-editing);
+    color: var(--mova-settings-text-body); font-size: 12.5px; outline: none;
+  }
+  .nav-search-field input:focus { border-color: var(--mova-settings-line-focus); }
+
+  .nav-group-label {
+    padding: 12px 10px 6px;
+    font-size: 13px; font-weight: 500; color: var(--mova-settings-text-group); line-height: 1.4;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    width: 100%; padding: 7px 10px;
+    border: 0; border-radius: var(--mova-settings-radius-control);
+    background: transparent; color: var(--mova-settings-text-inverse);
+    font-size: 13px; font-weight: 500; line-height: 1.4;
+    text-align: left; cursor: pointer;
+    transition: background var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .nav-item .icon { font-size: 15px; color: inherit; }
+  .nav-item:hover { background: var(--mova-settings-hover-control); }
+  .nav-item.is-active { background: var(--mova-settings-selected); }
+  .nav-item .nav-new {
+    margin-left: auto; padding: 0 6px;
+    border-radius: var(--mova-settings-radius-pill);
+    background: var(--mova-settings-accent-surface); border: 1px solid var(--mova-settings-accent-line);
+    color: var(--mova-settings-text-accent); font-size: 10px; font-weight: 500; line-height: 1.5;
+  }
+
+  .settings-divider {
+    position: absolute; inset-block: 0; left: var(--mova-settings-nav-width);
+    width: 14px; transform: translateX(-50%);
+    cursor: default; border: 0; background: transparent;
+  }
+  .settings-divider::before {
+    content: ""; position: absolute; inset-block: 0; left: 50%; width: 1px;
+    background: var(--mova-settings-line-frame);
+  }
+
+  .settings-panel {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #343434 transparent;
+    scrollbar-gutter: stable;
+  }
+
+  .settings-panel-head {
+    width: var(--content-column); margin: 0 auto;
+    padding-top: 20px;
+    flex: none;
+  }
+  .settings-panel-head h2 {
+    font-size: 26px; font-weight: 700; letter-spacing: -.6px; line-height: 1.35;
+    color: var(--mova-settings-text-strong);
+  }
+
+  .settings-page {
+    width: var(--content-column); margin: 0 auto;
+    padding: 20px 0 48px;
+    display: flex; flex-direction: column; gap: var(--mova-settings-page-gap);
+  }
+
+  /* ── 分区 / 卡片 / 行（6.4 / 6.5） ────────────────────────────────── */
+  .settings-section { display: flex; flex-direction: column; gap: 10px; }
+  .settings-section-head { display: flex; flex-direction: column; gap: 4px; }
+  .settings-section-title { font-size: 13.5px; font-weight: 600; color: var(--mova-settings-text-section); line-height: 1.4; }
+  .settings-section-note {
+    font-size: 12px; line-height: 1.6; color: var(--mova-settings-text-note);
+    max-width: 620px; text-wrap: pretty;
+  }
+  .settings-section-head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+  .settings-card {
+    border: 1px solid var(--mova-settings-line);
+    border-radius: var(--mova-settings-radius-card);
+    background: var(--mova-settings-surface);
+    overflow: hidden;
+  }
+
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--mova-settings-row-gap);
+    padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline);
+  }
+  .settings-row + .settings-row { border-top: 1px solid var(--mova-settings-line); }
+
+  .settings-row-text { flex: 1 1 auto; min-width: 0; max-width: var(--mova-settings-text-max); }
+  .settings-row-text strong {
+    display: block; font-size: 13px; font-weight: 500; line-height: 1.4;
+    color: var(--mova-settings-text-title);
+  }
+  .settings-row-text p {
+    margin-top: 3px;
+    font-size: 12.5px; font-weight: 400; line-height: 1.55;
+    color: var(--mova-settings-text-description);
+    text-wrap: pretty; overflow-wrap: anywhere;
+  }
+
+  .settings-note-right {
+    flex: none; max-width: min(260px, 42%);
+    font-size: 12px; line-height: 1.6; color: var(--mova-settings-text-note);
+    text-align: right;
+  }
+  .settings-inline-control { flex: none; display: inline-flex; align-items: center; gap: 10px; }
+  .settings-control-slot { flex: none; display: inline-flex; align-items: center; gap: 8px; }
+
+  /* ── 控件（6.6 / 6.7） ───────────────────────────────────────────── */
+  .settings-switch {
+    position: relative; flex: none;
+    width: 40px; height: 24px;
+    border: 0; border-radius: var(--mova-settings-radius-pill);
+    background: var(--mova-settings-switch-track);
+    cursor: pointer;
+    transition: background var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .settings-switch > span {
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--mova-settings-switch-knob);
+    transition: transform var(--mova-settings-duration) var(--mova-settings-ease),
+                background var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .settings-switch[aria-checked="true"] { background: var(--mova-settings-accent-control); }
+  .settings-switch[aria-checked="true"] > span { transform: translateX(16px); background: var(--mova-settings-switch-knob-on); }
+  .settings-switch:disabled { opacity: .45; cursor: not-allowed; }
+
+  .settings-button, .settings-select {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 10px;
+    border: 1px solid var(--mova-settings-line-control);
+    border-radius: var(--mova-settings-radius-control);
+    background: var(--mova-settings-surface);
+    color: var(--mova-settings-text-body);
+    font-size: 12.5px; font-family: inherit; line-height: 1.2;
+    white-space: nowrap; cursor: pointer;
+    transition: background var(--mova-settings-duration) var(--mova-settings-ease),
+                border-color var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .settings-button:hover, .settings-select:hover { background: var(--mova-settings-hover-control); }
+  .settings-button.primary {
+    background: var(--mova-settings-accent-strong); border-color: var(--mova-settings-accent-strong);
+    color: var(--mova-settings-text-inverse);
+  }
+  .settings-button.primary:hover { background: var(--mova-settings-accent-hover); border-color: var(--mova-settings-accent-hover); }
+  .settings-button.danger { color: var(--mova-settings-danger); }
+  .settings-button.danger:hover { background: var(--mova-settings-danger-surface); border-color: var(--mova-settings-error-line); }
+  .settings-button.is-row { height: 28px; padding: 0 10px; justify-content: center; }
+  .settings-select .icon { font-size: 12px; color: var(--mova-settings-text-description); }
+
+  .icon-button {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    border: 0; border-radius: var(--mova-settings-radius-control);
+    background: transparent; color: var(--mova-settings-text-description);
+    font-size: 15px; cursor: pointer;
+    transition: background var(--mova-settings-duration) var(--mova-settings-ease), color var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .icon-button:hover { background: #2d2d2d; color: var(--mova-settings-text-title); }
+
+  .settings-add {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 11px 16px;
+    border: 0; background: transparent;
+    color: #d3d3d3; font-size: 13px; font-family: inherit; text-align: left;
+    cursor: pointer;
+    transition: background var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  .settings-add:hover { background: var(--mova-settings-hover-block); }
+  .settings-add .icon { font-size: 14px; color: var(--mova-settings-text-note); }
+  .settings-add[aria-expanded="true"] { border-bottom: 1px solid var(--mova-settings-line); background: var(--mova-settings-surface-editing); }
+  .account + .settings-add { border-top: 1px solid var(--mova-settings-line); }
+
+  /* ── 账号块 ─────────────────────────────────────────────────────── */
+  .account + .account { border-top: 1px solid var(--mova-settings-line); }
+  .account.is-current { background: linear-gradient(180deg, rgba(55,149,245,.05), transparent 60%); }
+
+  .account-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline) 6px;
+  }
+  .account-main { flex: 1 1 auto; min-width: 0; max-width: var(--mova-settings-text-max); }
+  .account-title {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 500; color: var(--mova-settings-text-title);
+    line-height: 1.4;
+  }
+  .account-title .email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .account-meta {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 4px;
+    font-size: 11.5px; color: var(--mova-settings-text-meta);
+  }
+  .account-meta .sep { width: 1px; height: 9px; background: var(--mova-settings-line-control); }
+  .account-actions { flex: none; display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+
+  .provider-dot {
+    width: 8px; height: 8px; flex: none; border-radius: 50%;
+    background: var(--mova-settings-dot-off);
+  }
+  .provider-dot.is-on { background: var(--mova-settings-accent); box-shadow: 0 0 0 3px var(--mova-settings-accent-glow); }
+  .provider-dot.is-warn { background: var(--mova-settings-warning-line); }
+  .provider-dot.is-pending { background: var(--mova-settings-warning-line); animation: dot-pulse 1.6s var(--mova-settings-ease) infinite; }
+  @keyframes dot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+  .model-badge {
+    padding: 1px 7px; border-radius: var(--mova-settings-radius-pill);
+    background: var(--mova-settings-badge-surface); color: var(--mova-settings-text-accent);
+    font-size: 10.5px; font-weight: 500; line-height: 1.5; white-space: nowrap;
+  }
+  .memory-pill {
+    padding: 1px 8px; border-radius: var(--mova-settings-radius-pill);
+    font-size: 11px; font-weight: 500; line-height: 1.5;
+    max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .memory-pill.ok { background: var(--mova-settings-accent-surface); border: 1px solid var(--mova-settings-accent-line); color: var(--mova-settings-text-accent); }
+  .memory-pill.warn { background: var(--mova-settings-warning-surface); border: 1px solid var(--mova-settings-warning-line); color: var(--mova-settings-warning-text); }
+  .memory-pill.error { background: var(--mova-settings-danger-surface); border: 1px solid var(--mova-settings-error-line); color: var(--mova-settings-error-text); }
+  .memory-pill.muted { border: 1px solid var(--mova-settings-line-control); color: var(--mova-settings-text-meta); }
+  .memory-pill.unknown { border: 1px dashed var(--mova-settings-line-dashed); color: var(--mova-settings-text-dim); }
+
+  /* ── 配额（6.16） ────────────────────────────────────────────────── */
+  .quota { padding: 0 18px 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .quota-window { display: flex; flex-direction: column; gap: 6px; }
+  .quota-line {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: 12px; color: var(--mova-settings-text-description);
+  }
+  .quota-line .q-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .quota-line .q-value { flex: none; color: var(--mova-settings-text-item); font-variant-numeric: tabular-nums; }
+  .quota-line .q-reset { flex: none; color: var(--mova-settings-text-meta); font-variant-numeric: tabular-nums; }
+  .quota-track {
+    height: 6px; border-radius: var(--mova-settings-radius-pill);
+    background: var(--mova-settings-meter-track); overflow: hidden;
+  }
+  .quota-track > span {
+    display: block; height: 100%; min-width: 2%;
+    border-radius: var(--mova-settings-radius-pill);
+    background: var(--mova-settings-accent);
+    transition: width 420ms var(--mova-settings-ease);
+  }
+  .quota-track.is-warn > span { background: var(--mova-settings-warning-line); }
+  .quota-track.is-danger > span { background: var(--mova-settings-danger); }
+  .quota-track.is-empty > span { background: var(--mova-settings-dot-off); }
+
+  /* ── 展开式登录面板（6.8） ───────────────────────────────────────── */
+  .model-form {
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 14px 16px 16px;
+    background: var(--mova-settings-surface-editing);
+    border-bottom: 1px solid var(--mova-settings-line);
+    animation: form-in var(--mova-settings-duration) var(--mova-settings-ease);
+  }
+  @keyframes form-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .model-form[hidden] { display: none; }
+  .model-form-status { flex: 1; min-width: 0; font-size: 12px; color: var(--mova-settings-text-meta); line-height: 1.55; }
+  .model-form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 2px; }
+
+  .login-state { display: flex; gap: 10px; align-items: flex-start; }
+  .login-state .provider-dot { margin-top: 6px; }
+  .login-state strong { display: block; font-size: 12.5px; font-weight: 500; color: var(--mova-settings-text-body); }
+  .login-state p { margin-top: 3px; font-size: 12px; line-height: 1.55; color: var(--mova-settings-text-description); max-width: 560px; }
+
+  /* ── 提示横幅（6.11） ────────────────────────────────────────────── */
+  .settings-banner {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 14px 16px; border-radius: 10px;
+    background: var(--mova-settings-warning-surface);
+    border: 1px solid var(--mova-settings-warning-line);
+    color: var(--mova-settings-warning-text);
+    font-size: 12px; line-height: 1.6;
+  }
+  .settings-banner .icon { font-size: 15px; margin-top: 1px; }
+  .settings-banner strong { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+  .settings-banner p { color: inherit; opacity: .92; }
+
+  /* ── 路径 / 百分比（6.9） ────────────────────────────────────────── */
+  .settings-path {
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 11.5px; color: var(--mova-settings-text-description);
+    font-family: ui-monospace, Consolas, monospace;
+  }
+  .settings-percent { font-size: 12.5px; color: var(--mova-settings-text-item); font-variant-numeric: tabular-nums; flex: none; }
+
+  /* ── 下拉菜单 ───────────────────────────────────────────────────── */
+  .menu-host { position: relative; }
+  /* 固定定位：卡片是 overflow:hidden，任何 absolute 菜单都会被裁掉 */
+  .settings-menu {
+    position: fixed; z-index: 30;
+    min-width: 168px; max-width: 260px; padding: 6px;
+    border: 1px solid var(--mova-settings-line-dashed);
+    border-radius: var(--mova-settings-radius-control);
+    background: var(--mova-settings-surface-raised);
+    box-shadow: var(--mova-settings-shadow-menu);
+    display: none;
+  }
+  .settings-menu.is-open { display: block; }
+  .settings-menu button {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 7px 9px;
+    border: 0; border-radius: 6px; background: transparent;
+    color: var(--mova-settings-text-body); font-size: 12.5px; font-family: inherit;
+    text-align: left; cursor: pointer;
+  }
+  .settings-menu button:hover { background: var(--mova-settings-hover-control); }
+  .settings-menu button .icon { font-size: 13px; color: var(--mova-settings-text-note); }
+  .settings-menu button .menu-check { margin-left: auto; color: var(--mova-settings-accent); font-size: 12px; }
+  .settings-menu button.is-danger { color: var(--mova-settings-danger); }
+  .settings-menu button.is-danger:hover { background: var(--mova-settings-danger-surface); }
+
+  /* ── 状态预览（演示用） ──────────────────────────────────────────── */
+  .demo-block {
+    border: 1px dashed var(--mova-settings-line-dashed);
+    border-radius: var(--mova-settings-radius-card);
+    padding: 4px 0 8px;
+  }
+  .demo-block .demo-title {
+    padding: 10px 16px 2px;
+    font-size: 11.5px; color: var(--mova-settings-text-dim);
+    letter-spacing: .2px;
+  }
+  .demo-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+  }
+  .demo-row + .demo-row { border-top: 1px dashed var(--mova-settings-line); }
+  .demo-row .demo-label { flex: none; width: 76px; font-size: 11px; color: var(--mova-settings-text-dim); }
+  .demo-actions { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 8px; }
+
+  /* ── 对话框（6.13） ─────────────────────────────────────────────── */
+  dialog.settings-dialog {
+    width: 420px; max-width: calc(100vw - 48px);
+    padding: 0;
+    border: 1px solid var(--mova-settings-line-frame);
+    border-radius: var(--mova-settings-radius-dialog);
+    background: var(--mova-settings-surface-raised);
+    color: var(--mova-settings-text-body);
+    box-shadow: var(--mova-settings-shadow-dialog);
+  }
+  dialog.settings-dialog::backdrop { background: var(--mova-settings-overlay); }
+  .dialog-body { padding: 20px 20px 4px; }
+  .dialog-body h3 { font-size: 15px; font-weight: 600; color: var(--mova-settings-text-strong); line-height: 1.4; }
+  .dialog-body p { margin-top: 8px; font-size: 12.5px; line-height: 1.6; color: var(--mova-settings-text-description); }
+  .dialog-subject {
+    margin-top: 12px; padding: 10px 12px;
+    border: 1px solid var(--mova-settings-line); border-radius: 8px;
+    background: var(--mova-settings-surface-sunken);
+    font-size: 12px; color: var(--mova-settings-text-item);
+  }
+  .dialog-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 20px 18px; }
+
+  /* ── toast（6.20） ──────────────────────────────────────────────── */
+  .toast-stack {
+    position: fixed; right: 20px; bottom: 20px; z-index: 60;
+    display: flex; flex-direction: column; gap: 8px;
+    max-width: min(360px, calc(100vw - 40px));
+  }
+  .toast {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--mova-settings-line-frame);
+    border-radius: 8px;
+    background: var(--mova-settings-surface-nested);
+    box-shadow: 0 12px 28px #0008;
+    font-size: 12.5px; line-height: 1.55; color: var(--mova-settings-text-body);
+    animation: toast-in 180ms var(--mova-settings-ease);
+  }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .toast.ok { background: var(--mova-settings-accent-surface); border-color: var(--mova-settings-accent-line); color: var(--mova-settings-text-accent); }
+  .toast.error { background: var(--mova-settings-danger-surface); border-color: var(--mova-settings-error-line); color: var(--mova-settings-error-text); }
+  .toast button {
+    margin-left: auto; border: 0; background: transparent; color: inherit;
+    font-size: 13px; line-height: 1; cursor: pointer; opacity: .7;
+  }
+  .toast button:hover { opacity: 1; }
+
+  :focus-visible { outline: 2px solid var(--mova-settings-focus); outline-offset: 2px; }
+  .settings-select:focus-visible, .settings-button:focus-visible { outline-offset: 2px; }
+
+  /* ── 审查模式：整页展开，便于一次性截图走查（?review=1） ────────── */
+  body.is-review { display: block; background: var(--mova-settings-canvas); }
+  body.is-review .window-shell { width: 100%; height: auto; min-height: 100vh; border-radius: 0; border: 0; }
+  body.is-review .settings-view { height: auto; }
+  body.is-review .settings-panel { overflow: visible; }
+  body.is-review .app-body { align-items: stretch; min-height: calc(100vh - var(--titlebar-height)); }
+</style>
+</head>
+<body>
+<svg class="svg-defs" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.4-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0"></path><path d="M12 18v-4l4-3"></path></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z"></path><path d="M12 12 20 7.5M12 12v9M12 12 4 7.5"></path></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="m7 9 3 3-3 3M13 15h4"></path></symbol>
+  <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v6M15 3v6M6 9h12v3a6 6 0 0 1-12 0V9ZM12 18v3"></path></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"></path></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"></rect><rect x="3" y="13" width="18" height="7" rx="2"></rect><path d="M7 7.5h.01M7 16.5h.01"></path></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5.5 5.5L20 6"></path></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M15 8l4 4-4 4M19 12H9"></path></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.4"></circle><circle cx="12" cy="12" r="1.4"></circle><circle cx="18" cy="12" r="1.4"></circle></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.6 6M20 5v6h-6"></path></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"></path></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4 3 20h18L12 4Z"></path><path d="M12 10v4M12 17.5h.01"></path></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"></path></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="1.6"></circle><path d="m5 18 5-5 4 4 3-2 2 3"></path></symbol>
+</svg>
+
+<div class="window-shell">
+  <div class="titlebar">
+    <span class="traffic"><i></i><i></i><i></i></span>
+    <span class="doc-title">Mova</span>
+  </div>
+
+  <div class="app-body">
+    <div class="activity-rail">
+      <button class="rail-btn" aria-label="对话"><svg class="icon"><use href="#i-spark"></use></svg></button>
+      <button class="rail-btn" aria-label="项目"><svg class="icon"><use href="#i-cube"></use></svg></button>
+      <button class="rail-btn" aria-label="浏览器"><svg class="icon"><use href="#i-external"></use></svg></button>
+      <button class="rail-btn is-active" aria-label="设置"><svg class="icon"><use href="#i-settings"></use></svg></button>
+    </div>
+
+    <div class="settings-view">
+      <nav class="settings-nav" id="settings-nav" aria-label="设置导航">
+        <div class="settings-nav-head">
+          <span class="nav-title">设置</span>
+          <button class="nav-search" id="nav-search-toggle" aria-label="搜索设置" aria-expanded="false">
+            <svg class="icon"><use href="#i-search"></use></svg>
+          </button>
+        </div>
+        <div class="nav-search-field" id="nav-search-field">
+          <input type="search" placeholder="搜索设置" aria-label="搜索设置">
+        </div>
+
+        <div class="nav-group-label">个人</div>
+        <button class="nav-item"><svg class="icon"><use href="#i-settings"></use></svg>配置</button>
+        <button class="nav-item"><svg class="icon"><use href="#i-gauge"></use></svg>使用情况和计费</button>
+        <button class="nav-item"><svg class="icon"><use href="#i-cube"></use></svg>模型</button>
+        <button class="nav-item is-active" aria-current="page"><svg class="icon"><use href="#i-terminal"></use></svg>CLI 模型<span class="nav-new">新</span></button>
+        <button class="nav-item"><svg class="icon"><use href="#i-database"></use></svg>记忆与存储</button>
+        <button class="nav-item"><svg class="icon"><use href="#i-plug"></use></svg>MCP 工具</button>
+        <button class="nav-item"><svg class="icon"><use href="#i-archive"></use></svg>已归档的聊天</button>
+
+        <div class="nav-group-label">工作区</div>
+        <button class="nav-item"><svg class="icon"><use href="#i-server"></use></svg>服务与索引</button>
+      </nav>
+
+      <div class="settings-divider" role="separator" aria-orientation="vertical" aria-controls="settings-nav" tabindex="0" aria-valuenow="248" aria-valuemin="176" aria-valuemax="520" aria-valuetext="248 像素"></div>
+
+      <div class="settings-panel">
+        <div class="settings-panel-head">
+          <h2>CLI 模型</h2>
+        </div>
+
+        <div class="settings-page">
+
+          <!-- ① ChatGPT 订阅 ─────────────────────────────────────── -->
+          <section class="settings-section">
+            <div class="settings-section-head">
+              <h3 class="settings-section-title">ChatGPT 订阅</h3>
+              <p class="settings-section-note">使用你自己 ChatGPT 账号的套餐额度，不走 API Key。多个账号按剩余额度轮换；额度用尽会自动切到下一个。</p>
+            </div>
+
+            <div class="settings-card" id="chatgpt-card">
+              <!-- 账号 1（当前） -->
+              <div class="account is-current" data-account="alice">
+                <div class="account-row">
+                  <span class="provider-dot is-on"></span>
+                  <div class="account-main">
+                    <div class="account-title">
+                      <span class="email">alice@example.com</span>
+                      <span class="model-badge">Plus</span>
+                      <span class="memory-pill ok">当前使用</span>
+                    </div>
+                    <div class="account-meta">
+                      <span>上次调用 12:40</span>
+                      <span class="sep"></span>
+                      <span>凭据已加密存储</span>
+                    </div>
+                  </div>
+                  <div class="account-actions">
+                    <div class="menu-host">
+                      <button class="icon-button" data-menu="alice-menu" aria-label="alice@example.com 的更多操作" aria-haspopup="true" aria-expanded="false">
+                        <svg class="icon"><use href="#i-more"></use></svg>
+                      </button>
+                      <div class="settings-menu" id="alice-menu">
+                        <button data-action="refresh"><svg class="icon"><use href="#i-refresh"></use></svg>刷新额度</button>
+                        <button data-action="logout" class="is-danger"><svg class="icon"><use href="#i-logout"></use></svg>退出登录</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="quota">
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">5 小时窗口</span>
+                      <span class="q-value">已用 62%</span>
+                      <span class="q-reset">2 小时 10 分后重置</span>
+                    </div>
+                    <div class="quota-track"><span style="width:62%"></span></div>
+                  </div>
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">每周窗口</span>
+                      <span class="q-value">已用 34%</span>
+                      <span class="q-reset">周日 09:00 重置</span>
+                    </div>
+                    <div class="quota-track"><span style="width:34%"></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 账号 2（额度用尽） -->
+              <div class="account" data-account="bob">
+                <div class="account-row">
+                  <span class="provider-dot is-warn"></span>
+                  <div class="account-main">
+                    <div class="account-title">
+                      <span class="email">bob@example.com</span>
+                      <span class="model-badge">Pro</span>
+                      <span class="memory-pill warn">额度用尽</span>
+                    </div>
+                    <div class="account-meta">
+                      <span>3 小时 12 分后恢复</span>
+                      <span class="sep"></span>
+                      <span>已自动暂停调用</span>
+                    </div>
+                  </div>
+                  <div class="account-actions">
+                    <div class="menu-host">
+                      <button class="icon-button" data-menu="bob-menu" aria-label="bob@example.com 的更多操作" aria-haspopup="true" aria-expanded="false">
+                        <svg class="icon"><use href="#i-more"></use></svg>
+                      </button>
+                      <div class="settings-menu" id="bob-menu">
+                        <button data-action="retry"><svg class="icon"><use href="#i-refresh"></use></svg>立即重试</button>
+                        <button data-action="logout" class="is-danger"><svg class="icon"><use href="#i-logout"></use></svg>退出登录</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="quota">
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">5 小时窗口</span>
+                      <span class="q-value">已用 100%</span>
+                      <span class="q-reset">3 小时 12 分后重置</span>
+                    </div>
+                    <div class="quota-track is-danger"><span style="width:100%"></span></div>
+                  </div>
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">每周窗口</span>
+                      <span class="q-value">已用 78%</span>
+                      <span class="q-reset">周日 09:00 重置</span>
+                    </div>
+                    <div class="quota-track is-warn"><span style="width:78%"></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 添加账号 -->
+              <button class="settings-add" id="add-chatgpt" aria-expanded="false" aria-controls="login-chatgpt">
+                <svg class="icon"><use href="#i-plus"></use></svg>添加 ChatGPT 账号
+              </button>
+              <div class="model-form" id="login-chatgpt" hidden>
+                <div class="login-state">
+                  <span class="provider-dot is-pending"></span>
+                  <div>
+                    <strong id="login-chatgpt-title">等待浏览器授权</strong>
+                    <p id="login-chatgpt-detail">已在系统浏览器打开 OpenAI 授权页。完成授权后回到 Mova，不需要复制任何内容。授权链接 5 分钟内有效。</p>
+                  </div>
+                </div>
+                <div class="model-form-actions">
+                  <span class="model-form-status" id="login-chatgpt-status">正在等待授权…</span>
+                  <button class="settings-button primary" id="login-chatgpt-open">重新打开授权页</button>
+                  <button class="settings-button" id="login-chatgpt-cancel">取消登录</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ② Gemini 订阅 ──────────────────────────────────────── -->
+          <section class="settings-section">
+            <div class="settings-section-head">
+              <h3 class="settings-section-title">Gemini 订阅</h3>
+              <p class="settings-section-note">由本机 antigravity CLI 执行，Mova 负责渲染与审批。额度按 5 小时窗口与每周窗口计算，Claude / GPT 共享池单独显示。</p>
+            </div>
+
+            <div class="settings-card">
+              <div class="account is-current" data-account="gemini-1">
+                <div class="account-row">
+                  <span class="provider-dot is-on"></span>
+                  <div class="account-main">
+                    <div class="account-title">
+                      <span class="email">alice@gmail.com</span>
+                      <span class="model-badge">AI Pro</span>
+                      <span class="memory-pill ok">当前使用</span>
+                    </div>
+                    <div class="account-meta">
+                      <span>workspace: default</span>
+                      <span class="sep"></span>
+                      <span>CLI 已就绪 · v2.24.0</span>
+                    </div>
+                  </div>
+                  <div class="account-actions">
+                    <div class="menu-host">
+                      <button class="icon-button" data-menu="gemini-menu" aria-label="alice@gmail.com 的更多操作" aria-haspopup="true" aria-expanded="false">
+                        <svg class="icon"><use href="#i-more"></use></svg>
+                      </button>
+                      <div class="settings-menu" id="gemini-menu">
+                        <button data-action="refresh"><svg class="icon"><use href="#i-refresh"></use></svg>刷新额度</button>
+                        <button data-action="logout" class="is-danger"><svg class="icon"><use href="#i-logout"></use></svg>退出登录</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="quota">
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">Gemini 5 小时窗口</span>
+                      <span class="q-value">已用 41%</span>
+                      <span class="q-reset">1 小时 46 分后重置</span>
+                    </div>
+                    <div class="quota-track"><span style="width:41%"></span></div>
+                  </div>
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">Gemini 每周窗口</span>
+                      <span class="q-value">已用 66%</span>
+                      <span class="q-reset">周一 08:00 重置</span>
+                    </div>
+                    <div class="quota-track"><span style="width:66%"></span></div>
+                  </div>
+                  <div class="quota-window">
+                    <div class="quota-line">
+                      <span class="q-label">Claude &amp; GPT 共享池</span>
+                      <span class="q-value">已用 12%</span>
+                      <span class="q-reset">周一 08:00 重置</span>
+                    </div>
+                    <div class="quota-track"><span style="width:12%"></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <button class="settings-add" id="add-gemini">
+                <svg class="icon"><use href="#i-plus"></use></svg>添加 Google 账号
+              </button>
+            </div>
+          </section>
+
+          <!-- ③ 额度调度 ────────────────────────────────────────── -->
+          <section class="settings-section">
+            <div class="settings-section-head">
+              <h3 class="settings-section-title">额度调度</h3>
+              <p class="settings-section-note">所有切换都发生在发请求之前：额度不足的账号不会被选中，也不会把请求发出去再失败。</p>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>额度用尽时自动切换账号</strong>
+                  <p>命中额度上限时自动改用下一个有额度的账号，并在时间线里标注「已切换」。</p>
+                </div>
+                <button class="settings-switch" role="switch" aria-checked="true" aria-label="额度用尽时自动切换账号"><span></span></button>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>优先账号</strong>
+                  <p>轮换始终从这里开始；被标记额度用尽的账号会临时跳过。</p>
+                </div>
+                <div class="menu-host">
+                  <button class="settings-select" data-menu="priority-menu" aria-haspopup="true" aria-expanded="false">
+                    alice@example.com <svg class="icon"><use href="#i-caret"></use></svg>
+                  </button>
+                  <div class="settings-menu" id="priority-menu">
+                    <button data-pick="alice@example.com">alice@example.com<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                    <button data-pick="bob@example.com">bob@example.com</button>
+                    <button data-pick="alice@gmail.com">alice@gmail.com</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>剩余额度低于 10% 时提醒</strong>
+                  <p>在下一次发消息前提示一次，不打断正在进行的任务。</p>
+                </div>
+                <button class="settings-switch" role="switch" aria-checked="false" aria-label="剩余额度低于 10% 时提醒"><span></span></button>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>额度刷新间隔</strong>
+                  <p>空闲时按此间隔读取额度；发送前一定重新校验一次。</p>
+                </div>
+                <button class="settings-select" data-menu="interval-menu" aria-haspopup="true" aria-expanded="false">
+                  5 分钟 <svg class="icon"><use href="#i-caret"></use></svg>
+                </button>
+                <div class="settings-menu" id="interval-menu">
+                  <button data-pick="1 分钟">1 分钟</button>
+                  <button data-pick="5 分钟">5 分钟<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                  <button data-pick="15 分钟">15 分钟</button>
+                  <button data-pick="仅发送前">仅发送前</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ④ 会话模型 ────────────────────────────────────────── -->
+          <section class="settings-section">
+            <div class="settings-section-head">
+              <h3 class="settings-section-title">会话模型</h3>
+              <p class="settings-section-note">模型清单来自账号目录，未授权或已下线的模型不会出现在这里。</p>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>ChatGPT 模型</strong>
+                  <p>gpt-5.6-luna · 272K 上下文 · 支持图片与推理强度。</p>
+                </div>
+                <button class="settings-select" data-menu="model-gpt-menu" aria-haspopup="true" aria-expanded="false">
+                  GPT-5.6 Luna <svg class="icon"><use href="#i-caret"></use></svg>
+                </button>
+                <div class="settings-menu" id="model-gpt-menu">
+                  <button data-pick="GPT-5.6 Luna">GPT-5.6 Luna<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                  <button data-pick="GPT-5.6 Sol">GPT-5.6 Sol</button>
+                  <button data-pick="GPT-5.1 mini">GPT-5.1 mini</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>Gemini 模型</strong>
+                  <p>gemini-3.1-pro · 1M 上下文 · 由 antigravity CLI 执行，工具调用走本机审批。</p>
+                </div>
+                <button class="settings-select" data-menu="model-gemini-menu" aria-haspopup="true" aria-expanded="false">
+                  Gemini 3.1 Pro <svg class="icon"><use href="#i-caret"></use></svg>
+                </button>
+                <div class="settings-menu" id="model-gemini-menu">
+                  <button data-pick="Gemini 3.1 Pro">Gemini 3.1 Pro<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                  <button data-pick="Gemini 3.8 Flash">Gemini 3.8 Flash</button>
+                  <button data-pick="Gemini 3.1 Flash Lite">Gemini 3.1 Flash Lite</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>思考强度</strong>
+                  <p>两侧都支持；实际取值会不会被接受，由所选模型决定。</p>
+                </div>
+                <button class="settings-select" data-menu="effort-menu" aria-haspopup="true" aria-expanded="false">
+                  中 <svg class="icon"><use href="#i-caret"></use></svg>
+                </button>
+                <div class="settings-menu" id="effort-menu">
+                  <button data-pick="低">低</button>
+                  <button data-pick="中">中<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                  <button data-pick="高">高</button>
+                  <button data-pick="极高">极高</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>图片输入</strong>
+                  <p>当前账号目录报告支持图片；关闭后附件只保留文件名。</p>
+                </div>
+                <button class="settings-switch" role="switch" aria-checked="true" aria-label="图片输入"><span></span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ⑤ 运行方式 ────────────────────────────────────────── -->
+          <section class="settings-section">
+            <div class="settings-section-head">
+              <h3 class="settings-section-title">运行方式</h3>
+              <p class="settings-section-note">ChatGPT 由 Mova 直接发请求；Gemini 交给本机 CLI，Mova 只保留渲染与审批。</p>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>ChatGPT 通道</strong>
+                  <p>Responses 接口，令牌由本机加密保存，过期前自动续期。</p>
+                </div>
+                <button class="settings-select" data-menu="channel-menu" aria-haspopup="true" aria-expanded="false">
+                  api.openai.com <svg class="icon"><use href="#i-caret"></use></svg>
+                </button>
+                <div class="settings-menu" id="channel-menu">
+                  <button data-pick="api.openai.com">api.openai.com<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                  <button data-pick="chatgpt.com/backend-api">chatgpt.com/backend-api</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>Gemini 执行器</strong>
+                  <p>后台 CLI（ACP）：思考、计划、工具与审批请求都会回到 Mova 的时间线与审批条。</p>
+                </div>
+                <button class="settings-select" data-menu="runner-menu" aria-haspopup="true" aria-expanded="false">
+                  后台 CLI（ACP） <svg class="icon"><use href="#i-caret"></use></svg>
+                </button>
+                <div class="settings-menu" id="runner-menu">
+                  <button data-pick="后台 CLI（ACP）">后台 CLI（ACP）<svg class="icon menu-check"><use href="#i-check"></use></svg></button>
+                  <button data-pick="关闭 Gemini">关闭 Gemini</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>CLI 路径</strong>
+                  <p>找不到时会在 PATH 中搜索 agy；修改后立即用于下一次会话。</p>
+                </div>
+                <div class="settings-inline-control">
+                  <span class="settings-path">C:\Users\…\AppData\Local\antigravity\agy.exe</span>
+                  <button class="settings-button">更改</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>凭据存储</strong>
+                  <p>refresh token 由系统钥匙串加密；应用内不写入明文，日志与错误信息不含令牌。</p>
+                </div>
+                <span class="settings-note-right">系统钥匙串（DPAPI）</span>
+              </div>
+            </div>
+
+            <div class="settings-banner">
+              <svg class="icon"><use href="#i-warn"></use></svg>
+              <div>
+                <strong>订阅额度仅限本人在本设备使用</strong>
+                <p>这些额度来自你个人账号的套餐，不是 API 计费额度。不要共享账号或把额度转给其他人使用。</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ⑥ 状态预览（演示用，落地时删除） ────────────────── -->
+          <section class="settings-section">
+            <h3 class="settings-section-title">状态预览（演示用，落地时删除）</h3>
+            <div class="demo-block">
+              <div class="demo-title">账号行在不同状态下的样子</div>
+
+              <div class="demo-row">
+                <span class="demo-label">等待授权</span>
+                <span class="provider-dot is-pending"></span>
+                <span class="account-title"><span class="email">carol@example.com</span></span>
+                <span class="memory-pill warn">等待浏览器授权</span>
+                <div class="demo-actions">
+                  <button class="settings-button is-row">重新打开授权页</button>
+                  <button class="settings-button is-row">取消登录</button>
+                </div>
+              </div>
+
+              <div class="demo-row">
+                <span class="demo-label">授权失败</span>
+                <span class="provider-dot is-warn"></span>
+                <span class="account-title"><span class="email">dave@example.com</span></span>
+                <span class="memory-pill error">授权被拒绝</span>
+                <div class="demo-actions">
+                  <button class="settings-button is-row">重试登录</button>
+                </div>
+              </div>
+
+              <div class="demo-row">
+                <span class="demo-label">凭据过期</span>
+                <span class="provider-dot is-warn"></span>
+                <span class="account-title"><span class="email">erin@example.com</span></span>
+                <span class="memory-pill error">需要重新登录</span>
+                <div class="demo-actions">
+                  <button class="settings-button is-row">重新登录</button>
+                </div>
+              </div>
+
+              <div class="demo-row">
+                <span class="demo-label">未连接</span>
+                <span class="provider-dot"></span>
+                <span class="account-title"><span class="email">还没有添加账号</span></span>
+                <span class="memory-pill unknown">未检测</span>
+                <div class="demo-actions">
+                  <button class="settings-button is-row">添加账号</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 退出登录确认（6.13 危险确认-单条） -->
+<dialog class="settings-dialog" id="logout-dialog">
+  <div class="dialog-body">
+    <h3>退出这个账号？</h3>
+    <p>退出后该账号的额度不再参与轮换，已保存的令牌会被撤销。你可以随时重新登录，额度不受影响。</p>
+    <div class="dialog-subject" id="logout-subject">alice@example.com</div>
+  </div>
+  <div class="dialog-foot">
+    <button class="settings-button" id="logout-cancel">取消</button>
+    <button class="settings-button danger" id="logout-confirm">退出登录</button>
+  </div>
+</dialog>
+
+<div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+  /* 原型用：?review=1 / #review=1 整页展开（便于截图走查）；?open=<menuId> 自动展开某个下拉 */
+  const params = new URLSearchParams(
+    location.hash.replace(/^#/, '') || location.search.replace(/^\?/, ''),
+  );
+  if (params.has('review')) document.body.classList.add('is-review');
+
+  /* ── toast ───────────────────────────────────────────────────── */
+  const stack = $('#toast-stack');
+  function toast(message, tone = 'default') {
+    const el = document.createElement('div');
+    el.className = `toast ${tone}`;
+    el.innerHTML = `<span>${message}</span><button aria-label="关闭提示">✕</button>`;
+    el.querySelector('button').addEventListener('click', () => el.remove());
+    stack.append(el);
+    if (stack.children.length > 3) stack.firstElementChild.remove();
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  /* ── 开关 ────────────────────────────────────────────────────── */
+  $$('.settings-switch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.getAttribute('aria-checked') !== 'true';
+      btn.setAttribute('aria-checked', String(next));
+    });
+  });
+
+  /* ── 下拉菜单 ────────────────────────────────────────────────── */
+  let openMenu = null;
+  function closeMenu() {
+    if (!openMenu) return;
+    openMenu.menu.classList.remove('is-open');
+    openMenu.trigger.setAttribute('aria-expanded', 'false');
+    openMenu = null;
+  }
+  function placeMenu(menu, trigger) {
+    menu.style.visibility = 'hidden';
+    menu.classList.add('is-open');
+    const rect = trigger.getBoundingClientRect();
+    const width = menu.offsetWidth;
+    const height = menu.offsetHeight;
+    const left = Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12));
+    const below = rect.bottom + 6;
+    const top = below + height > window.innerHeight - 12
+      ? Math.max(12, rect.top - height - 6)
+      : below;
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+    menu.style.visibility = 'visible';
+  }
+  function openFor(trigger, menu) {
+    closeMenu();
+    trigger.setAttribute('aria-expanded', 'true');
+    openMenu = { menu, trigger };
+    placeMenu(menu, trigger);
+  }
+  function bindMenu(trigger) {
+    const id = trigger.dataset.menu;
+    const menu = id ? document.getElementById(id) : null;
+    if (!menu) return;
+    trigger.__menu = menu;
+    trigger.addEventListener('click', event => {
+      event.stopPropagation();
+      const isOpen = menu.classList.contains('is-open');
+      closeMenu();
+      if (isOpen) return;
+      openFor(trigger, menu);
+    });
+  }
+  $$('[data-menu]').forEach(bindMenu);
+  document.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+  // 加载期的布局抖动会派发 scroll；那不属于"用户滚动"，不能把刚打开的下拉关掉。
+  const readyAt = Date.now() + 1200;
+  window.addEventListener('scroll', () => { if (Date.now() > readyAt) closeMenu(); }, true);
+  window.addEventListener('resize', closeMenu);
+
+  /* 截图走查用：?open=<menuId> 直接展开某个下拉 */
+  const autoOpen = params.get('open');
+  if (autoOpen) {
+    const trigger = document.querySelector(`[data-menu="${autoOpen}"]`);
+    const menu = trigger?.__menu ?? document.getElementById(autoOpen);
+    if (trigger && menu) openFor(trigger, menu);
+  }
+
+  /* 下拉项：选中态 + 触发文案更新 */
+  $$('.settings-menu').forEach(menu => {
+    menu.addEventListener('click', event => {
+      const item = event.target.closest('button[data-pick]');
+      if (!item) return;
+      const trigger = menu.parentElement.querySelector('[data-menu]');
+      const label = item.dataset.pick;
+      // 保留触发器里的箭头图标
+      const caret = trigger.querySelector('.icon');
+      trigger.textContent = `${label} `;
+      if (caret) trigger.append(caret);
+      $$('button[data-pick]', menu).forEach(row => {
+        row.querySelector('.menu-check')?.remove();
+        row.classList.remove('is-selected');
+      });
+      const check = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      check.setAttribute('class', 'icon menu-check');
+      check.innerHTML = '<use href="#i-check"></use>';
+      item.append(check);
+      closeMenu();
+      toast(`已改为：${label}`, 'ok');
+    });
+  });
+
+  /* ── 账号操作 ────────────────────────────────────────────────── */
+  function accountRowOf(el) {
+    return el.closest('.account');
+  }
+
+  $$('[data-action]').forEach(button => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.action;
+      const account = accountRowOf(button);
+      const email = account?.querySelector('.email')?.textContent?.trim() ?? '这个账号';
+      closeMenu();
+
+      if (action === 'refresh') {
+        button.disabled = true;
+        toast('正在读取额度…');
+        setTimeout(() => { button.disabled = false; toast(`${email} 额度已更新`, 'ok'); }, 900);
+        return;
+      }
+
+      if (action === 'retry') {
+        toast('该账号仍在上限内，3 小时 12 分后恢复');
+        return;
+      }
+
+      if (action === 'logout') {
+        logoutTarget = account;
+        $('#logout-subject').textContent = email;
+        $('#logout-dialog').showModal();
+      }
+    });
+  });
+
+  let logoutTarget = null;
+  $('#logout-cancel').addEventListener('click', () => $('#logout-dialog').close());
+  $('#logout-confirm').addEventListener('click', () => {
+    const email = $('#logout-subject').textContent;
+    logoutTarget?.remove();
+    $('#logout-dialog').close();
+    toast(`已退出 ${email}`, 'ok');
+  });
+
+  /* ── 添加 ChatGPT 账号：等待 → 成功 ──────────────────────────── */
+  const addChatgpt = $('#add-chatgpt');
+  const loginChatgpt = $('#login-chatgpt');
+  let loginTimer = 0;
+
+  function setLoginState(state) {
+    if (state !== 'waiting') return;
+    $('#login-chatgpt-title').textContent = '等待浏览器授权';
+    $('#login-chatgpt-detail').textContent = '已在系统浏览器打开 OpenAI 授权页。完成授权后回到 Mova，不需要复制任何内容。授权链接 5 分钟内有效。';
+    $('#login-chatgpt-status').textContent = '正在等待授权…';
+    loginChatgpt.querySelector('.provider-dot').className = 'provider-dot is-pending';
+  }
+
+  addChatgpt.addEventListener('click', () => {
+    const expanded = addChatgpt.getAttribute('aria-expanded') === 'true';
+    addChatgpt.setAttribute('aria-expanded', String(!expanded));
+    loginChatgpt.hidden = expanded;
+    clearTimeout(loginTimer);
+    if (expanded) return;
+    setLoginState('waiting');
+    loginTimer = setTimeout(() => {
+      // 授权成功后直接收起面板：新账号行 + toast 已经说明结果，留着"重新打开授权页"没有意义。
+      loginChatgpt.hidden = true;
+      addChatgpt.setAttribute('aria-expanded', 'false');
+      appendAccount();
+      toast('已添加 carol@example.com', 'ok');
+    }, 2600);
+  });
+
+  $('#login-chatgpt-cancel').addEventListener('click', () => {
+    clearTimeout(loginTimer);
+    loginChatgpt.hidden = true;
+    addChatgpt.setAttribute('aria-expanded', 'false');
+    toast('已取消登录');
+  });
+
+  $('#login-chatgpt-open').addEventListener('click', () => {
+    toast('已重新打开授权页');
+  });
+
+  /* 截图走查用：?login=1 直接展开"添加账号"的等待授权状态 */
+  if (params.has('login')) addChatgpt.click();
+
+  function appendAccount() {
+    const card = $('#chatgpt-card');
+    const account = document.createElement('div');
+    account.className = 'account';
+    account.innerHTML = `
+      <div class="account-row">
+        <span class="provider-dot is-on"></span>
+        <div class="account-main">
+          <div class="account-title">
+            <span class="email">carol@example.com</span>
+            <span class="model-badge">Pro</span>
+            <span class="memory-pill muted">备用</span>
+          </div>
+          <div class="account-meta">
+            <span>刚刚添加</span>
+            <span class="sep"></span>
+            <span>凭据已加密存储</span>
+          </div>
+        </div>
+        <div class="account-actions">
+          <button class="icon-button" data-action="logout" aria-label="carol@example.com 的更多操作">
+            <svg class="icon"><use href="#i-more"></use></svg>
+          </button>
+        </div>
+      </div>
+      <div class="quota">
+        <div class="quota-window">
+          <div class="quota-line">
+            <span class="q-label">5 小时窗口</span>
+            <span class="q-value">已用 0%</span>
+            <span class="q-reset">5 小时后重置</span>
+          </div>
+          <div class="quota-track"><span style="width:2%"></span></div>
+        </div>
+        <div class="quota-window">
+          <div class="quota-line">
+            <span class="q-label">每周窗口</span>
+            <span class="q-value">已用 0%</span>
+            <span class="q-reset">周日 09:00 重置</span>
+          </div>
+          <div class="quota-track"><span style="width:2%"></span></div>
+        </div>
+      </div>`;
+    card.insertBefore(account, addChatgpt);
+    account.querySelector('[data-action="logout"]').addEventListener('click', () => {
+      logoutTarget = account;
+      $('#logout-subject').textContent = 'carol@example.com';
+      $('#logout-dialog').showModal();
+    });
+  }
+
+  /* ── 添加 Gemini 账号 ───────────────────────────────────────── */
+  $('#add-gemini').addEventListener('click', () => {
+    toast('正在启动 antigravity 登录，请在浏览器完成授权');
+  });
+
+  /* ── 导航搜索 ────────────────────────────────────────────────── */
+  const searchToggle = $('#nav-search-toggle');
+  const searchField = $('#nav-search-field');
+  searchToggle.addEventListener('click', () => {
+    const open = searchField.classList.toggle('is-open');
+    searchToggle.setAttribute('aria-expanded', String(open));
+    if (open) searchField.querySelector('input').focus();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (searchField.classList.contains('is-open')) {
+      searchField.classList.remove('is-open');
+      searchToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  /* ── 导航选中态（原型：仅切换高亮） ─────────────────────────── */
+  $$('.settings-nav .nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      $$('.settings-nav .nav-item').forEach(row => row.classList.remove('is-active'));
+      item.classList.add('is-active');
+    });
+  });
+})();
+</script>
+</body>
+</html>

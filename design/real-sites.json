@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-11-11T11:05:48.302Z",
+  "environment": {
+    "electron": "45.2.3",
+    "chrome": "156.0.8078.80"
+  },
+  "summary": {
+    "sites": 3,
+    "passed": 3,
+    "successRate": 100
+  },
+  "results": [
+    {
+      "name": "example.com",
+      "url": "https://example.com/",
+      "ok": true,
+      "ms": 760,
+      "title": "Example Domain",
+      "snapshotChars": 1029,
+      "snapshotMode": "full",
+      "readChars": 916,
+      "expectFound": true,
+      "head": "该域名仅用于文档示例，无需获得许可。这并非一项服务，请勿将其用于测试和监控目的。 This domain is for use in documentation examples without needing permission. T"
+    },
+    {
+      "name": "iana-example-domains",
+      "url": "https://www.iana.org/help/example-domains",
+      "ok": true,
+      "ms": 10731,
+      "title": "Example Domains",
+      "snapshotChars": 3509,
+      "snapshotMode": "full",
+      "readChars": 791,
+      "expectFound": true,
+      "head": "- Instructions and Guides # Example Domains A number of domains such as example.com and example.org are maintained for"
+    },
+    {
+      "name": "mdn-fetch",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
+      "ok": true,
+      "ms": 2139,
+      "title": "Fetch API - Web APIs | MDN",
+      "snapshotChars": 13601,
+      "snapshotMode": "full",
+      "readChars": 2831,
+      "expectFound": true,
+      "head": "# Fetch API The Fetch API provides an interface for fetching resources (including across the network). It is a more pow"
+    }
+  ]
+}

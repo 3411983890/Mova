@@ -1,0 +1,130 @@
+/* 右侧面板的引用浮层（方案 §2.8 / §3.9 / §3.10 / §3.11 / §5）。
+   token 全部取自设计规范：surface #212121、raised 边框 #393939、文字 #d6d6d6 /
+   强 #f3f3f3 / 弱 #868686、hover #2d2d2d、focus #5b9bf0；圆角 12、字号 12。
+   只作用于 .browser-quote*，不改工具条 / 地址栏 / 菜单的既有数值。 */
+
+.browser-quote {
+  --browser-quote-surface: #212121;
+  --browser-quote-border: #393939;
+  --browser-quote-text: #d6d6d6;
+  --browser-quote-strong: #f3f3f3;
+  --browser-quote-muted: #868686;
+  --browser-quote-hover: #2d2d2d;
+  --browser-quote-focus: #5b9bf0;
+  --browser-quote-ease: cubic-bezier(.22, .9, .26, 1);
+  position: absolute;
+  z-index: 24;
+  top: 0;
+  left: 0;
+  /* 选区态只有四个字，宽度随内容；元素态才用到 320px 上限。 */
+  width: auto;
+  max-width: calc(100% - 20px);
+  margin: 0;
+  border: 1px solid var(--browser-quote-border);
+  border-radius: 12px;
+  background: var(--browser-quote-surface);
+  box-shadow: 0 12px 28px #0005;
+  color: var(--browser-quote-text);
+  font-size: 12px;
+  line-height: 1.2;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 160ms var(--browser-quote-ease), transform 160ms var(--browser-quote-ease);
+}
+.browser-quote[hidden] { display: none; }
+/* 翻到下方时位移方向相反，浮层「从上往下」落下。 */
+.browser-quote.is-below { transform: translateY(-4px); }
+.browser-quote.is-open { opacity: 1; transform: none; }
+
+/* ── 选区态：只有「引用文本」四个字 ──────────────────────────── */
+
+.browser-quote-selection {
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+
+.browser-quote-selection .browser-quote-action {
+  height: 100%;
+  padding: 0 12px;
+  border-radius: 11px;
+}
+
+.browser-quote.is-element {
+  width: min(320px, calc(100% - 20px));
+}
+
+/* ── 元素态：三行信息 + 主次按钮 ──────────────────────────────── */
+
+.browser-quote-element {
+  display: grid;
+  gap: 4px;
+  padding: 10px 10px 8px;
+  min-width: 0;
+}
+
+.browser-quote-headline,
+.browser-quote-selector,
+.browser-quote-source {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browser-quote-headline { color: var(--browser-quote-strong); }
+.browser-quote-selector {
+  color: var(--browser-quote-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+.browser-quote-source {
+  color: var(--browser-quote-muted);
+  font-size: 11px;
+}
+.browser-quote-source[hidden] { display: none; }
+
+.browser-quote-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* 两种形态共用的按钮；高度 26px、圆角 8（规范 §5）。 */
+.browser-quote-action,
+.browser-quote-cancel {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--browser-quote-strong);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 150ms var(--browser-quote-ease), color 150ms var(--browser-quote-ease);
+}
+.browser-quote-action:hover,
+.browser-quote-cancel:hover { background: var(--browser-quote-hover); color: #ffffff; }
+.browser-quote-action:focus-visible,
+.browser-quote-cancel:focus-visible { outline: 2px solid var(--browser-quote-focus); outline-offset: 1px; }
+.browser-quote-cancel { color: var(--browser-quote-muted); }
+
+/* ── 两种形态互斥显示 ────────────────────────────────────────── */
+
+.browser-quote:not(.is-element) .browser-quote-element { display: none; }
+.browser-quote.is-element .browser-quote-selection { display: none; }
+
+/* ── 动效降级（规范 §5） ─────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .browser-quote,
+  .browser-quote-action,
+  .browser-quote-cancel { transition: none; }
+  .browser-quote,
+  .browser-quote.is-below { transform: none; }
+}

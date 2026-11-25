@@ -1,0 +1,59 @@
+.mova-markdown, .mova-markdown.turn-answer { min-width: 0; overflow-wrap: anywhere; line-height: 1.75; white-space: normal; }
+.assistant-reply { min-width: 0; }
+/* 宽表格 / 长代码不能把回复撑出内容列：列宽固定，表格与代码在各自容器内横向滚动 */
+.assistant-reply { grid-template-columns: minmax(0, 1fr); }
+.assistant-reply > .turn,
+.turn > .answer,
+.thinking-mount > .turn { min-width: 0; }
+.mova-markdown > :first-child { margin-top: 0; }
+.mova-markdown > :last-child { margin-bottom: 0; }
+.mova-markdown p { margin: 0 0 .8em; white-space: pre-wrap; }
+.mova-markdown h1, .mova-markdown h2, .mova-markdown h3, .mova-markdown h4, .mova-markdown h5, .mova-markdown h6 { margin: 1.2em 0 .5em; font-weight: 650; line-height: 1.4; }
+.mova-markdown h1 { font-size: 1.55em; }
+.mova-markdown h2 { font-size: 1.35em; }
+.mova-markdown h3 { font-size: 1.15em; }
+.mova-markdown h4, .mova-markdown h5, .mova-markdown h6 { font-size: 1em; }
+.mova-markdown ul, .mova-markdown ol { margin: .6em 0; padding-left: 1.6em; }
+.mova-markdown li { margin: .2em 0; }
+.mova-markdown li > p { margin-bottom: .3em; }
+.mova-markdown blockquote { margin: .8em 0; padding: .2em 1em; border-left: 3px solid #717171; color: #b5b5b5; }
+.mova-markdown a { color: #7fb3f5; text-decoration: underline; text-underline-offset: 3px; }
+.mova-markdown :not(pre) > code { padding: .12em .35em; border-radius: 4px; background: #ffffff0d; font-size: .9em; }
+/* 文件引用（[[file:…]] 或路径形式的行内代码）：点击在右侧面板打开 */
+.mova-markdown .markdown-file-ref {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dashed #4a4a4a;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .92em;
+  text-align: left;
+  cursor: pointer;
+  text-underline-offset: 3px;
+}
+.mova-markdown button.markdown-file-ref { border-radius: 4px; }
+.mova-markdown :not(pre) > code.markdown-file-ref { background: #ffffff0d; }
+.mova-markdown .markdown-file-ref:hover { color: #cfe3ff; border-bottom-color: #5b9bf0; }
+.mova-markdown .markdown-file-ref:focus-visible { outline: 2px solid #5b9bf0; outline-offset: 2px; }
+.markdown-code-block { margin: 1em 0; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 9px; background: #161616; }
+.markdown-code-header { display: flex; align-items: center; gap: 12px; padding: 7px 12px; border-bottom: 1px solid #ffffff12; color: #b5b5b5; font-size: 12px; }
+.markdown-code-language { margin-right: auto; }
+.markdown-code-header button, .transcript-load-earlier, .assistant-retry { border: 1px solid #ffffff24; border-radius: 6px; padding: 4px 10px; background: #ffffff08; color: inherit; font: inherit; cursor: pointer; }
+.markdown-code-header button:hover, .transcript-load-earlier:hover, .assistant-retry:hover { background: #ffffff14; }
+.markdown-code-header button:focus-visible, .transcript-load-earlier:focus-visible, .assistant-retry:focus-visible { outline: 2px solid #7fb3f5; outline-offset: 3px; }
+.markdown-copy-status { font-size: 11px; }
+.mova-markdown pre { margin: 0; padding: 14px; overflow-x: auto; line-height: 1.55; white-space: pre; }
+.mova-markdown pre code { font-size: 12px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.markdown-table-scroll { overflow-x: auto; max-width: 100%; margin: 1em 0; }
+.mova-markdown table { border-collapse: collapse; min-width: 50%; font-size: .95em; }
+.mova-markdown th, .mova-markdown td { border: 1px solid #ffffff24; padding: 7px 12px; text-align: left; }
+.mova-markdown th { background: #ffffff08; font-weight: 600; }
+.mova-markdown hr { border: 0; border-top: 1px solid #ffffff24; margin: 1.3em 0; }
+.transcript-load-earlier { display: block; margin: 12px auto 24px; color: #b5b5b5; font-size: 13px; }
+.assistant-retry { justify-self: start; margin-top: 8px; color: #c1c1c1; font-size: 12px; }
+.assistant-retry:disabled { opacity: .45; cursor: not-allowed; }
+.transcript-message { scroll-margin-top: 24px; }
+.transcript-message:focus { outline: none; }
+.transcript-message:focus-visible { outline: 1px solid #7fb3f5; outline-offset: 6px; }

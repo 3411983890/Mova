@@ -1,0 +1,44 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { mkdtemp, rm } = require('node:fs/promises');
+const { tmpdir } = require('node:os');
+const { join } = require('node:path');
+const { createDesignRuntime } = require('../electron/design-runtime.cjs');
+const snapshot = { rootId: 'doc', nodes: [{ id: 'doc', parentId: null, childIds: ['page'], type: 'FRAME' }, { id: 'page', parentId: 'doc', childIds: [], type: 'CANVAS' }], pageId: 'page' };
+test('design documents persist, reject stale versions and isolate conversations', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'mova-design-')); t.after(() => rm(directory, { recursive: true, force: true }));
+  const runtime = createDesignRuntime({ directory, send() {} });
+  const saved = await runtime.save('a', 0, snapshot); assert.equal(saved.revision, 1);
+  await assert.rejects(runtime.save('a', 0, snapshot), /更新/);
+  assert.equal((await runtime.load('b')).revision, 0);
+  assert.deepEqual((await createDesignRuntime({ directory }).load('a')).snapshot, snapshot);
+  const promoted = await runtime.rekey('a', 'chat');
+  assert.deepEqual(promoted.snapshot, snapshot);
+  assert.equal((await runtime.load('a')).snapshot, null);
+  await runtime.save('other', 0, snapshot);
+  await assert.rejects(runtime.rekey('chat', 'other'), /两份/);
+  assert.deepEqual((await runtime.load('chat')).snapshot, snapshot);
+});
+test('design RPC uses the owning renderer and checks live AI permission', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'mova-design-')); t.after(() => rm(directory, { recursive: true, force: true }));
+  let request; const runtime = createDesignRuntime({ directory, send(_sender, _channel, payload) { request = payload; } });
+  const sender = { id: 7 };
+  const work = runtime.command(sender, 'a', 'apply', {}, new AbortController().signal);
+  while (!request) await new Promise(r => setTimeout(r, 1));
+  await assert.rejects(runtime.respond({ id: 8 }, { id: request.id }), /失效/);
+  await runtime.configure({ aiEdit: false });
+  const rejection = assert.rejects(work, /撤销/);
+  await assert.rejects(runtime.respond(sender, { id: request.id, snapshot, result: {} }), /撤销/); await rejection;
+  assert.equal((await runtime.load('a')).revision, 0);
+  await assert.rejects(runtime.command(sender, 'a', 'apply', {}, new AbortController().signal), /关闭/);
+});
+test('cancelled design RPC and invalid/oversized snapshots do not persist', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'mova-design-')); t.after(() => rm(directory, { recursive: true, force: true }));
+  let request; const runtime = createDesignRuntime({ directory, send(_sender, _channel, payload) { request = payload; } });
+  const controller = new AbortController(); const work = runtime.command({ id: 1 }, 'a', 'apply', {}, controller.signal);
+  while (!request) await new Promise(r => setTimeout(r, 1));
+  const rejection = assert.rejects(work, /停止/); controller.abort(); await rejection;
+  await assert.rejects(runtime.respond({ id: 1 }, { id: request.id, snapshot }), /失效/);
+  await assert.rejects(runtime.save('a', 0, { nodes: [{ id: 'x', type: 'TEXT' }, { id: 'x', type: 'TEXT' }] }), /重复/);
+  assert.equal((await runtime.load('a')).revision, 0);
+});

@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tab Spike</title>
+<style>html,body{margin:0} webview{width:800px;height:600px;border:0;display:block}</style></head>
+<body>
+<script>
+  const openTabs = [];
+  let seq = 0;
+  function create(url, spaceId) {
+    console.log('create tab', url, spaceId);
+    const el = document.createElement('webview');
+    el.setAttribute('partition', spaceId && spaceId !== 'default' ? `persist:mova-bench-${spaceId}` : 'persist:mova-browser');
+    document.body.append(el);
+    const id = `tab-${++seq}`;
+    openTabs.push({ id, el, spaceId });
+    el.addEventListener('dom-ready', () => {
+      window.tabs.ready(id, el.getWebContentsId(), spaceId);
+      window.tabs.active(id, spaceId);
+    });
+    el.src = url || 'https://www.google.com';
+  }
+  window.tabs.onNew(({ url, spaceId }) => create(url, spaceId || 'default'));
+  window.tabs.onSelect(({ tabId }) => {
+    const tab = openTabs.find(item => item.id === tabId);
+    if (tab) window.tabs.active(tab.id, tab.spaceId);
+  });
+  window.tabs.onClose(({ tabId }) => {
+    const index = openTabs.findIndex(tab => tab.id === tabId);
+    if (index < 0) return;
+    openTabs[index].el.remove();
+    openTabs.splice(index, 1);
+    window.tabs.closed(tabId);
+    if (openTabs[0]) window.tabs.active(openTabs[0].id, openTabs[0].spaceId);
+  });
+</script>
+</body></html>

@@ -1,0 +1,54 @@
+/* 工具截图行：tool 事件自带的截图（画板 / 浏览器 / 桌面）挂在状态行下方。
+   尺寸有硬上限（220×140，object-fit: cover），一张 1280×800 的截图不会撑爆时间线。
+   token 沿用执行过程的暗色表面：#161616 卡片、#323232 边框、#565656 hover、
+   #737373 次级文字、#5b9bf0 focus。 */
+
+/* 带截图的 li：从「图标 + 标题 + 说明」的横排变成「状态行在上、缩略图在下」。 */
+.act-item.act-item-with-image {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+/* 缩略图容器：缩进对齐标题列（与 .img-read-body / .edit-card-wrap 一致）。 */
+.tool-image-row {
+  padding: 2px 0 4px 22px;
+}
+
+/* 缩略图本身就是按钮：点开纯图片灯箱，样式保持卡片原样。 */
+.tool-image-open {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  padding: 0;
+  border: 1px solid #323232;
+  border-radius: 10px;
+  background: #161616;
+  overflow: hidden;
+  cursor: zoom-in;
+  transition: border-color .15s ease;
+}
+
+.tool-image-open:hover { border-color: #565656; }
+
+.tool-image-open:focus-visible {
+  outline: 2px solid #5b9bf0;
+  outline-offset: 2px;
+}
+
+.tool-image-thumb {
+  display: block;
+  width: 100%;
+  height: 140px;
+  max-height: 140px;
+  object-fit: cover;
+}
+
+/* 加载失败只占一行字，不留裂图占位。 */
+.tool-image-failed {
+  margin: 0;
+  padding: 2px 0 4px 22px;
+  color: #737373;
+  font-size: 12px;
+  line-height: 20px;
+}

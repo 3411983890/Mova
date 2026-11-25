@@ -1,0 +1,3 @@
+/* The shell retains its existing typography-based icon sizing. */
+.keyline-icon { display: inline-flex; flex: none; line-height: 1; }
+.keyline-icon svg { width: 1em; height: 1em; display: block; }

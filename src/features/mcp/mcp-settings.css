@@ -1,0 +1,66 @@
+/* MCP 工具页：行结构、控件与配色都回到设置规范阶梯。
+   这一页原先自带 padding + max-width，会脱离 718px 内容列并让两个分区紧贴，
+   这里改成与其它页面一致的「内容列 + 30px 分区间距」，行样式复用 .settings-row 的度量。 */
+.mcp-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mova-settings-page-gap);
+}
+.mcp-server { border: 0; background: none; }
+.mcp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mova-settings-row-gap);
+  padding: 14px 18px;
+}
+.mcp-row + .mcp-row { border-top: 1px solid var(--mova-settings-line); }
+.mcp-row p,
+.mcp-note {
+  margin: 0;
+  color: var(--mova-settings-text-description);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.mcp-actions { display: flex; gap: 8px; margin: 12px 0; }
+.mcp-actions button,
+.mcp-form button {
+  padding: 5px 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: 8px;
+  background: var(--mova-settings-surface);
+  color: #e2e2e2;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.mcp-actions button:hover,
+.mcp-form button:hover { background: var(--theme-hover, #2c2c2c); }
+.mcp-tool {
+  display: flex;
+  gap: 9px;
+  padding: 9px 0;
+  border-top: 1px solid var(--mova-settings-line);
+}
+.mcp-tool small {
+  display: block;
+  margin-top: 3px;
+  color: var(--mova-settings-text-description);
+}
+.mcp-form { display: grid; gap: 13px; padding: 16px; }
+.mcp-form label { display: grid; gap: 5px; }
+.mcp-form input,
+.mcp-form textarea {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: 8px;
+  outline: none;
+  background: var(--mova-settings-surface);
+  color: #e2e2e2;
+  font-size: 12.5px;
+}
+.mcp-form textarea { height: auto; padding: 8px 10px; }
+.mcp-form input:focus,
+.mcp-form textarea:focus { border-color: var(--mova-settings-line-focus); }
+.mcp-error { color: var(--mova-settings-error-text); }

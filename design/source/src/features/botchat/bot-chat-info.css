@@ -1,0 +1,80 @@
+/* 「⋯」弹出的 Bot / 群聊信息浮层。面板的外壳动效与 Token 用量弹窗一致。 */
+
+.bot-popover {
+  position: absolute;
+  z-index: 30;
+  overflow: hidden;
+  border: 1px solid #3f3f3f;
+  border-radius: 16px;
+  background: #2b2b2b;
+  box-shadow: 0 20px 44px #0008;
+  color: var(--text);
+  will-change: width, height, left, top, border-radius;
+}
+.bot-popover[hidden] { display: none; }
+.bot-popover:focus { outline: none; }
+.bot-popover-inner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a transparent;
+}
+
+.bot-info { display: flex; flex-direction: column; gap: 9px; padding: 12px 12px 10px; }
+
+/* ── 单聊 ───────────────────────────────────────────────────── */
+.bot-info-head { display: flex; align-items: center; gap: 9px; }
+.bot-info-avatar { flex: none; width: 36px; height: 36px; }
+.bot-info-ident { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.bot-info-name { margin: 0; overflow: hidden; color: #f4f4f4; font-size: 14px; font-weight: 600; letter-spacing: -.2px; text-overflow: ellipsis; white-space: nowrap; }
+.bot-info-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.bot-info-chip { display: inline-flex; align-items: center; height: 17px; padding: 0 6px; border: 1px solid #ffffff14; border-radius: 999px; background: #ffffff0d; color: #c2c2c2; font-size: 9.5px; }
+.bot-info-intro { margin: 0; color: #c2c2c2; font-size: 11.5px; line-height: 1.55; overflow-wrap: anywhere; }
+
+.bot-info-rows { display: flex; flex-direction: column; }
+.bot-info-row { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; padding: 3px 0; }
+.bot-info-row + .bot-info-row { border-top: 1px solid #ffffff10; }
+.bot-info-key { flex: none; color: #8f8f8f; font-size: 11.5px; }
+.bot-info-value { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: #e6e6e6; font-size: 11.5px; }
+.bot-info-value em { color: #9a9a9a; font-style: normal; }
+.bot-info-value > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bot-info-value.is-button { max-width: 146px; padding: 3px 6px; margin-right: -6px; border-radius: 6px; transition: background-color 120ms ease, color 120ms ease; }
+.bot-info-value.is-button:hover { background: #ffffff0f; color: #fff; }
+.bot-info-value.is-button svg { flex: none; color: #8f8f8f; }
+.bot-info-caret { transform: rotate(90deg); }
+
+.bot-info-switch { position: relative; display: inline-flex; flex: none; width: 30px; height: 18px; }
+.bot-info-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.bot-info-switch > span { display: block; width: 100%; height: 100%; border-radius: 999px; background: #4d4d4d; transition: background-color 160ms ease; pointer-events: none; }
+.bot-info-switch > span::after { content: ''; display: block; width: 14px; height: 14px; margin: 2px; border-radius: 50%; background: #f2f2f2; transition: transform 160ms cubic-bezier(.3, 1.4, .5, 1); }
+.bot-info-switch input:checked + span { background: #3b7fd4; }
+.bot-info-switch input:checked + span::after { transform: translateX(12px); }
+.bot-info-switch input:focus-visible + span { outline: 2px solid #5b9bf0; outline-offset: 2px; }
+
+.bot-info-link { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; height: 28px; padding: 0 9px; border: 1px solid #3d3d3d; border-radius: 8px; background: #ffffff08; color: #e2e2e2; font-size: 11px; transition: background-color 130ms ease, border-color 130ms ease, color 130ms ease; }
+.bot-info-link:hover { border-color: #4d4d4d; background: #ffffff11; color: #fff; }
+.bot-info-link svg { color: #9a9a9a; }
+
+.bot-info-input { width: 132px; min-width: 0; height: 24px; padding: 0 7px; border: 1px solid #4b6f9c; border-radius: 6px; outline: 0; background: #1f1f1f; color: #f0f0f0; font: inherit; font-size: 11.5px; }
+
+/* ── 群聊 ───────────────────────────────────────────────────── */
+.bot-info-members { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 4px; padding: 1px 0 3px; }
+.bot-info-member { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 4px; }
+.bot-info-member .bot-ball { width: 32px; height: 32px; }
+.bot-info-member > span { overflow: hidden; max-width: 100%; color: #b8b8b8; font-size: 9.5px; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+
+.bot-info-menu { position: absolute; right: 0; top: calc(100% - 2px); z-index: 3; width: 100%; padding: 4px; border: 1px solid #3d3d3d; border-radius: 10px; background: #262626; box-shadow: 0 14px 30px #0008; animation: bot-info-pop 150ms cubic-bezier(.2, 1.2, .4, 1) both; }
+@keyframes bot-info-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.bot-info-menu button { display: flex; align-items: center; gap: 7px; width: 100%; padding: 7px 8px; border-radius: 7px; color: #d2d2d2; font-size: 12px; text-align: left; }
+.bot-info-menu button:hover { background: #ffffff10; color: #fff; }
+.bot-info-menu button svg:first-child { flex: none; color: #8f8f8f; }
+.bot-info-menu button span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bot-info-menu button svg:last-child { color: #7fb0f0; }
+
+.bot-info-meta { display: none; }
+
+.bot-info-danger { display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 28px; border: 1px solid #4a2f2d; border-radius: 8px; color: #e0928c; font-size: 11px; transition: background-color 130ms ease, border-color 130ms ease; }
+.bot-info-danger:hover { border-color: #6b3b38; background: #e0928c1a; }
+

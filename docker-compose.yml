@@ -1,0 +1,108 @@
+# Mova local services (single-user, loopback only).
+#
+#   docker compose up -d
+#   docker compose ps
+#
+# All published ports bind to 127.0.0.1 on purpose: these services must never
+# be reachable from the LAN. Credentials use development-only defaults and can
+# be overridden through .env (see .env.example). Never put real secrets here.
+name: mova-local
+
+services:
+  # WAL/PITR (see Mova服务版接口约定.md §9, dev doc §11.3):
+  #  - `wal_level=replica` + `archive_mode=on` enable real continuous archiving;
+  #    both need a PostgreSQL restart, which `docker compose up -d` performs by
+  #    recreating this container. The `mova-db-data` volume is kept.
+  #  - Archived segments are written to /wal-archive, a bind mount of
+  #    <project>/.mova-backups/wal (override with MOVA_BACKUPS_DIR, absolute).
+  #    `archive_timeout=60s` bounds RPO for an idle cluster at ~1 minute.
+  #  - /base-backups is the same bind-mount root's `base/` directory: physical
+  #    base backups produced by `node scripts/pitr.mjs base-backup` (pg_basebackup
+  #    runs inside this container and writes there). Keeping it a mount means the
+  #    archives and base backups live on the host, outside the database volume,
+  #    so they survive `docker compose down --volumes`.
+  #  - archive_command is the documented "copy once" recipe: a segment is only
+  #    archived if it is not already present, so a retry is idempotent. If the
+  #    archive is unavailable PostgreSQL keeps the segment in pg_wal and retries.
+  #  - Nothing here restores automatically; `scripts/pitr.mjs restore` always
+  #    creates a NEW cluster and never touches mova-db or its volume.
+  mova-db:
+    image: pgvector/pgvector:pg16
+    container_name: mova-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${MOVA_DB_NAME:-mova}
+      POSTGRES_USER: ${MOVA_DB_USER:-mova}
+      POSTGRES_PASSWORD: ${MOVA_DB_PASSWORD:-mova_local_password}
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_timeout=60s
+      - -c
+      - "archive_command=test ! -f /wal-archive/%f && cp %p /wal-archive/%f"
+    ports:
+      - "127.0.0.1:${MOVA_DB_PORT:-55432}:5432"
+    volumes:
+      - mova-db-data:/var/lib/postgresql/data
+      - ${MOVA_BACKUPS_DIR:-./.mova-backups}/wal:/wal-archive
+      - ${MOVA_BACKUPS_DIR:-./.mova-backups}/base:/base-backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  mova-redis:
+    image: redis:7-alpine
+    container_name: mova-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    ports:
+      - "127.0.0.1:${MOVA_REDIS_PORT:-56379}:6379"
+    volumes:
+      - mova-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  # MinIO's official Docker Hub/Quay repositories are not pullable in this
+  # environment ("pull access denied"), so the default is the Bitnami legacy
+  # build. Override MOVA_MINIO_IMAGE to use an official image when available.
+  # Bitnami stores data in /bitnami/minio/data and creates MINIO_DEFAULT_BUCKETS
+  # on first start, so no separate bucket-init container is needed.
+  mova-minio:
+    image: ${MOVA_MINIO_IMAGE:-bitnamilegacy/minio:latest}
+    container_name: mova-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MOVA_S3_ACCESS_KEY:-mova}
+      MINIO_ROOT_PASSWORD: ${MOVA_S3_SECRET_KEY:-mova_local_password}
+      MINIO_DEFAULT_BUCKETS: ${MOVA_S3_BUCKET:-mova-artifacts}
+      MINIO_BROWSER: "on"
+    # Windows can reserve 58986-59085 for Hyper-V/WinNAT, which makes the
+    # contract ports 59000/59001 unbindable on some machines. 59090/59091 stay
+    # outside that range; set MOVA_MINIO_PORT/CONSOLE_PORT to override.
+    ports:
+      - "127.0.0.1:${MOVA_MINIO_PORT:-59090}:9000"
+      - "127.0.0.1:${MOVA_MINIO_CONSOLE_PORT:-59091}:9001"
+    volumes:
+      - mova-minio-data:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+volumes:
+  mova-db-data:
+  mova-redis-data:
+  mova-minio-data:

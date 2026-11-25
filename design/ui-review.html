@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mova 浏览器 UI 审批稿</title>
+<style>
+  :root {
+    --bg: #171717;
+    --panel: #1b1b1b;
+    --panel-2: #202020;
+    --line: #333333;
+    --line-strong: #3d3d3d;
+    --text: #ededed;
+    --muted: #9a9a9a;
+    --muted-2: #777777;
+    --chip: #2a2a2a;
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #101010; color: var(--text); }
+  .page { max-width: 1180px; margin: 0 auto; padding: 40px 28px 72px; }
+  header.top { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 30px; }
+  header.top h1 { margin: 0; font-size: 22px; letter-spacing: .2px; }
+  header.top p { margin: 6px 0 0; color: var(--muted); font-size: 12.5px; }
+  .badge { padding: 5px 9px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: 11px; }
+  section { margin: 26px 0 34px; }
+  section > h2 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: #cfcfcf; letter-spacing: .04em; text-transform: uppercase; }
+  .frame { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); }
+  .browser-shell { display: flex; min-height: 420px; }
+  .chat { flex: 1; min-width: 0; padding: 26px 26px 0; display: flex; flex-direction: column; justify-content: space-between; background: #181818; }
+  .chat h3 { margin: 0 0 8px; font-size: 15px; }
+  .chat p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+  .chat .conversation { flex: 1; padding-top: 26px; }
+  .chat .bubble { width: fit-content; max-width: 86%; padding: 10px 12px; border: 1px solid #2f2f2f; border-radius: 10px; background: #202020; color: #cfcfcf; font-size: 12.5px; line-height: 1.6; }
+  .chat .bubble + .bubble { margin-top: 8px; background: #242424; }
+  .composer { margin: 18px -26px 0; padding: 12px 18px 16px; border-top: 1px solid #2a2a2a; color: #777; font-size: 12px; }
+  .web { width: 46%; min-width: 340px; border-left: 1px solid #2f2f2f; background: #fff; color: #1b1b1b; display: flex; flex-direction: column; }
+  .web .chrome { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; background: #181818; color: #999; font-size: 11px; }
+  .web .dot { width: 7px; height: 7px; border-radius: 50%; background: #3b3b3b; }
+  .web .url { flex: 1; height: 24px; display: flex; align-items: center; padding: 0 9px; border-radius: 7px; background: #232323; color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .web .page-body { padding: 28px; font-size: 13px; }
+  .web .page-body h4 { margin: 0 0 8px; font-size: 15px; }
+  .web .page-body p { color: #666; line-height: 1.7; }
+  .takeover { margin: 0 12px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid #3a3a3a; border-radius: 12px; background: #202020; color: #dddddd; box-shadow: 0 18px 40px #0007; }
+  .takeover .copy { flex: 1 1 220px; min-width: 0; display: grid; gap: 3px; }
+  .takeover strong { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #f0f0f0; }
+  .takeover strong::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #9a9a9a; box-shadow: 0 0 0 3px #9a9a9a24; }
+  .takeover .note { color: #a3a3a3; font-size: 12.5px; line-height: 1.5; }
+  .actions { display: flex; gap: 8px; margin-left: auto; }
+  .actions button { height: 28px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #c8c8c8; font-size: 12px; }
+  .actions .primary { background: #333; border-color: #4a4a4a; color: #f0f0f0; }
+  .actions .primary:hover { background: #3d3d3d; border-color: #575757; }
+  .actions .ghost:hover { background: #ffffff12; }
+
+  .approval-bar { margin: 18px -26px 0; padding: 14px 18px; border-top: 1px solid #2f2f2f; border-left: 2px solid #4f5d69; background: #1d1d1d; }
+  .approval-head { display: flex; align-items: center; gap: 9px; }
+  .approval-badge { flex: none; padding: 3px 7px; border: 1px solid #3f4c58; border-radius: 6px; color: #a9c3d8; font-size: 10.5px; }
+  .approval-head strong { font-size: 13px; font-weight: 600; color: #ededed; }
+  .approval-detail { margin: 8px 0 0; color: #8f8f8f; font-size: 11.5px; }
+  .approval-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .approval-actions button { height: 29px; padding: 0 12px; border: 1px solid #3a3a3a; border-radius: 8px; background: #262626; color: #ddd; font-size: 12px; }
+  .approval-actions button.primary { background: #333; border-color: #4a4a4a; color: #f0f0f0; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .step { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  .step .num { color: #6f6f6f; font: 11px/1 ui-monospace, Consolas, monospace; }
+  .step h3 { margin: 8px 0 6px; font-size: 13px; }
+  .step p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+  .diagram { margin-top: 12px; display: grid; gap: 8px; }
+  .row { display: flex; height: 46px; border: 1px solid #303030; border-radius: 8px; overflow: hidden; background: #1b1b1b; }
+  .row span { display: grid; place-items: center; font-size: 11px; color: #aaa; }
+  .side { width: 18%; background: #242424; }
+  .chat-cell { flex: 1; background: #1e1e1e; }
+  .web-cell { width: 34%; background: #2a2a2a; color: #ddd; border-left: 1px solid #333; }
+  .row.collapsed .side { display: none; }
+  .row.collapsed .web-cell { width: 68%; }
+  .row.chat-gone .chat-cell { display: none; }
+  .row.chat-gone .web-cell { width: 100%; }
+  .caption { display: flex; gap: 8px; align-items: center; margin: 9px 0 0; color: #7f7f7f; font-size: 11.5px; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; background: #333; border: 1px solid #4a4a4a; }
+  footer { margin-top: 40px; color: #666; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>Mova 浏览器 UI 审批稿</h1>
+      <p>黑灰配色 · Cookie 审批进入聊天 · 宽度收缩三级行为</p>
+    </div>
+    <span class="badge">review · 2026-11-11</span>
+  </header>
+
+  <section>
+    <h2>01 · Agent 暂停提示</h2>
+    <div class="frame">
+      <div class="browser-shell">
+        <div class="chat">
+          <div>
+            <h3>我们应该在 Mova 中做些什么？</h3>
+            <p>聊天保持原样，暂停提示只占用浏览器面板底部。</p>
+          </div>
+          <div class="composer">输入消息，或按住 ⌘/Ctrl 发送</div>
+        </div>
+        <div class="web">
+          <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">https://platform.deepseek.com/api_keys</span></div>
+          <div class="page-body"><h4>API keys</h4><p>列表内是你的全部 API key。</p></div>
+          <div class="takeover">
+            <div class="copy"><strong>Agent 已暂停</strong><span class="note">你正在操作浏览器，Agent 已暂停</span></div>
+            <div class="actions"><button class="primary">我已处理，继续</button><button class="ghost">结束任务</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>02 · Cookie 登录审批（聊天内）</h2>
+    <div class="frame">
+      <div class="browser-shell">
+        <div class="chat">
+          <div class="conversation">
+            <div class="bubble">已打开 DeepSeek API keys，准备创建新的 key。</div>
+            <div class="bubble">检测到 platform.deepseek.com 的登录记录，等待你的选择。</div>
+          </div>
+          <div class="approval-bar">
+            <div class="approval-head"><span class="approval-badge">Cookie 登录</span><strong>发现该站点的登录记录，是否用 Cookie 登录？</strong></div>
+            <p class="approval-detail">https://platform.deepseek.com · 已保存 Cookie 与本地存储</p>
+            <div class="approval-actions"><button>拒绝</button><button class="primary">允许一次</button></div>
+          </div>
+          <div class="composer">输入消息，或按住 ⌘/Ctrl 发送</div>
+        </div>
+        <div class="web">
+          <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">https://platform.deepseek.com/sign_in</span></div>
+          <div class="page-body"><h4>登录</h4><p>输入手机号或使用微信扫码。</p></div>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><span class="swatch"></span>批准后恢复 cookie/localStorage 并刷新；拒绝则进入登录卡。</p>
+  </section>
+
+  <section>
+    <h2>03 · 三栏宽度（成熟方案）</h2>
+    <div class="steps">
+      <div class="step"><div class="num">RULE 01</div><h3>一个边界只控制一栏</h3><p>拖动浏览器 splitter 只改变浏览器宽度；不级联隐藏其他视图。</p></div>
+      <div class="step"><div class="num">RULE 02</div><h3>最小宽度 clamp</h3><p>浏览器最小 320px，聊天最小 420px；到边界就停住。</p></div>
+      <div class="step"><div class="num">RULE 03</div><h3>双击 / 键盘重置</h3><p>双击 splitter 恢复 42%；方向键微调，Home 重置；宽度会记住。</p></div>
+    </div>
+    <div class="diagram">
+      <div class="row"><span class="side">二级</span><span class="chat-cell">聊天</span><span class="web-cell">浏览器</span></div>
+      <div class="row"><span class="side">二级</span><span class="chat-cell">聊天（最小 420）</span><span class="web-cell">浏览器（最小 320）</span></div>
+    </div>
+    <p class="caption">折叠侧栏或浏览器使用各自的显式开关，不再靠重复拖拽。</p>
+  </section>
+
+  <footer>Mova · 浏览器 Agent v1 · 本页为静态审批稿，交互以实际应用为准。</footer>
+</div>
+</body>
+</html>

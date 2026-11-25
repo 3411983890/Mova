@@ -1,0 +1,169 @@
+/* 浏览器设置页：只补设置规范没有提供的局部件，
+   其余全部复用 .settings-section / .settings-card / .settings-row / .settings-switch。 */
+
+.browser-settings { display: flex; flex-direction: column; gap: var(--mova-settings-page-gap); }
+
+/* 行内出现多行内容（例如授权等级的单选组）时，改为纵向排布。 */
+.browser-settings .settings-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+/* 授权等级 / 保存模式：标题区沿用行内边距，下面的单选项由 .settings-choice 自带 padding 与分隔线。 */
+.browser-setting-tier-head { padding: 14px 18px; }
+.browser-setting-tiers,
+.browser-setting-modes { display: flex; flex-direction: column; }
+.browser-setting-tiers .settings-choice,
+.browser-setting-modes .settings-choice { border-top: 1px solid var(--mova-settings-line); }
+.browser-setting-tiers .settings-choice[aria-checked="true"],
+.browser-setting-modes .settings-choice[aria-checked="true"] { background: var(--mova-settings-accent-surface); }
+.browser-setting-tiers .settings-choice:disabled,
+.browser-setting-modes .settings-choice:disabled { cursor: not-allowed; }
+.browser-setting-tiers .settings-choice:disabled strong,
+.browser-setting-modes .settings-choice:disabled strong { color: var(--mova-settings-text-description); }
+
+/* 保存模式下方的说明：读取失败或写入未生效时贴在卡片底部，不另开色块。 */
+.browser-setting-mode-note {
+  margin: 0;
+  padding: 10px 18px;
+  border-top: 1px solid var(--mova-settings-line);
+  color: var(--mova-settings-text-note);
+  font-size: 11.5px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.browser-setting-mode-note[data-tone="warn"] { color: var(--mova-settings-warning-text); }
+
+.browser-setting-input {
+  width: 260px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: var(--mova-settings-radius-control);
+  outline: none;
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+}
+.browser-setting-input:focus { border-color: var(--mova-settings-line-focus); }
+
+.browser-setting-number {
+  width: 96px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: var(--mova-settings-radius-control);
+  outline: none;
+  background: var(--mova-settings-surface);
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.browser-setting-number:focus { border-color: var(--mova-settings-line-focus); }
+
+.browser-setting-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+
+/* 锁定的开关：用文字说明代替开关，避免出现「看起来能关」的控件。 */
+.browser-setting-locked {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px dashed var(--mova-settings-line-dashed);
+  border-radius: var(--mova-settings-radius-pill);
+  color: var(--mova-settings-text-meta);
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+.browser-setting-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.browser-setting-head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
+.browser-setting-head-actions .settings-button { flex: none; height: 26px; padding: 0 10px; }
+.browser-setting-filter { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--mova-settings-text-description); font-size: 12px; overflow-wrap: anywhere; }
+.browser-setting-filter input { flex: none; accent-color: var(--mova-settings-accent); }
+
+.browser-setting-list { padding: 0; overflow: visible; }
+.browser-setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+}
+.browser-setting-item + .browser-setting-item { border-top: 1px solid var(--mova-settings-line); }
+.browser-setting-item-main { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.browser-setting-item-main strong { color: var(--mova-settings-text-title); font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
+.browser-setting-item-main small { color: var(--mova-settings-text-meta); font-size: 11.5px; overflow-wrap: anywhere; }
+.browser-setting-item-actions { display: flex; flex: none; gap: 8px; }
+
+/* 技能列表的加载中 / 加载失败状态：与条目同内边距，不额外加边框。 */
+.browser-setting-list-note {
+  margin: 0;
+  padding: 16px 18px;
+  color: var(--mova-settings-text-meta);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.browser-setting-list-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  color: var(--mova-settings-error-text);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.browser-setting-list-state p { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.browser-setting-list-state .settings-button { flex: none; }
+.browser-setting-list .memory-empty { margin: 12px; }
+
+.browser-setting-checklist { display: flex; flex-direction: column; gap: 10px; }
+.browser-setting-check { display: flex; align-items: flex-start; gap: 9px; color: var(--mova-settings-text-item); font-size: 12.5px; }
+.browser-setting-check input { margin-top: 2px; accent-color: var(--mova-settings-accent); }
+.browser-setting-check small { display: block; color: var(--mova-settings-text-description); font-size: 11.5px; line-height: 1.5; }
+
+/* 高级设置：默认折叠，展开后与普通分区同节奏。 */
+.browser-settings .settings-advanced { display: block; }
+.browser-setting-summary {
+  cursor: pointer;
+  color: var(--mova-settings-text-section);
+  font-size: 13.5px;
+  font-weight: 600;
+  list-style: none;
+}
+.browser-setting-summary::-webkit-details-marker { display: none; }
+.browser-setting-summary::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  vertical-align: 2px;
+  transition: transform 150ms ease;
+}
+.browser-settings .settings-advanced[open] > .browser-setting-summary::before { transform: rotate(45deg); }
+.browser-settings .settings-advanced > .settings-card { margin-top: 10px; }
+.browser-settings .settings-advanced > .memory-muted { margin: 8px 0 0; }
+
+/* 窄屏（设置页已有 620px 断点）：标题行与技能条目换行，按钮落到下一行，避免横向溢出。 */
+@media (max-width: 620px) {
+  .browser-setting-head { flex-wrap: wrap; align-items: flex-start; }
+  .browser-setting-head-actions { justify-content: flex-start; }
+  .browser-setting-tier-head { padding: 12px 14px; }
+  .browser-setting-mode-note { padding: 10px 14px; }
+  .browser-setting-item { flex-wrap: wrap; align-items: flex-start; gap: 10px; padding: 12px 14px; }
+  .browser-setting-item-main { flex: 1 1 100%; }
+  .browser-setting-item-actions { width: 100%; justify-content: flex-end; }
+  .browser-setting-list-note { padding: 14px; }
+  .browser-setting-list-state { flex-wrap: wrap; align-items: flex-start; padding: 14px; }
+  .browser-setting-list-state .settings-button { width: 100%; justify-content: center; }
+  .browser-setting-list .memory-empty { margin: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .browser-setting-summary::before { transition: none; }
+}

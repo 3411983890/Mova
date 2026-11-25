@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Thinking Effort Selector</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #131113;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stage {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Main widget container */
+    .effort-selector {
+      position: relative;
+      width: 356px;
+      height: 52px;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .effort-selector.is-dragging,
+    .effort-selector.is-dragging * {
+      cursor: grabbing !important;
+    }
+
+    /* Gooey SVG filter definitions (hidden) */
+    .svg-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    /*
+     * Background layer with liquid metaball / gooey bridge between
+     * the floating tooltip tab and the dark slider track.
+     */
+    .gooey-bg-layer {
+      position: absolute;
+      inset: -60px -40px -20px -40px;
+      pointer-events: none;
+      filter: url(#effort-goo);
+    }
+
+    .track-bg-shape {
+      position: absolute;
+      left: 40px;
+      top: 60px;
+      width: 356px;
+      height: 52px;
+      border-radius: 999px;
+      background: #222023;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+    }
+
+    .tooltip-bg-shape {
+      position: absolute;
+      top: 60px; /* aligned with top of track, translated up via transform */
+      left: 40px;
+      height: 38px;
+      border-radius: 15px 15px 6px 6px;
+      background: #222023;
+      transform-origin: 50% 100%;
+      will-change: transform, width;
+    }
+
+    /* Floating Tooltip Text Layer (crisp, outside the gooey blur filter) */
+    .tooltip-label-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transform-origin: 50% 100%;
+      will-change: transform, opacity;
+      z-index: 4;
+    }
+
+    .tooltip-content {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 5px;
+      padding: 0 14px;
+      font-size: 15px;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      will-change: filter, opacity, transform;
+    }
+
+    .tooltip-version {
+      color: #f5f4f6;
+      font-weight: 450;
+    }
+
+    .tooltip-level {
+      color: #7c797c;
+      font-weight: 450;
+      display: inline-block;
+      transition: filter 110ms ease, opacity 110ms ease, transform 110ms ease;
+    }
+
+    .tooltip-level.is-morphing {
+      filter: blur(3.5px);
+      opacity: 0.45;
+      transform: scale(0.96);
+    }
+
+    /*
+     * Blue active progress pill:
+     * Full 52px height, flush left (0) to right (356px), matching video frames
+     * where the blue pill's top & bottom edges align with the 52px track.
+     */
+    .blue-pill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 52px;
+      min-width: 52px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #005cf0 0%, #0351d5 100%);
+      box-shadow: inset 0 1px 0.5px rgba(255, 255, 255, 0.16);
+      pointer-events: none;
+      will-change: width;
+      z-index: 1;
+    }
+
+    /* White thumb capsule */
+    .thumb {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 40px;
+      width: 40px;
+      border-radius: 999px;
+      background: #fcfafc;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      will-change: transform, width, height;
+      z-index: 2;
+      cursor: grab;
+    }
+
+    /*
+     * Tick marks layer:
+     * 4 vertical bars at x = 26, 127.33, 228.67, 330
+     * Progressive heights: 8px, 10px, 12px, 14px
+     */
+    .ticks-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .tick {
+      position: absolute;
+      top: 50%;
+      width: 2px;
+      border-radius: 1px;
+      transform: translate(-50%, -50%);
+      transition: background-color 90ms ease, opacity 90ms ease;
+    }
+
+    .tick[data-index="0"] { left: 26px;      height: 8px; }
+    .tick[data-index="1"] { left: 127.33px;  height: 10px; }
+    .tick[data-index="2"] { left: 228.67px;  height: 12px; }
+    .tick[data-index="3"] { left: 330px;     height: 14px; }
+
+    /* Tick color states depending on whether covered by thumb, blue pill, or dark track */
+    .tick.state-track {
+      background-color: #565356;
+    }
+
+    .tick.state-blue {
+      background-color: #3183ff;
+    }
+
+    .tick.state-thumb {
+      background-color: #848184;
+    }
+  </style>
+</head>
+<body>
+  <!-- SVG Gooey Filter for liquid metaball connection between tooltip tab and track -->
+  <svg class="svg-defs" aria-hidden="true">
+    <defs>
+      <filter id="effort-goo" x="-20%" y="-40%" width="140%" height="180%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+        <feColorMatrix
+          in="blur"
+          mode="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 24 -10"
+          result="goo"
+        />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="stage">
+    <div
+      class="effort-selector"
+      id="effort-selector"
+      role="slider"
+      aria-label="Thinking effort"
+      aria-valuemin="0"
+      aria-valuemax="3"
+      aria-valuenow="1"
+      aria-valuetext="4.7 Medium"
+      tabindex="0"
+    >
+      <!-- Metaball / Gooey dark background layer -->
+      <div class="gooey-bg-layer" aria-hidden="true">
+        <div class="track-bg-shape"></div>
+        <div class="tooltip-bg-shape" id="tooltip-bg"></div>
+      </div>
+
+      <!-- Floating Tooltip Label -->
+      <div class="tooltip-label-layer" id="tooltip-label">
+        <div class="tooltip-content" id="tooltip-content">
+          <span class="tooltip-version">4.7</span>
+          <span class="tooltip-level" id="tooltip-level">Medium</span>
+        </div>
+      </div>
+
+      <!-- Blue Progress Fill Pill -->
+      <div class="blue-pill" id="blue-pill"></div>
+
+      <!-- White Thumb -->
+      <div class="thumb" id="thumb"></div>
+
+      <!-- 4 Progressive Tick Marks -->
+      <div class="ticks-layer" id="ticks-layer" aria-hidden="true">
+        <span class="tick state-blue" data-index="0"></span>
+        <span class="tick state-thumb" data-index="1"></span>
+        <span class="tick state-track" data-index="2"></span>
+        <span class="tick state-track" data-index="3"></span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const STOPS = [
+        { index: 0, label: 'Low',        x: 26 },
+        { index: 1, label: 'Medium',     x: 127.333 },
+        { index: 2, label: 'High',       x: 228.667 },
+        { index: 3, label: 'Extra High', x: 330 },
+      ];
+
+      const TRACK_WIDTH = 356;
+
+      const selector = document.getElementById('effort-selector');
+      const tooltipBg = document.getElementById('tooltip-bg');
+      const tooltipLabel = document.getElementById('tooltip-label');
+      const tooltipContent = document.getElementById('tooltip-content');
+      const tooltipLevel = document.getElementById('tooltip-level');
+      const bluePill = document.getElementById('blue-pill');
+      const thumb = document.getElementById('thumb');
+      const ticks = Array.from(document.querySelectorAll('.tick'));
+
+      // Measure natural widths of each stop label for smooth width springs
+      const stopWidths = STOPS.map(s => {
+        tooltipLevel.textContent = s.label;
+        return Math.ceil(tooltipContent.getBoundingClientRect().width) + 4;
+      });
+      tooltipLevel.textContent = STOPS[1].label;
+
+      // State
+      let selectedIndex = 1; // Starts at Medium (4.7 Medium)
+      let activeStopIndex = 1;
+      let isHovered = false;
+      let isDragging = false;
+      let dragOffsetX = 0;
+      let pointerDownX = 0;
+      let hasDraggedDistance = false;
+
+      // Spring physics helper
+      class Spring {
+        constructor(value, stiffness = 380, damping = 28) {
+          this.value = value;
+          this.target = value;
+          this.velocity = 0;
+          this.stiffness = stiffness;
+          this.damping = damping;
+        }
+        set(v) {
+          this.value = v;
+          this.target = v;
+          this.velocity = 0;
+        }
+        step(dt) {
+          const force = -this.stiffness * (this.value - this.target) - this.damping * this.velocity;
+          this.velocity += force * dt;
+          this.value += this.velocity * dt;
+        }
+      }
+
+      // Animated springs (high damping / critically-to-overdamped for viscous, non-bouncy feel)
+      const thumbX = new Spring(STOPS[selectedIndex].x, 260, 36);
+      const thumbW = new Spring(40, 180, 30);
+      const thumbH = new Spring(40, 180, 30);
+      const thumbStretch = new Spring(0, 150, 28);
+      const blueRight = new Spring(STOPS[selectedIndex].x + 25, 240, 34);
+
+      const tipX = new Spring(STOPS[selectedIndex].x, 250, 35);
+      const tipW = new Spring(stopWidths[selectedIndex], 220, 32);
+      const tipProgress = new Spring(0, 240, 34); // 0 = hidden inside track, 1 = popped above track
+
+      function nearestStopIndex(x) {
+        let best = 0;
+        let bestDist = Infinity;
+        for (let i = 0; i < STOPS.length; i++) {
+          const d = Math.abs(x - STOPS[i].x);
+          if (d < bestDist) {
+            bestDist = d;
+            best = i;
+          }
+        }
+        return best;
+      }
+
+      function setActiveStop(idx) {
+        if (idx === activeStopIndex) return;
+        activeStopIndex = idx;
+        const stop = STOPS[idx];
+
+        // Trigger subtle motion-blur morph on the text when switching stops
+        tooltipLevel.classList.add('is-morphing');
+        setTimeout(() => {
+          tooltipLevel.textContent = stop.label;
+          tooltipLevel.classList.remove('is-morphing');
+        }, 55);
+
+        tipW.target = stopWidths[idx];
+        selector.setAttribute('aria-valuenow', String(idx));
+        selector.setAttribute('aria-valuetext', `4.7 ${stop.label}`);
+      }
+
+      function clampTooltipCenter(rawX, width) {
+        // Keep the tooltip comfortably inside the rounded ends of the track
+        // Matches video: Low clamps at x=72.5, Extra High clamps at x=260
+        const minCenter = Math.max(72.5, 26 + width * 0.5);
+        const maxCenter = Math.min(264, TRACK_WIDTH - 24 - width * 0.5);
+        return Math.max(minCenter, Math.min(maxCenter, rawX));
+      }
+
+      // Notice in the video: when thumb is active (w=51), at Stop 0 its center is 31px (left edge 5.5px)
+      // and at Stop 3 its center is 326px (right edge 351.5px), so the 4.5px blue rim wraps symmetrically!
+      // When at rest (w=40), Stop 0 is 26px and Stop 3 is 330px.
+      function getStopThumbCenter(idx, active) {
+        const base = STOPS[idx].x;
+        if (!active) return base;
+        if (idx === 0) return 28;
+        if (idx === 3) return 328;
+        return base;
+      }
+
+      function updateTargets() {
+        const active = isHovered || isDragging;
+        tipProgress.target = active ? 1 : 0;
+
+        if (isDragging) {
+          thumbW.target = 44;
+          thumbH.target = 40;
+        } else if (isHovered) {
+          thumbW.target = 44;
+          thumbH.target = 40;
+          thumbX.target = getStopThumbCenter(selectedIndex, true);
+        } else {
+          thumbW.target = 40;
+          thumbH.target = 40;
+          thumbX.target = getStopThumbCenter(selectedIndex, false);
+        }
+      }
+
+      function clientXToTrackX(clientX) {
+        const rect = selector.getBoundingClientRect();
+        return clientX - rect.left;
+      }
+
+      // Pointer Events
+      selector.addEventListener('pointerenter', () => {
+        isHovered = true;
+        updateTargets();
+      });
+
+      selector.addEventListener('pointerleave', () => {
+        isHovered = false;
+        if (!isDragging) updateTargets();
+      });
+
+      selector.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        e.preventDefault();
+        selector.setPointerCapture(e.pointerId);
+
+        const clickX = clientXToTrackX(e.clientX);
+        pointerDownX = clickX;
+        hasDraggedDistance = false;
+        isDragging = true;
+        isHovered = true;
+        selector.classList.add('is-dragging');
+
+        // Check if pointerdown is directly on or near the current thumb
+        const distToThumb = Math.abs(clickX - thumbX.value);
+        if (distToThumb <= 30) {
+          dragOffsetX = clickX - thumbX.value;
+        } else {
+          // Clicked elsewhere on the track: damped glide toward clicked stop with subtle deformation
+          dragOffsetX = 0;
+          const clickedStop = nearestStopIndex(clickX);
+          selectedIndex = clickedStop;
+          setActiveStop(clickedStop);
+
+          const targetPos = getStopThumbCenter(clickedStop, true);
+          thumbX.target = targetPos;
+        }
+
+        updateTargets();
+      });
+
+      selector.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const pointerX = clientXToTrackX(e.clientX);
+        if (Math.abs(pointerX - pointerDownX) > 3) {
+          hasDraggedDistance = true;
+        }
+
+        if (hasDraggedDistance) {
+          const minDrag = 28;
+          const maxDrag = 328;
+          const rawTarget = pointerX - dragOffsetX;
+          let clamped = rawTarget;
+          if (rawTarget < minDrag) {
+            clamped = minDrag - (minDrag - rawTarget) * 0.08;
+          } else if (rawTarget > maxDrag) {
+            clamped = maxDrag + (rawTarget - maxDrag) * 0.08;
+          }
+          clamped = Math.max(minDrag - 1.5, Math.min(maxDrag + 1.5, clamped));
+
+          thumbX.target = clamped;
+          thumbX.stiffness = 420;
+          thumbX.damping = 44;
+
+          const snapIdx = nearestStopIndex(clamped);
+          selectedIndex = snapIdx;
+          setActiveStop(snapIdx);
+        }
+      });
+
+      function endDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        selector.classList.remove('is-dragging');
+        if (e && selector.hasPointerCapture?.(e.pointerId)) {
+          selector.releasePointerCapture(e.pointerId);
+        }
+
+        thumbX.stiffness = 260;
+        thumbX.damping = 36;
+        thumbX.target = getStopThumbCenter(selectedIndex, isHovered);
+
+        updateTargets();
+      }
+
+      selector.addEventListener('pointerup', endDrag);
+      selector.addEventListener('pointercancel', endDrag);
+
+      // Keyboard navigation
+      selector.addEventListener('keydown', (e) => {
+        let next = selectedIndex;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+          next = Math.min(3, selectedIndex + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+          next = Math.max(0, selectedIndex - 1);
+        } else if (e.key === 'Home') {
+          next = 0;
+        } else if (e.key === 'End') {
+          next = 3;
+        } else {
+          return;
+        }
+        e.preventDefault();
+        if (next !== selectedIndex) {
+          selectedIndex = next;
+          setActiveStop(next);
+          isHovered = true;
+          const targetPos = getStopThumbCenter(next, true);
+          thumbX.target = targetPos;
+          updateTargets();
+        }
+      });
+
+      // Animation loop
+      let lastTime = performance.now();
+
+      function tick(now) {
+        const dt = Math.min(0.032, (now - lastTime) / 1000);
+        lastTime = now;
+
+        thumbX.step(dt);
+        thumbW.step(dt);
+        thumbH.step(dt);
+        tipW.step(dt);
+        tipProgress.step(dt);
+
+        // Heavily damped, subtle velocity-based deformation on the thumb when moving
+        const speed = Math.abs(thumbX.velocity);
+        thumbStretch.target = Math.min(4.5, speed * 0.005);
+        thumbStretch.step(dt);
+        const velocityStretch = Math.max(0, thumbStretch.value);
+        const renderThumbW = Math.max(36, thumbW.value + velocityStretch);
+        const renderThumbH = Math.max(38.5, thumbH.value - velocityStretch * 0.08);
+
+        // Blue pill right edge:
+        // Wraps the right edge of the thumb (+5px rim), and magnetically reaches
+        // toward the snapped stop's tick when crossing a midpoint while dragging right.
+        const thumbRightEdge = thumbX.value + renderThumbW * 0.5 + 5;
+        const snappedTickEdge = STOPS[activeStopIndex].x + 2;
+        const targetBlue = Math.max(thumbRightEdge, isDragging ? snappedTickEdge : thumbRightEdge);
+        blueRight.target = activeStopIndex === 3 && thumbX.value > 315 ? TRACK_WIDTH : Math.min(TRACK_WIDTH, targetBlue);
+        blueRight.step(dt);
+
+        const renderBlueW = Math.max(52, Math.min(TRACK_WIDTH, blueRight.value));
+
+        // Tooltip horizontal center follows thumbX, clamped near track edges
+        const targetTipCenter = clampTooltipCenter(thumbX.value, tipW.value);
+        tipX.target = targetTipCenter;
+        tipX.step(dt);
+
+        // Apply transforms to DOM
+        thumb.style.width = `${renderThumbW.toFixed(2)}px`;
+        thumb.style.height = `${renderThumbH.toFixed(2)}px`;
+        thumb.style.transform = `translate3d(${thumbX.value.toFixed(2)}px, -50%, 0) translateX(-50%)`;
+
+        bluePill.style.width = `${renderBlueW.toFixed(2)}px`;
+
+        // Tooltip emergence (0 -> 1): rises 32px above top of track
+        const p = Math.max(0, Math.min(1.15, tipProgress.value));
+        const riseY = -32 * p;
+        const scaleY = 0.35 + 0.65 * Math.min(1, p);
+        const scaleX = 0.88 + 0.12 * Math.min(1, p);
+
+        tooltipBg.style.width = `${tipW.value.toFixed(2)}px`;
+        tooltipBg.style.transform = `translate3d(${(tipX.value - tipW.value * 0.5).toFixed(2)}px, ${riseY.toFixed(2)}px, 0) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
+
+        tooltipLabel.style.width = `${tipW.value.toFixed(2)}px`;
+        tooltipLabel.style.transform = `translate3d(${(tipX.value - tipW.value * 0.5).toFixed(2)}px, ${riseY.toFixed(2)}px, 0)`;
+        tooltipLabel.style.opacity = `${Math.max(0, Math.min(1, (p - 0.18) / 0.72)).toFixed(3)}`;
+        tooltipContent.style.filter = p < 0.85 ? `blur(${((1 - p) * 4).toFixed(2)}px)` : 'none';
+
+        // Update tick mark visual states based on current thumb & blue pill bounds
+        const tLeft = thumbX.value - renderThumbW * 0.5;
+        const tRight = thumbX.value + renderThumbW * 0.5;
+        const bRight = renderBlueW;
+
+        for (let i = 0; i < STOPS.length; i++) {
+          const tx = STOPS[i].x;
+          const el = ticks[i];
+          let state = 'state-track';
+          if (tx >= tLeft + 2 && tx <= tRight - 2) {
+            state = 'state-thumb';
+          } else if (tx <= bRight - 2) {
+            state = 'state-blue';
+          }
+          if (!el.classList.contains(state)) {
+            el.className = `tick ${state}`;
+          }
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+
+      // Expose helper for automated visual verification
+      window.__effortSlider = {
+        setState({ stopIndex = 1, x = null, hover = false, dragging = false }) {
+          selectedIndex = stopIndex;
+          activeStopIndex = stopIndex;
+          tooltipLevel.textContent = STOPS[stopIndex].label;
+          isHovered = hover;
+          isDragging = dragging;
+          const active = hover || dragging;
+          const pos = x !== null ? x : getStopThumbCenter(stopIndex, active);
+          thumbX.set(pos);
+          const w = active ? 51 : 40;
+          const h = active ? 42 : 40;
+          thumbW.set(w);
+          thumbH.set(h);
+          const rawBlue = Math.max(pos + w * 0.5 + 5, STOPS[stopIndex].x + 2);
+          blueRight.set(stopIndex === 3 ? TRACK_WIDTH : Math.min(TRACK_WIDTH, rawBlue));
+          tipW.set(stopWidths[stopIndex]);
+          tipX.set(clampTooltipCenter(pos, stopWidths[stopIndex]));
+          tipProgress.set(active ? 1 : 0);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

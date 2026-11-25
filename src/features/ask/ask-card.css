@@ -1,0 +1,286 @@
+/* AI 问答卡片：AI 提问时接管底部输入栏。
+   视觉与「内联审批栏」同一套语言：12px 圆角、#1d1d1d 底、左侧 3px 语义竖条、
+   头部徽标 + 13px 题干、底部右对齐的次级 / 主按钮。 */
+.ask-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0 auto 8px;
+  padding: 12px 14px 12px 16px;
+  border: 1px solid #343434;
+  border-radius: 12px;
+  background: #1d1d1d;
+  color: #d8d8d8;
+  font-size: 12.5px;
+  line-height: 1.6;
+  box-shadow: 0 10px 26px #00000040;
+  animation: ask-card-in 180ms cubic-bezier(.22, .9, .26, 1) both;
+}
+
+@keyframes ask-card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 卡片主体与动作区分离：正常高度下主体不滚动，只有窗口特别矮时才让主体滚动，
+   底部「跳过 / 提交」始终留在视线里。 */
+.ask-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 语义竖条：与审批栏一致，蓝色表示「需要你回答」 */
+.ask-card::before {
+  content: "";
+  position: absolute;
+  inset: 10px auto 10px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #3795f5;
+}
+
+/* 提问时底部这一块整体让位给卡片：输入栏与审批栏都收起，答完再回来。 */
+.composer-area.is-asking #composer,
+.composer-area.is-asking .composer-context,
+.composer-area.is-asking #approval-host { display: none; }
+
+/* ── 头部：徽标 + 题干 + 说明 ───────────────────────────────── */
+.ask-head {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ask-badge {
+  flex: none;
+  padding: 1px 9px;
+  border: 1px solid #3f4a5c;
+  border-radius: 999px;
+  color: #9dc2f5;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.ask-question {
+  margin: 0;
+  min-width: 0;
+  color: #ededed;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ask-detail {
+  flex: none;
+  margin: 2px 0 0;
+  max-width: 64ch;
+  color: #9d9d9d;
+  font-size: 12px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* ── 选项：整行，单选圆点 / 多选方块 ────────────────────────── */
+/* 选项永远整块展开：题目和选项都由主进程限长，卡片不再自己滚动，
+   否则会出现「第二个选项被截掉一半、还要拖动」的错误形态。 */
+.ask-options {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 1px;
+}
+
+.ask-option {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #333333;
+  border-radius: 9px;
+  background: #191919;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.ask-option:hover { border-color: #575757; background: #262626; }
+
+.ask-option[data-selected] {
+  border-color: #2d4c74;
+  background: #1e2c3d;
+}
+
+.ask-option:focus-visible { outline-offset: 2px; }
+
+.ask-mark {
+  flex: none;
+  position: relative;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  border: 1.5px solid #6a6a6a;
+  border-radius: 50%;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.ask-mark[data-kind="multi"] { border-radius: 4px; }
+
+.ask-option[data-selected] .ask-mark { border-color: #3795f5; }
+
+.ask-option[data-selected] .ask-mark[data-kind="single"]::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #3795f5;
+}
+
+.ask-option[data-selected] .ask-mark[data-kind="multi"] {
+  border-color: #3795f5;
+  background: #3795f5;
+}
+
+.ask-option[data-selected] .ask-mark[data-kind="multi"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: no-repeat center / 9px 9px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.6 5.3 4 7.6 8.4 2.6' fill='none' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.ask-option-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ask-option-text strong {
+  color: #e5e5e5;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ask-option-text span {
+  color: #949494;
+  font-size: 11.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* ── 自由输入（简答 / 自定义回答） ──────────────────────────── */
+.ask-input {
+  width: 100%;
+  flex: none;
+  min-height: 40px;
+  max-height: 112px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  background: #171717;
+  color: #e5e5e5;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.6;
+  resize: none;
+  overflow-y: auto;
+}
+
+.ask-input::placeholder { color: #7d7d7d; }
+.ask-input:focus { outline: none; border-color: #3f6ea8; }
+
+/* ── 底部：提示 + 跳过 + 提交（审批栏的动作区） ─────────────── */
+.ask-foot {
+  display: flex;
+  flex: none;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ask-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #8f8f8f;
+  font-size: 11.5px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ask-skip,
+.ask-submit {
+  flex: none;
+  min-height: 30px;
+  padding: 0 14px;
+  border: 1px solid #3d3d3d;
+  border-radius: 8px;
+  background: #262626;
+  color: #e2e2e2;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.ask-skip:hover { border-color: #575757; background: #303030; }
+
+.ask-submit {
+  border-color: #2f6bd8;
+  background: #2f6bd8;
+  color: #ffffff;
+}
+
+.ask-submit:hover { border-color: #3a7ae8; background: #3a7ae8; }
+
+.ask-submit:disabled {
+  border-color: #3d3d3d;
+  background: #222222;
+  color: #6f6f6f;
+  cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+  .ask-card { padding: 10px 12px 10px 14px; }
+  .ask-hint { display: none; }
+}
+
+/* 窗口特别矮时，只让卡片主体滚动：选项本身仍然整块展开，不会出现「半截选项」。 */
+@media (max-height: 560px) {
+  .ask-card {
+    max-height: calc(100dvh - 96px);
+    padding: 10px 12px 10px 14px;
+  }
+  .ask-detail {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .ask-options { gap: 5px; margin-top: 8px; }
+  .ask-option { padding: 6px 9px; }
+  .ask-hint { display: none; }
+  .ask-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask-card { animation: none; }
+  .ask-option, .ask-skip, .ask-submit, .ask-mark { transition: none; }
+}

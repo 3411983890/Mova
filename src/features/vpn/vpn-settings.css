@@ -1,0 +1,477 @@
+/*
+ * 设置页 · 网络与线路（按模型分配 VPN）样式。
+ *
+ * 只引用 --mova-settings-* / --content-column token，不重定义 :root。
+ * 通用骨架（.settings-page / .settings-section / .settings-card /
+ * .settings-button / .settings-select / .settings-switch）来自 styles.css，
+ * 这里只补本页特有的部分；类名统一 vpn- 前缀，避免与通用类冲突。
+ *
+ * 色彩克制：本文件不写颜色字面值，底色、状态色与强调色全部取自 styles.css 的
+ * Settings design tokens（--mova-settings-*）。状态色只用 status-ok / warning-text /
+ * danger / error-text 这几个既有 token，避免自造一套会和规范漂移的色阶。
+ */
+
+/* 宿主 #settings-page-network 本身就是 .settings-page（内容列 + 内边距 + 30px 间距）。
+   再套一层内容列会把 718px 缩窄，所以内嵌时让宿主承担栅格。 */
+.settings-page > .vpn-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.vpn-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mova-settings-page-gap);
+}
+
+/* 禁用态必须有视觉。根 styles.css 里没有 `.settings-button:disabled` 规则，
+   `.settings-button:hover` 也没排除 :disabled，于是 `disabled={busy}` 完全看不出来，
+   而且禁用按钮悬停还会变亮、像是能点。按 memory-settings.css 的做法在这里补齐。 */
+.vpn-page :is(button, .settings-select):disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* 禁用按钮不再吃悬停高亮（把底色钉回非悬停态，权重高于根样式的 :hover）。 */
+.vpn-page .settings-button:disabled:hover,
+.vpn-page .settings-select:disabled:hover { background: var(--mova-settings-surface); }
+.vpn-page .settings-button.primary:disabled:hover {
+  border-color: var(--mova-settings-accent-strong);
+  background: var(--mova-settings-accent-strong);
+}
+
+.vpn-loading,
+.vpn-empty {
+  padding: 6px var(--mova-settings-row-pad-inline);
+  color: var(--mova-settings-text-description);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.vpn-empty { padding: 10px var(--mova-settings-row-pad-inline); }
+
+.vpn-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--mova-settings-error-line);
+  border-radius: 10px;
+  background: var(--mova-settings-danger-surface);
+  color: var(--mova-settings-error-text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.vpn-error .cm-icon { flex: 0 0 auto; margin-top: 2px; color: var(--mova-settings-danger); }
+
+/* ── ① 分流引擎 ─────────────────────────────────────────────── */
+
+.vpn-engine-card { padding: 0; }
+
+.vpn-engine-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline);
+  border-bottom: 1px solid var(--mova-settings-line);
+}
+
+.vpn-engine-text { min-width: 0; }
+
+.vpn-engine-text strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mova-settings-text-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vpn-engine-text p {
+  margin: 4px 0 0;
+  color: var(--mova-settings-text-description);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.vpn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mova-settings-dot-off);
+  flex: 0 0 auto;
+}
+
+.vpn-engine-ok .vpn-dot { background: var(--mova-settings-status-ok); }
+.vpn-engine-warn .vpn-dot { background: var(--mova-settings-warning-text); }
+
+.vpn-engine-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.vpn-engine-actions .settings-button { white-space: nowrap; }
+
+/* 开机自启是个开关，不是一个动作：开着时给一条可见的边框强调，关着时保持普通按钮的样子。
+   只用 token，仓库里没有允许的色值字面量（见 conventions 的样式规则）。 */
+.vpn-engine-actions .vpn-autostart {
+  display: inline-flex;
+  align-items: center;
+}
+
+.vpn-engine-actions .vpn-autostart.is-on {
+  border-color: var(--mova-settings-status-ok);
+  color: var(--mova-settings-status-ok);
+}
+
+/* 开关状态也要有视觉，不能只靠文案（读屏用 aria-checked）。 */
+.vpn-engine-actions .vpn-autostart[aria-checked="true"]::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: var(--mova-settings-status-ok);
+}
+
+.vpn-hint {
+  padding: 12px var(--mova-settings-row-pad-inline);
+  border-bottom: 1px solid var(--mova-settings-line);
+  background: var(--mova-settings-surface-sunken);
+}
+
+.vpn-hint strong {
+  font-size: 12.5px;
+  color: var(--mova-settings-text-item);
+}
+
+.vpn-hint pre {
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: 8px;
+  background: var(--mova-settings-surface-nested);
+  color: var(--mova-settings-text-body);
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vpn-hint-paths {
+  margin: 6px 0 0;
+  color: var(--mova-settings-text-dim);
+  font-size: 11.5px;
+  word-break: break-all;
+}
+
+.vpn-import-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px var(--mova-settings-row-pad-inline);
+}
+
+.vpn-inline-note {
+  color: var(--mova-settings-text-dim);
+  font-size: 12px;
+}
+
+.vpn-source-list { display: flex; flex-direction: column; }
+
+.vpn-source-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px var(--mova-settings-row-pad-inline);
+  border-top: 1px solid var(--mova-settings-line);
+}
+
+.vpn-source-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.vpn-source-text strong {
+  color: var(--mova-settings-text-body);
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpn-source-text span {
+  color: var(--mova-settings-text-note);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpn-source-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+
+/* ── ② 策略池与线路 ─────────────────────────────────────────── */
+
+/* 段标题 + 右侧动作同排（规范允许标题行放操作）。窄窗口自动换行，不挤压标题。
+   ⚠️ 必须收在 `.vpn-page` 下面：这条规则以前是全局的，于是「CLI 模型」页的段标题
+   （标题 + 说明上下堆叠）被顺手改成了 `align-items: center` + `space-between`，
+   表现就是那一页的「ChatGPT 订阅 / Gemini 订阅」全部居中——本页的样式泄漏到了别的页。 */
+.vpn-page .settings-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.vpn-section-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vpn-section-actions .settings-button { white-space: nowrap; }
+
+.vpn-pool-list { display: flex; flex-direction: column; }
+
+.vpn-pool-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px var(--mova-settings-row-pad-inline);
+  /* 分隔线由外层 .vpn-pool-block 负责：这里再画一条会出现「双线叠在一起」的排版错觉。 */
+}
+
+.vpn-pool-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.vpn-pool-text strong {
+  color: var(--mova-settings-text-body);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vpn-pool-text span { color: var(--mova-settings-text-description); font-size: 12px; }
+
+.vpn-pool-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+
+/* 节点区空态：以前 nodes 为空时仍渲染网格容器（只剩一条 border-top 和一圈内边距），
+   看着像一张加载失败的表格。改成虚线空态，和 memory-empty 同一套。 */
+.vpn-node-empty {
+  margin: 12px var(--mova-settings-row-pad-inline) var(--mova-settings-row-pad-block);
+  padding: 26px 16px;
+  border: 1px dashed var(--mova-settings-line-dashed);
+  border-radius: var(--mova-settings-radius-card);
+  color: var(--mova-settings-text-meta);
+  font-size: 12.5px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.vpn-node-empty p { margin: 0; }
+
+.vpn-node-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+  padding: 12px var(--mova-settings-row-pad-inline) var(--mova-settings-row-pad-block);
+  border-top: 1px solid var(--mova-settings-line);
+}
+
+.vpn-node-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: 10px;
+  background: var(--mova-settings-surface-nested);
+}
+
+.vpn-node-card:hover { border-color: var(--mova-settings-line-control); }
+
+.vpn-node-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vpn-node-head strong {
+  color: var(--mova-settings-text-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpn-node-type {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--mova-settings-badge-surface);
+  color: var(--mova-settings-text-meta);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.vpn-node-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--mova-settings-text-dim);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.vpn-node-meta [data-tone="untested"] { color: var(--mova-settings-text-dim); }
+
+.vpn-node-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.vpn-tag {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--mova-settings-surface-sunken);
+  color: var(--mova-settings-text-note);
+  font-size: 10.5px;
+}
+
+/* ── ③ 按模型分配 ──────────────────────────────────────────── */
+
+.vpn-provider-block + .vpn-provider-block { border-top: 1px solid var(--mova-settings-line); }
+
+.vpn-provider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--mova-settings-row-pad-block) var(--mova-settings-row-pad-inline);
+}
+
+.vpn-provider-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+.vpn-provider-text strong {
+  color: var(--mova-settings-text-body);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vpn-provider-text span { color: var(--mova-settings-text-note); font-size: 11.5px; }
+
+.vpn-provider-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 1 auto;
+}
+
+.vpn-switch-label {
+  color: var(--mova-settings-text-note);
+  font-size: 11.5px;
+}
+
+.vpn-model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 var(--mova-settings-row-pad-inline) var(--mova-settings-row-pad-block);
+}
+
+.vpn-model-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-left: 12px;
+  border-left: 1px solid var(--mova-settings-line-dashed);
+}
+
+.vpn-model-name {
+  min-width: 0;
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 弹窗里的表单 ──────────────────────────────────────────── */
+
+.vpn-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--mova-settings-text-note);
+}
+
+.vpn-field input[type="text"],
+.vpn-field input[type="url"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--mova-settings-line-control);
+  border-radius: 8px;
+  background: var(--mova-settings-surface-sunken);
+  color: var(--mova-settings-text-body);
+  font-size: 13px;
+}
+
+.vpn-field input:focus-visible {
+  outline: 1px solid var(--mova-settings-accent-control);
+  outline-offset: 1px;
+}
+
+.vpn-node-picker {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--mova-settings-line);
+  border-radius: 8px;
+  background: var(--mova-settings-surface-sunken);
+}
+
+.vpn-node-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  color: var(--mova-settings-text-item);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.vpn-node-pick:hover { background: var(--mova-settings-hover-row); }
+
+.vpn-node-pick span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpn-node-pick em {
+  flex: 0 0 auto;
+  color: var(--mova-settings-text-dim);
+  font-size: 10.5px;
+  font-style: normal;
+  text-transform: uppercase;
+}

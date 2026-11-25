@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Mova 桌面界面设计原型">
+  <title>ChatMova · Mova</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./keyline-icons.css">
+  <link rel="stylesheet" href="./project-dialog.css">
+</head>
+<body>
+  <div class="window-shell">
+    <header class="titlebar" aria-label="窗口标题栏">
+      <div class="history-actions">
+        <button class="icon-button muted" aria-label="后退" disabled><i class="ph ph-arrow-left"></i></button>
+        <button class="icon-button muted" aria-label="前进" disabled><i class="ph ph-arrow-right"></i></button>
+        <button class="icon-button" id="sidebar-toggle" aria-label="收起侧边栏" aria-expanded="true"><i class="ph ph-sidebar-simple"></i></button>
+      </div>
+      <nav class="app-menu" aria-label="应用菜单">
+        <button>文件</button><button>编辑</button><button>视图</button><button id="settings-button" aria-haspopup="dialog">设置</button>
+      </nav>
+      <div class="window-actions" id="window-controls" role="group" aria-label="窗口控制（仅外观）"></div>
+    </header>
+
+    <div class="workspace">
+      <nav class="activity-rail" aria-label="主导航">
+        <div class="rail-top">
+          <button class="rail-button selected" aria-label="主页" title="主页" aria-current="page" id="home-button"><i class="ph-fill ph-house"></i></button>
+          <button class="rail-button" id="messages-button" aria-label="消息" title="消息"><i class="ph ph-chat-circle-dots"></i></button>
+          <button class="rail-button" id="contacts-button" aria-label="通讯录" title="通讯录"><i class="ph ph-address-book"></i></button>
+          <button class="rail-button" id="forum-button" aria-label="MovaCommunity" title="MovaCommunity"><i class="ph ph-aperture"></i></button>
+          <button class="rail-button" aria-label="更多" title="更多"><i class="ph ph-dots-three"></i></button>
+          <div class="rail-divider"></div>
+          <button class="rail-button" aria-label="插件" title="插件"><i class="ph ph-puzzle"></i></button>
+        </div>
+        <div class="rail-bottom">
+          <button class="rail-button utility-button" aria-label="额度状态（示例）" title="额度状态（示例）"><svg class="rail-gauge" viewBox="0 0 52 58" aria-hidden="true"><path class="gauge-track" d="M 8.66 15.46 A 22 22 0 0 1 43.34 15.46"/><path class="gauge-arc" d="M 8.66 15.46 A 22 22 0 0 1 43.34 15.46" pathLength="1" stroke-dasharray=".62 1"/><path class="gauge-track" d="M 4.33 25.18 A 22 22 0 1 0 47.67 25.18"/><path class="gauge-arc" d="M 4.33 25.18 A 22 22 0 1 0 47.67 25.18"/><rect x="19" y="22" width="14" height="14" rx="2.6" transform="rotate(45 26 29)" fill="#575757"/></svg></button>
+          <div class="companion" role="img" aria-label="Mova 小球：待机" title="Mova · 待机"><div id="emotion-ball"></div></div>
+        </div>
+      </nav>
+
+      <div class="content-frame">
+        <section id="forum-view" class="forum-view" aria-label="MovaCommunity" hidden></section>
+        <section id="contacts-view" class="contacts-view" aria-label="通讯录" hidden></section>
+        <aside class="project-sidebar" id="project-sidebar" aria-label="项目与聊天">
+          <section class="bot-sidebar" id="bot-sidebar" aria-label="MovaBot 聊天" hidden>
+            <header class="bot-sidebar-header"><h1>MovaBot</h1><div class="bot-sidebar-tools"><button class="icon-button" id="bot-notifications" aria-label="通知" title="通知" aria-expanded="false"><i class="ph ph-bell"></i></button><button class="icon-button" id="bot-add" aria-label="创建 Bot" title="创建 Bot" aria-haspopup="dialog" aria-expanded="false"><i class="ph ph-circle-plus"></i></button></div><div class="bot-notice" id="bot-notice" role="status" hidden>暂无新通知</div></header>
+            <div id="bot-list" class="bot-list" aria-label="聊天列表"></div>
+          </section>
+          <div class="sidebar-heading">
+            <div class="mode-switcher">
+              <button id="mode-toggle" aria-haspopup="menu" aria-expanded="false"><span id="mode-label">ChatMova</span><i class="ph ph-caret-down"></i></button>
+              <div class="mode-menu popover" id="mode-menu" role="menu" aria-label="选择 Mova 模式" hidden>
+                <button role="menuitemradio" aria-checked="true" data-mode="ChatMova"><span><strong>ChatMova</strong><small>创建、学习和探索</small></span><i class="ph ph-check"></i></button>
+                <button role="menuitemradio" aria-checked="false" data-mode="CodeMova"><span><strong>CodeMova</strong><small>构建、调试和发布</small></span><i class="ph ph-check"></i></button>
+              </div>
+            </div>
+            <div class="sidebar-tools">
+              <button class="icon-button" id="notifications-toggle" aria-label="通知" title="通知" aria-expanded="false"><i class="ph ph-bell"></i></button>
+              <button class="icon-button" id="search-toggle" aria-label="搜索聊天" title="搜索聊天" aria-expanded="false"><i class="ph ph-magnifying-glass"></i></button>
+            </div>
+            <div class="notification-menu popover" id="notification-menu" hidden>暂无新通知</div>
+          </div>
+          <div class="sidebar-actions">
+            <button class="sidebar-action" id="new-chat"><i class="ph ph-circle-plus" aria-hidden="true"></i><span>新聊天</span></button>
+            <button class="sidebar-action" id="new-project" type="button" aria-haspopup="dialog" aria-controls="project-dialog" aria-expanded="false" hidden><i class="ph ph-folder-plus" aria-hidden="true"></i><span>新项目</span></button>
+          </div>
+          <div class="search-box" id="search-box" hidden><i class="ph ph-magnifying-glass"></i><input id="project-search" placeholder="搜索项目与聊天" aria-label="搜索项目与聊天"><button class="icon-button" id="clear-search" aria-label="清除搜索"><i class="ph ph-x"></i></button></div>
+          <div class="project-scroll" id="project-scroll">
+            <h2 id="project-scroll-title">项目</h2>
+            <div id="project-list"></div>
+            <p id="search-empty" hidden>没有找到相关项目或聊天</p>
+          </div>
+        </aside>
+
+        <div class="sidebar-divider" role="separator" aria-orientation="vertical" aria-label="调整项目侧栏宽度" aria-controls="project-sidebar" tabindex="0">
+          <svg class="sidebar-divider-grip" viewBox="0 0 40 112" width="40" height="112" aria-hidden="true">
+            <path class="sidebar-divider-outline" />
+            <path class="sidebar-divider-ink" />
+          </svg>
+        </div>
+        <main class="main-panel">
+          <button class="icon-button panel-button browser-toggle" id="browser-toggle" aria-label="打开内置浏览器" title="内置浏览器" aria-expanded="false" aria-controls="browser-panel"><i class="ph ph-panel-right"></i></button>
+          <header class="chat-header" id="chat-header" hidden>
+            <h1 class="chat-header-title" id="chat-header-title">新聊天</h1>
+            <div class="chat-header-actions">
+              <button type="button" class="chat-aim" id="chat-aim" aria-haspopup="dialog" aria-expanded="false" aria-controls="aim-panel" aria-label="查看当前目标与计划" title="查看当前目标与计划" data-state="live" hidden>
+                <i class="ph ph-check chat-aim-check" aria-hidden="true"></i>
+                <span class="chat-aim-text" id="chat-aim-text">正在完成目标</span>
+              </button>
+              <button class="icon-button" id="chat-more" aria-label="Token 用量" title="Token 用量" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-usage"><i class="ph ph-dots-three"></i></button>
+              <span class="chat-header-divider" aria-hidden="true"></span>
+              <button class="icon-button browser-toggle" id="chat-browser-toggle" aria-label="打开内置浏览器" title="内置浏览器" aria-expanded="false" aria-controls="browser-panel"><i class="ph ph-panel-right"></i></button>
+            </div>
+          </header>
+          <section class="aim-panel" id="aim-panel" role="dialog" aria-modal="false" aria-labelledby="aim-panel-title" tabindex="-1" hidden>
+            <div class="aim-panel-inner">
+              <header class="aim-panel-head">
+                <h2 class="aim-panel-title" id="aim-panel-title">目标与计划</h2>
+                <div class="aim-panel-actions">
+                  <button type="button" class="aim-action" id="aim-pause" aria-label="暂停目标" aria-pressed="false"><i class="ph ph-pause aim-icon-pause" aria-hidden="true"></i><i class="ph ph-play aim-icon-play" aria-hidden="true"></i></button>
+                  <button type="button" class="aim-action is-danger" id="aim-delete" aria-label="删除目标和计划"><i class="ph ph-trash" aria-hidden="true"></i></button>
+                  <button type="button" class="aim-panel-close" aria-label="关闭目标与计划"><i class="ph ph-x" aria-hidden="true"></i></button>
+                </div>
+              </header>
+
+              <section class="aim-section" id="aim-goal-section" aria-labelledby="aim-goal-label">
+                <div class="aim-section-head">
+                  <h3 class="aim-label" id="aim-goal-label">目标</h3>
+                  <span class="aim-state" id="aim-goal-state">进行中</span>
+                </div>
+                <p class="aim-goal-title" id="aim-goal-title"></p>
+                <p class="aim-goal-detail" id="aim-goal-detail"></p>
+                <div class="aim-progress" id="aim-progress" hidden>
+                  <div class="aim-progress-track" id="aim-progress-bar" role="progressbar" aria-label="计划完成度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="aim-progress-fill"></span></div>
+                  <span class="aim-progress-text" id="aim-progress-text"></span>
+                </div>
+              </section>
+
+              <section class="aim-section" id="aim-plan-section" aria-labelledby="aim-plan-label">
+                <div class="aim-section-head">
+                  <h3 class="aim-label" id="aim-plan-label">计划</h3>
+                  <span class="aim-plan-meta" id="aim-plan-meta"></span>
+                </div>
+                <ol class="aim-steps" id="aim-steps"></ol>
+              </section>
+
+              <footer class="aim-panel-foot"><span>示例数据</span><span>目标由 Mova 维护 · 随执行自动更新</span></footer>
+            </div>
+          </section>
+          <section class="chat-usage" id="chat-usage" role="dialog" aria-modal="false" aria-labelledby="chat-usage-title" tabindex="-1" hidden>
+            <div class="chat-usage-inner">
+              <header class="chat-usage-head">
+                <i class="ph ph-zap chat-usage-bolt" aria-hidden="true"></i>
+                <h2 class="chat-usage-title" id="chat-usage-title">Token 用量</h2>
+                <span class="chat-usage-sample">示例数据</span>
+                <button type="button" class="chat-usage-close" aria-label="关闭 Token 用量"><i class="ph ph-x" aria-hidden="true"></i></button>
+              </header>
+
+              <div class="chat-usage-summary">
+                <div class="chat-usage-stat">
+                  <span class="chat-usage-label">总消耗</span>
+                  <strong class="chat-usage-value">220.4k</strong>
+                  <span class="chat-usage-sub">本轮 48.9k</span>
+                </div>
+                <div class="chat-usage-stat">
+                  <span class="chat-usage-label">Cost</span>
+                  <strong class="chat-usage-value">¥ 4.62</strong>
+                  <span class="chat-usage-sub">缓存已省 <b>78%</b></span>
+                </div>
+              </div>
+
+              <section class="chat-usage-breakdown" aria-label="Token 构成">
+                <div class="chat-usage-breakdown-head">
+                  <span class="chat-usage-label">构成</span>
+                  <span class="chat-usage-breakdown-meta">3.5M 入 / 73k 出</span>
+                </div>
+                <div class="chat-usage-track" role="img" aria-label="输入 3.5M，输出 73k，缓存 36.6M，命中率 78%">
+                  <span class="chat-usage-seg is-input" style="flex: 62"></span>
+                  <span class="chat-usage-seg is-output" style="flex: 8"></span>
+                  <span class="chat-usage-seg is-cache" style="flex: 30"></span>
+                </div>
+                <ul class="chat-usage-legend">
+                  <li><i class="is-input" aria-hidden="true"></i>输入</li>
+                  <li><i class="is-output" aria-hidden="true"></i>输出</li>
+                  <li class="is-cache"><i class="is-cache" aria-hidden="true"></i>缓存 36.6M · 命中 78%</li>
+                </ul>
+              </section>
+
+              <dl class="chat-usage-rows">
+                <div><dt>本轮输入 / 输出</dt><dd>42.1k / 6.8k</dd></div>
+                <div><dt>本轮耗时</dt><dd>1m 42s</dd></div>
+                <div><dt>TPS</dt><dd>6.8</dd></div>
+                <div><dt>会话总耗时</dt><dd>1h 18m</dd></div>
+                <div><dt>子 Agent 消耗</dt><dd>¥ 0.87</dd></div>
+                <div><dt>重试 / Fallback</dt><dd>1 次 / 无</dd></div>
+              </dl>
+
+              <footer class="chat-usage-foot">
+                <div>当前模型 <b id="chat-usage-model">deepseek-chat</b><span id="chat-usage-model-meta"> · Thinking Medium</span></div>
+                <div class="chat-usage-foot-meta">Fast off · Service Tier default</div>
+              </footer>
+            </div>
+          </section>
+          <div class="chat-fade" id="chat-fade" hidden></div>
+          <section class="welcome" id="welcome" aria-label="开始聊天">
+            <h1>我们应该在<span id="welcome-project">Mova</span>中做些什么？</h1>
+          </section>
+          <section class="conversation" id="conversation" aria-label="聊天记录" hidden></section>
+          <section class="bot-conversation" id="bot-conversation" aria-label="MovaBot 对话" hidden></section>
+          <div class="composer-area">
+            <details class="chat-capabilities" id="chat-capabilities">
+              <summary id="chat-capability-summary">模型能力与隐私</summary>
+              <p id="chat-capability-detail"></p>
+              <label><input type="checkbox" id="chat-search-enabled" checked> 允许按需联网搜索（公开搜索词发送给 AnySearch）</label>
+              <label><input type="checkbox" id="chat-temporary"> 临时聊天（仅新聊天可选；不保存、不提取也不读取记忆）</label>
+              <button type="button" id="chat-memory-settings">管理记忆与存储</button>
+            </details>
+            <p class="mock-chat-note" id="chat-feedback" role="status" hidden></p>
+            <div id="approval-host" aria-live="polite"></div>
+            <div class="composer-context" id="composer-context" hidden>
+              <button type="button" id="context-project" title="当前项目"><i class="ph ph-folder-simple" aria-hidden="true"></i><span>选择项目</span></button>
+              <button type="button" id="context-machine" title="此计算机"><i class="ph ph-laptop" aria-hidden="true"></i><span>此计算机</span></button>
+            </div>
+            <div id="ask-host"></div>
+            <div id="composer" aria-label="聊天输入框"></div>
+          </div>
+          <section class="bot-popover" id="bot-popover" role="dialog" aria-modal="false" aria-labelledby="bot-popover-title" tabindex="-1" hidden>
+            <div class="bot-popover-inner" id="bot-popover-inner"></div>
+          </section>
+        </main>
+
+        <aside class="browser-panel" id="browser-panel" aria-label="内置浏览器" hidden>
+          <div class="browser-resizer" id="browser-resizer" role="separator" aria-orientation="vertical" aria-label="调整浏览器宽度" tabindex="0"></div>
+          <header class="browser-toolbar" id="browser-toolbar">
+            <div class="browser-nav-group">
+              <button type="button" class="browser-icon-button" id="browser-back" aria-label="后退" title="后退" disabled><i class="ph ph-arrow-left"></i></button>
+              <button type="button" class="browser-icon-button" id="browser-forward" aria-label="前进" title="前进" disabled><i class="ph ph-arrow-right"></i></button>
+              <button type="button" class="browser-icon-button" id="browser-reload" aria-label="刷新" title="刷新"><i class="ph ph-refresh"></i></button>
+            </div>
+            <form class="browser-address" id="browser-address-form" role="search" novalidate>
+              <i class="ph ph-globe browser-address-icon" aria-hidden="true"></i>
+              <input class="browser-url" id="browser-url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="输入网址" aria-label="网址">
+            </form>
+            <button type="button" class="browser-icon-button browser-menu-trigger" id="browser-menu-trigger" aria-label="浏览器菜单" title="浏览器菜单" aria-haspopup="menu" aria-expanded="false" aria-controls="browser-menu"><i class="ph ph-dots-three"></i></button>
+            <div class="browser-menu" id="browser-menu" role="menu" aria-label="浏览器菜单" hidden>
+              <button type="button" role="menuitem" data-browser-action="open-external"><i class="ph ph-arrow-up-right" aria-hidden="true"></i><span>在新标签页打开</span></button>
+              <button type="button" role="menuitem" data-browser-action="copy-url"><i class="ph ph-copy" aria-hidden="true"></i><span>复制网址</span></button>
+              <button type="button" role="menuitem" data-browser-action="reload"><i class="ph ph-refresh" aria-hidden="true"></i><span>刷新</span></button>
+              <div class="browser-menu-divider" role="separator"></div>
+              <button type="button" role="menuitem" data-browser-action="close"><i class="ph ph-x" aria-hidden="true"></i><span>关闭分屏</span></button>
+            </div>
+          </header>
+          <div class="browser-stage" id="browser-stage">
+            <div class="browser-reveal-zone" id="browser-reveal-zone" aria-hidden="true"></div>
+            <div class="browser-start" id="browser-start">
+              <div class="browser-start-icon"><i class="ph ph-globe" aria-hidden="true"></i></div>
+              <strong>内置浏览器</strong>
+              <p>在上方输入网址，或粘贴本地预览地址。</p>
+            </div>
+            <div class="browser-viewport" id="browser-viewport" hidden>
+              <iframe class="browser-frame" id="browser-frame" title="内置浏览器网页" src="about:blank" referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+            </div>
+            <div class="browser-loading" id="browser-loading" role="status" hidden><span></span><span></span><span></span></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <section class="settings-view" id="settings-view" aria-label="设置" hidden>
+      <div class="settings-nav" id="settings-nav">
+        <div class="settings-nav-head">
+          <h1 class="settings-title">设置</h1>
+          <button type="button" class="settings-search-toggle" id="settings-search-toggle" aria-label="搜索设置" aria-expanded="false" aria-controls="settings-search-field"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></button>
+        </div>
+        <label class="settings-search" id="settings-search-field" hidden>
+          <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+          <input id="settings-search" type="search" placeholder="搜索" aria-label="搜索设置">
+        </label>
+        <div class="settings-groups">
+          <p class="settings-group-label">个人</p>
+          <button class="settings-item selected" data-settings-item="config">
+            <i class="ph ph-gear" aria-hidden="true"></i><span>配置</span>
+          </button>
+          <button class="settings-item" data-settings-item="usage">
+            <i class="ph ph-chart-line" aria-hidden="true"></i><span>使用情况和计费</span>
+          </button>
+          <button class="settings-item" data-settings-item="models">
+            <i class="ph ph-cube" aria-hidden="true"></i><span>模型</span>
+          </button>
+          <button class="settings-item" data-settings-item="memory">
+            <i class="ph ph-brain" aria-hidden="true"></i><span>记忆与存储</span>
+          </button>
+          <button class="settings-item" data-settings-item="permissions">
+            <i class="ph ph-shield-check" aria-hidden="true"></i><span>权限</span>
+          </button>
+          <button class="settings-item" data-settings-item="archive">
+            <i class="ph ph-archive" aria-hidden="true"></i><span>已归档的聊天</span>
+          </button>
+          <button class="settings-item" data-settings-item="service">
+            <i class="ph ph-cloud" aria-hidden="true"></i><span>服务与索引</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-divider" id="settings-divider" role="separator" aria-orientation="vertical" aria-label="调整设置导航宽度" aria-controls="settings-nav" tabindex="0">
+        <svg class="sidebar-divider-grip" viewBox="0 0 40 112" width="40" height="112" aria-hidden="true">
+          <path class="sidebar-divider-outline" />
+          <path class="sidebar-divider-ink" />
+        </svg>
+      </div>
+
+      <div class="settings-panel">
+        <header class="settings-panel-head">
+          <h2 id="settings-heading">配置</h2>
+        </header>
+
+        <div class="settings-page" id="settings-page-config">
+          <section class="settings-section">
+            <h3 class="settings-section-title">权限</h3>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>项目文件与终端 · 按文件夹授权</strong>
+                  <p>模型只能在你授予的项目文件夹内读取、修改文件和运行命令。添加项目文件夹只登记路径，不会自动授权；扩大权限需要在系统对话框里确认。</p>
+                </div>
+                <button class="settings-button" id="open-permissions" type="button">管理权限</button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>外部服务与数据发送</strong>
+                  <p>发送消息会将有限聊天上下文、相关记忆和所选图片发送到当前模型提供商；启用 AnySearch 后，公开搜索词会发给 AnySearch。文件内容只在你授权后由工具读取，并作为工具结果发送给当前模型。</p>
+                </div>
+                <span class="settings-section-note">按实际能力提供</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h3 class="settings-section-title">常规</h3>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>项目外聊天文件夹</strong>
+                  <p>在项目外发起的聊天，其数据的默认存储位置。</p>
+                </div>
+                <div class="settings-inline-control">
+                  <span class="settings-path">C:\Users\34119\…\Documents\Codex</span>
+                  <button class="settings-button">更改</button>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>默认文件打开位置</strong>
+                  <p>默认打开文件和文件夹的位置</p>
+                </div>
+                <button class="settings-select"><span>File Explorer</span><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>集成终端 Shell</strong>
+                  <p>选择要在集成终端中打开的 Shell。</p>
+                </div>
+                <button class="settings-select"><span>PowerShell</span><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>语言</strong>
+                  <p>应用界面语言</p>
+                </div>
+                <button class="settings-select"><span>简体中文</span><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>关闭窗口前确认</strong>
+                  <p>使用关闭标签页的快捷键会导致窗口关闭时，显示警告</p>
+                </div>
+                <button class="settings-select"><span>仅在使用“关闭”快捷键时</span><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="settings-page" id="settings-page-usage" hidden>
+          <section class="settings-section">
+            <h3 class="settings-section-title">上下文</h3>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>上下文窗口</strong>
+                  <p>820k / 1M 已用，剩余 18%。数值为原型示例。</p>
+                </div>
+                <span class="settings-percent">82%</span>
+              </div>
+              <div class="settings-meter"><span style="width: 82%"></span></div>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h3 class="settings-section-title">套餐额度 · Max (5x)</h3>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>5 小时额度</strong>
+                  <p>2 小时 46 分钟后重置</p>
+                </div>
+                <span class="settings-percent">剩余 62%</span>
+              </div>
+              <div class="settings-meter"><span style="width: 38%"></span></div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>每周 · 所有模型</strong>
+                  <p>周二 15:00 重置</p>
+                </div>
+                <span class="settings-percent">剩余 97%</span>
+              </div>
+              <div class="settings-meter"><span style="width: 3%"></span></div>
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <strong>每周 · Pro</strong>
+                  <p>周二 15:00 重置</p>
+                </div>
+                <span class="settings-percent">剩余 95%</span>
+              </div>
+              <div class="settings-meter"><span style="width: 5%"></span></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="settings-page" id="settings-page-memory" hidden></div>
+        <div class="settings-page" id="settings-page-permissions" hidden></div>
+        <div class="settings-page" id="settings-page-service" hidden></div>
+        <div class="settings-page" id="settings-page-archive" hidden>
+          <div class="archive-toolbar">
+            <label class="archive-search">
+              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+              <input id="archive-search" type="search" placeholder="搜索已归档的聊天" aria-label="搜索已归档的聊天">
+            </label>
+            <div class="archive-menu-wrap">
+              <button type="button" class="archive-menu" id="archive-type-button" aria-haspopup="menu" aria-expanded="false">
+                <i class="ph ph-dots-three" aria-hidden="true"></i><span>全部聊天</span><i class="ph ph-caret-down" aria-hidden="true"></i>
+              </button>
+              <div class="archive-popover" id="archive-type-menu" role="menu" hidden>
+                <p class="archive-popover-label">类型</p>
+                <button type="button" role="menuitemradio" aria-checked="true" data-archive-type="all">全部聊天</button>
+                <button type="button" role="menuitemradio" aria-checked="false" data-archive-type="local">本地</button>
+                <button type="button" role="menuitemradio" aria-checked="false" data-archive-type="cloud">云端</button>
+                <div class="archive-popover-divider" aria-hidden="true"></div>
+                <p class="archive-popover-label">排序方式</p>
+                <button type="button" role="menuitemradio" aria-checked="true" data-archive-sort="updated">更新时间</button>
+                <button type="button" role="menuitemradio" aria-checked="false" data-archive-sort="created">创建时间</button>
+                <button type="button" role="menuitemradio" aria-checked="false" data-archive-sort="alpha">按字母顺序</button>
+              </div>
+            </div>
+            <div class="archive-menu-wrap">
+              <button type="button" class="archive-menu" id="archive-project-button" aria-haspopup="menu" aria-expanded="false">
+                <i class="ph ph-folder-simple" aria-hidden="true"></i><span id="archive-project-label">所有项目</span><i class="ph ph-caret-down" aria-hidden="true"></i>
+              </button>
+              <div class="archive-popover" id="archive-project-menu" role="menu" hidden></div>
+            </div>
+          </div>
+          <div class="archive-list" id="archive-list"></div>
+        </div>
+
+        <div class="settings-page" id="settings-page-models" hidden>
+          <section class="settings-section">
+            <div class="settings-section-head">
+              <h3 class="settings-section-title">模型提供商</h3>
+              <p class="settings-section-note">填写提供商的 API 地址与密钥，获取可用模型后勾选要在聊天中使用的模型。多模态能力与思考强度随模型列表一起读取，也可以手动调整。</p>
+            </div>
+            <div class="provider-list" id="provider-list"></div>
+            <p class="model-config-message" id="model-config-message" role="status">浏览器版使用模拟回复，模型提供商仅在 Windows 桌面版可用。</p>
+            <button type="button" class="settings-add" id="add-provider"><i class="ph ph-plus" aria-hidden="true"></i><span>添加提供商</span></button>
+          </section>
+
+          <section class="settings-section" id="search-settings" hidden>
+            <h3 class="settings-section-title">AnySearch 网页搜索</h3>
+            <div class="settings-card">
+              <p class="model-config-message" id="search-config-message">联网搜索默认开启，仅向 AnySearch 发送模型生成的搜索词。</p>
+              <form class="model-form" id="search-form">
+                <label class="model-field">
+                  <span>AnySearch API 密钥</span>
+                  <input id="search-key" type="password" maxlength="512" autocomplete="new-password" spellcheck="false">
+                </label>
+                <div class="model-form-actions">
+                  <p class="model-form-status" id="search-status" role="status"></p>
+                  <button type="button" class="settings-button" id="search-test">测试搜索</button>
+                  <button type="submit" class="settings-button primary">保存密钥</button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <dialog class="model-picker-dialog" id="model-picker-dialog" aria-labelledby="model-picker-title">
+      <header class="picker-head">
+        <h2 id="model-picker-title">选择模型</h2>
+        <button type="button" class="picker-close" id="picker-close" aria-label="关闭"><i class="ph ph-x" aria-hidden="true"></i></button>
+      </header>
+      <p class="picker-note">以下是模型提供商的可用模型，勾选的模型即为模型列表。</p>
+      <div class="picker-toolbar">
+        <label class="picker-search">
+          <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+          <input id="picker-search" type="search" placeholder="搜索模型" aria-label="搜索模型">
+        </label>
+        <button type="button" id="picker-all">全选</button>
+      </div>
+      <div class="picker-list" id="picker-list" role="list"></div>
+      <p class="picker-status" id="picker-status" role="status"></p>
+      <footer class="picker-actions">
+        <button type="button" id="picker-cancel">取消</button>
+        <button type="button" class="settings-button primary" id="picker-confirm">更新列表</button>
+      </footer>
+    </dialog>
+
+    <dialog class="confirm-dialog" id="remove-model-dialog" aria-labelledby="remove-dialog-title">
+      <h2 id="remove-dialog-title">移除模型密钥</h2>
+      <p id="remove-dialog-text">移除后需重新配置密钥才能发送真实模型请求。已保存的聊天会保留。</p>
+      <div class="confirm-actions">
+        <button type="button" id="remove-cancel">取消</button>
+        <button type="button" class="danger-action" id="remove-confirm">移除</button>
+      </div>
+    </dialog>
+  </div>
+  <div id="sidebar-announcement" class="visually-hidden" role="status"></div>
+  <dialog class="bot-builder-dialog" id="bot-builder-dialog" aria-labelledby="bot-builder-title"><div id="bot-builder-root"></div></dialog>
+  <dialog class="project-dialog" id="project-dialog" aria-labelledby="project-dialog-title">
+    <form id="project-form">
+      <header class="project-dialog-header">
+        <h2 id="project-dialog-title">创建项目</h2>
+        <button class="project-dialog-close" id="close-project" type="button" aria-label="关闭"><i class="ph ph-x"></i></button>
+      </header>
+      <label class="project-field-label" for="project-name">项目名称</label>
+      <div class="project-name-field"><i class="ph ph-folder-simple project-name-folder-icon" aria-hidden="true"></i><svg class="project-name-source-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m12 5-4 7h6l-3 7"/></svg><input id="project-name" type="text" maxlength="60" placeholder="哥本哈根之旅" required autofocus></div>
+      <div class="project-section-heading"><span>源文件夹</span><span class="project-selected-device"><i class="ph ph-laptop"></i>此电脑</span></div>
+      <div class="project-source">
+        <div class="project-device-wrap">
+          <button class="project-device-toggle" id="project-device-toggle" type="button" aria-expanded="false" aria-controls="project-device-menu"><span>在此电脑上添加文件夹</span><i class="ph ph-caret-down"></i></button>
+          <div class="project-device-menu" id="project-device-menu" hidden>
+            <button class="project-device-local" type="button" id="project-device-local"><i class="ph ph-laptop"></i><span>此电脑</span><i class="ph ph-check"></i></button>
+            <p class="project-device-caption">远程设备</p>
+            <p class="project-device-empty">未连接任何远程主机</p>
+            <button class="project-add-remote" id="project-add-remote" type="button"><i class="ph ph-plus"></i><span>添加远程主机</span></button>
+            <p class="project-remote-status" id="project-remote-status" role="status" hidden>当前预览暂不支持连接远程主机。</p>
+          </div>
+        </div>
+        <button class="project-folder-button" id="project-folder-add" type="button"><i class="ph ph-folder-plus"></i><span>添加</span></button>
+        <input id="project-folder" type="file" webkitdirectory multiple hidden>
+        <div class="project-folder-list" id="project-folder-list" aria-label="已选择的源文件夹" hidden></div>
+        <button class="project-folder-more" id="project-folder-more" type="button" hidden><i class="ph ph-folder-plus"></i><span>添加文件夹</span></button>
+      </div>
+      <div class="project-section-heading"><span>自定义指令</span></div>
+      <div class="project-instructions">
+        <label class="project-field-label" for="project-instructions">项目指令</label>
+        <textarea id="project-instructions" rows="3" maxlength="4000" aria-describedby="project-instructions-hint" placeholder="例如：这个项目用 pnpm；测试命令是 pnpm test -- --run；不要修改 lock 文件"></textarea>
+        <p class="project-instructions-hint" id="project-instructions-hint">这段文字会加入本项目的每一次对话，且仅对 CodeMova 项目聊天生效。</p>
+      </div>
+      <div class="project-info"><svg viewBox="0 0 32 36" aria-hidden="true"><path d="M11 25c0-4-5-5-5-11a10 10 0 0 1 20 0c0 6-5 7-5 11M11 25h10M12 29h8M14 33h4M16 0v-3M3 3l-2-2M29 3l2-2M1 14h-3M31 14h3"/></svg><p>项目功能可将聊天、文件和自定义指令集中保存。可将其用于持续进行的工作，或仅用于保持内容整洁有序。</p></div>
+      <p class="project-form-status" id="project-form-status" role="status" hidden></p>
+      <footer class="project-dialog-actions">
+        <div class="project-memory-wrap">
+          <button class="project-memory-button" id="project-memory-toggle" type="button" aria-expanded="false" aria-controls="project-memory-menu"><span id="project-memory-label">默认记忆</span><i class="ph ph-caret-down"></i></button>
+          <div class="project-memory-menu" id="project-memory-menu" hidden>
+            <button type="button" data-memory="default" aria-pressed="true"><span><strong>默认记忆</strong><small>此项目仅使用本项目记忆，并可使用你允许的全局记忆；不会读取其他项目的记忆。</small></span><i class="ph ph-check"></i></button>
+            <button type="button" data-memory="project" aria-pressed="false"><span><strong>仅限项目的记忆</strong><small>此项目只使用自己的记忆，不读取全局记忆，也不会向其他项目公开。</small></span><i class="ph ph-check"></i></button>
+          </div>
+        </div>
+        <button id="cancel-project" type="button" hidden>取消</button>
+        <button class="create-project" type="submit">创建项目</button>
+      </footer>
+    </form>
+  </dialog>
+  <dialog class="group-dialog" id="group-dialog" aria-labelledby="group-dialog-title"><div id="group-dialog-root"></div></dialog>
+  <dialog class="place-dialog" id="place-dialog" aria-labelledby="place-dialog-title"><div id="place-dialog-root"></div></dialog>
+  <script src="./project-popover.js" defer></script>
+  <script src="./vendor/emotion-ball/js/rings.js"></script>
+  <script src="./vendor/emotion-ball/js/emotions.js"></script>
+  <script src="./vendor/emotion-ball/js/ball.js"></script>
+  <script src="./vendor/emotion-ball/js/engine.js"></script>
+  <script type="module" src="./src/app/main.tsx"></script>
+</body>
+</html>
